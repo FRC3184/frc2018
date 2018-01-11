@@ -15,6 +15,7 @@ class LinePath(Path):
     def __init__(self, waypoints: List[Vector2]):
         super().__init__()
         self.path = []
+        self.end_goal = waypoints[-1]
         # Build a path of segments
         for k in range(len(waypoints) - 1):
             self.path += [LineSegment(waypoints[k], waypoints[k + 1])]
@@ -34,6 +35,12 @@ class LinePath(Path):
         project_points = []
         goal = None
         error = 0
+
+        # Always pursue the end of the path if it's within range
+        end_err = pose.distance(self.end_goal)
+        if end_err < lookahead_radius:
+            return self.end_goal, error
+
         # Project the robot's pose onto each line to find the closest line to the robot
         # If we can't find a point that intersects the lookahead circle, use the closest point
         for line in self.path:

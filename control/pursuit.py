@@ -69,9 +69,11 @@ class PurePursuitController:
 
     def curvature(self, pose: pose.Pose, speed: float) -> float:
         # Get lookahead point
-        # TODO How to: Not overshoot endpoint?
         lookahead = self.lookahead(speed)
         goal, dist = self.path.calc_goal(pose, lookahead)
 
-        curv = -2 * goal.translated(pose).y / lookahead ** 2
+        try:
+            curv = -2 * goal.translated(pose).y / dist ** 2
+        except ZeroDivisionError:
+            curv = 0
         return curv

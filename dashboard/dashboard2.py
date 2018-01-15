@@ -153,6 +153,7 @@ def send_message(data, event=None):
 class DashboardUpdateCommand(Command):
     def __init__(self):
         super().__init__(name="dashboard2 update")
+        self.setRunWhenDisabled(True)
 
     def initialize(self):
         pass
@@ -161,4 +162,4 @@ class DashboardUpdateCommand(Command):
         update(robot_time.get_match_time())
 
     def isFinished(self):
-        pass
+        return False

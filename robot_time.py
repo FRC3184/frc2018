@@ -17,23 +17,10 @@ def sleep(millis=None, seconds=None):
         time.sleep(seconds)
 
 
-def get_period_remaining_time():
-    return 0
-
-
-# TODO make dashboard time much more rational
 def get_match_time():
-    if wpilib.DriverStation.getInstance().isAutonomous():
-        return _auto_time - get_period_remaining_time()
-    elif wpilib.DriverStation.getInstance().isOperatorControl():
-        return _teleop_time - get_period_remaining_time()
-    elif wpilib.DriverStation.getInstance().isDisabled():
-        return 0
+    return wpilib.DriverStation.getInstance().getMatchTime()
 
 
 def millis():
     return datetime.now().timestamp() * 1000
 
-
-def is_endgame():
-    return wpilib.DriverStation.getInstance().isOperatorControl() and get_period_remaining_time() < _endgame_time

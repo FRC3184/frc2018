@@ -7,16 +7,20 @@ from wpilib import Joystick, XboxController
 _instance = None
 
 
-def init():
-    global _instance
-    if _instance is None:
-        _instance = _OI()
+class OnCondition(object):
+
+    def __init__(self, oi, condition):
+        self.condition = condition
+        self.oi = oi
+
+    def __call__(self, f):
+        self.oi.add_action_listener(self.condition, f)
+        return f
 
 
-def get():
-    if _instance is not None:
-        return _instance
-    raise ValueError("OI not yet initialized")
+class OnClick(OnCondition):
+    def __init__(self, oi, joystick, button):
+        super().__init__(oi, lambda: joystick.getButton(button))
 
 
 class _OI:
@@ -25,8 +29,28 @@ class _OI:
         self.right_joystick = Joystick(1)
         self.gamepad = XboxController(2)
 
+        self._action_listeners = []
+        OnClick(self, self.left_joystick, 1)(self.move_elevator_to_bottom)
+
+    def add_action_listener(self, condition, action):
+        self._action_listeners.append((condition, action))
+
     def get_speed_command(self):
         return self.left_joystick.getY()
 
     def get_turn_command(self):
         return self.right_joystick.getX()
+
+    def move_elevator_to_bottom(self):
+        pass  # This is an example action
+
+
+def get() -> _OI:
+    global _instance
+    if _instance is None:
+        _instance = _OI()
+    return _instance
+
+
+def init():
+    get()

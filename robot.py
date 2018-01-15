@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import wpilib
+from wpilib.command import Scheduler
 
 import OI
 from TimedCommandBasedRobot import TimedCommandBasedRobot
@@ -15,14 +16,14 @@ class MyRobot(TimedCommandBasedRobot):
     def robotInit(self):
         # Start up continuous processes
         OI.init()
-        # In simulation, cd is code dir. On the robot, it's something else so we need to do abs dir
+        # In simulation, cd is code dir. On the robot, it's something else so we need to use abs dir
         if wpilib.hal.isSimulation():
             basedir = ""
         else:
             basedir = "/home/lvuser/py"
         dashboard2.run(basedir)
 
-        self.scheduler.add(DashboardUpdateCommand())
+        DashboardUpdateCommand().start()
 
     def disabledInit(self):
         pass

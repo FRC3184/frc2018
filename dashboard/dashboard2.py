@@ -4,8 +4,7 @@ from threading import Thread
 
 from wpilib.command import Command
 
-from control import pose
-import robot_time
+from control import pose, robot_time
 from dashboard import dashboard_server
 from dashboard.dashboard_server import FileResponse, GeneratorResponse, ServerSentEvent
 

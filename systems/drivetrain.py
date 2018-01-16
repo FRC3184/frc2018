@@ -9,7 +9,7 @@ from wpilib.command import Subsystem
 
 import mathutils
 import control.pose as pose
-import robot_time
+from control import robot_time
 from dashboard import dashboard2
 
 

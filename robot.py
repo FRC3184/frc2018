@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import wpilib
-from wpilib.command import Scheduler
 
-import OI
-from TimedCommandBasedRobot import TimedCommandBasedRobot
+from control import OI
+import systems
+from control.TimedCommandBasedRobot import TimedCommandBasedRobot
 from dashboard import dashboard2
 from dashboard.dashboard2 import DashboardUpdateCommand
+from systems import SmartDrivetrain
 
 
 class MyRobot(TimedCommandBasedRobot):
@@ -24,6 +25,9 @@ class MyRobot(TimedCommandBasedRobot):
         dashboard2.run(basedir)
 
         DashboardUpdateCommand().start()
+
+        # Initialize subsystems
+        systems.drivetrain = SmartDrivetrain()
 
     def disabledInit(self):
         pass

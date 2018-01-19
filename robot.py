@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import wpilib
+from ctre.talonsrx import TalonSRX
 
+from commands.OpDriveCommand import OpDriveCommand
 from control import OI
 import systems
 from control.TimedCommandBasedRobot import TimedCommandBasedRobot
@@ -27,7 +29,9 @@ class MyRobot(TimedCommandBasedRobot):
         DashboardUpdateCommand().start()
 
         # Initialize subsystems
-        systems.drivetrain = SmartDrivetrain()
+        systems.drivetrain = SmartDrivetrain(TalonSRX(0), TalonSRX(1))
+
+        self.driveCommand = OpDriveCommand(self)
 
     def disabledInit(self):
         pass
@@ -36,7 +40,7 @@ class MyRobot(TimedCommandBasedRobot):
         pass
 
     def teleopInit(self):
-        pass
+        self.driveCommand.start()
 
 
 if __name__ == '__main__':

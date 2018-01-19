@@ -1,7 +1,7 @@
 import threading
 import warnings
 
-import ctre
+import ctre.talonsrx
 import wpilib
 import math
 from robotpy_ext.common_drivers.navx.ahrs import AHRS
@@ -15,13 +15,13 @@ from dashboard import dashboard2
 
 class SmartDrivetrain(Subsystem, wpilib.MotorSafety):
     class Mode:
-        PercentVbus = ctre.CANTalon.ControlMode.PercentVbus
-        Voltage = ctre.CANTalon.ControlMode.Voltage
-        Speed = ctre.CANTalon.ControlMode.Speed
-        MotionMagic = ctre.CANTalon.ControlMode.MotionMagic
-        MotionProfile = ctre.CANTalon.ControlMode.MotionProfile
+        PercentVbus = ctre.ControlMode.PercentOutput
+        Voltage = ctre.ControlMode.PercentOutput
+        Speed = ctre.ControlMode.Velocity
+        MotionMagic = ctre.ControlMode.MotionMagic
+        MotionProfile = ctre.ControlMode.MotionProfile
 
-    def __init__(self, left_motor: ctre.CANTalon, right_motor: ctre.CANTalon, **kwargs):
+    def __init__(self, left_motor: ctre.talonsrx.TalonSRX, right_motor: ctre.talonsrx.TalonSRX, **kwargs):
         '''
         Represents a drivetrain that uses CANTalons and so manages those advanced features
         :param left_motor: 
@@ -83,15 +83,13 @@ class SmartDrivetrain(Subsystem, wpilib.MotorSafety):
             else:
                 print("Can't update model outside of PercentVBus")
                 continue
-            self._model_left_dist += self._left_motor.get() * self.max_speed * dt * factor
-            self._model_right_dist += self._right_motor.get() * self.max_speed * dt * factor
+            self._model_left_dist += self._left_motor.getMotorOutputPercent() * self.max_speed * dt * factor
+            self._model_right_dist += self._right_motor.getMotorOutputPercent() * self.max_speed * dt * factor
             robot_time.sleep(millis=20)
 
     def set_mode(self, mode):
         if self._mode != mode:
             self._mode = mode
-            self._left_motor.setControlMode(self._mode)
-            self._right_motor.setControlMode(self._mode)
             if self._mode == SmartDrivetrain.Mode.PercentVbus:
                 self._max_output = 1
                 self.setSafetyEnabled(True)
@@ -162,8 +160,8 @@ class SmartDrivetrain(Subsystem, wpilib.MotorSafety):
 
         # Don't set encoder position to 0, because that would mess up pose estimation
         # Instead, set to current position, plus however far we want to go
-        left_current_pos = self._left_motor.getPosition()
-        right_current_pos = self._right_motor.getPosition()
+        left_current_pos = self._left_motor.getQuadraturePosition()
+        right_current_pos = self._right_motor.getQuadraturePosition()
 
 
         # Set the talon parameters
@@ -260,8 +258,8 @@ class SmartDrivetrain(Subsystem, wpilib.MotorSafety):
         if self._mode == SmartDrivetrain.Mode.Speed:
             left = self.fps_to_rpm(left * self.max_speed)
             right = self.fps_to_rpm(right * self.max_speed)
-        self._left_motor.set(left)
-        self._right_motor.set(right)
+        self._left_motor.set(self._mode, left)
+        self._right_motor.set(self._mode, right)
         self.feed()
 
     def has_finished_motion_magic(self, margin=1/12):
@@ -276,6 +274,6 @@ class SmartDrivetrain(Subsystem, wpilib.MotorSafety):
         return "SmartDrivetrain"
 
     def stopMotor(self):
-        self._left_motor.stopMotor()
-        self._right_motor.stopMotor()
+        self._left_motor.set(ctre.ControlMode.Disabled, 0)
+        self._right_motor.set(ctre.ControlMode.Disabled, 0)
         self.feed()

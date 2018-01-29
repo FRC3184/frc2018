@@ -154,8 +154,11 @@ class SmartDrivetrain(Subsystem, wpilib.MotorSafety):
 
         # Change units to what the talons are expecting
         vel_rpm = self.fps_to_rpm(speed)
+        vel_native = SmartDrivetrain.rpm_to_native_speed(vel_rpm)
         acc_rpm = self.fps_to_rpm(acc)  # Works because required unit is rpm/sec for no real good reason.
+        acc_native = SmartDrivetrain.rpm_to_native_speed(acc_rpm)
         dist_revs = self.feet_to_revs(distance)
+        dist_native = SmartDrivetrain.revs_to_native_distance(dist_revs)
         print(dist_revs)
 
         # Don't set encoder position to 0, because that would mess up pose estimation
@@ -167,19 +170,21 @@ class SmartDrivetrain(Subsystem, wpilib.MotorSafety):
         # Set the talon parameters
         # If turn > 0, left is outside
         if turn_dir > 0:
-            self._left_motor.setMotionMagicCruiseVelocity(vel_rpm)
-            self._right_motor.setMotionMagicCruiseVelocity(vel_rpm * ratio)
-            self._left_motor.setMotionMagicAcceleration(acc_rpm)
-            self._right_motor.setMotionMagicAcceleration(acc_rpm * ratio)
-            self._left_motor.set(left_current_pos + dist_revs)
-            self._right_motor.set(right_current_pos + dist_revs * ratio)
+            left_ratio = 1
+            right_ratio = ratio
         else:
-            self._left_motor.setMotionMagicCruiseVelocity(vel_rpm * ratio)
-            self._right_motor.setMotionMagicCruiseVelocity(vel_rpm)
-            self._left_motor.setMotionMagicAcceleration(acc_rpm * ratio)
-            self._right_motor.setMotionMagicAcceleration(acc_rpm)
-            self._left_motor.set(left_current_pos + dist_revs * ratio)
-            self._right_motor.set(right_current_pos + dist_revs)
+            left_ratio = ratio
+            right_ratio = 1
+        timeout_ms = 0
+
+        self._left_motor.configMotionCruiseVelocity(vel_native * left_ratio, timeout_ms)
+        self._right_motor.configMotionCruiseVelocity(vel_native * right_ratio, timeout_ms)
+        self._left_motor.configMotionAcceleration(acc_native * left_ratio, timeout_ms)
+        self._right_motor.configMotionAcceleration(acc_native * right_ratio, timeout_ms)
+        self._left_motor.set(SmartDrivetrain.Mode.MotionMagic,
+                             left_current_pos + dist_native * left_ratio)
+        self._right_motor.set(SmartDrivetrain.Mode.MotionMagic,
+                              right_current_pos + dist_native * right_ratio)
 
     def tank_drive(self, left: float, right: float, deadband=0.05):
         if self.is_manual_control_mode():
@@ -225,13 +230,13 @@ class SmartDrivetrain(Subsystem, wpilib.MotorSafety):
         if wpilib.hal.isSimulation():
             return self._model_left_dist
         else:
-            return self._left_motor.getPosition() * (math.pi * self.wheel_diameter / 12)
+            return self.native_distance_to_feet(self._left_motor.getQuadraturePosition())
 
     def get_right_distance(self):
         if wpilib.hal.isSimulation():
             return self._model_right_dist
         else:
-            return self._right_motor.getPosition() * (math.pi * self.wheel_diameter / 12)
+            return self.native_distance_to_feet(self._right_motor.getQuadraturePosition())
 
     def default(self):
         self._set_motor_outputs(0, 0)
@@ -251,9 +256,28 @@ class SmartDrivetrain(Subsystem, wpilib.MotorSafety):
         except ZeroDivisionError:
             return 0
 
-    def rpm_to_native_speed(self, rpm: float):
-        return rpm * 4096 / 600
-    
+    @staticmethod
+    def rpm_to_native_speed(rpm: float) -> int:
+        return int(rpm * 4096 / 600)
+
+    @staticmethod
+    def revs_to_native_distance(revs: float) -> int:
+        return int(revs * 4096)
+
+    @staticmethod
+    def native_distance_to_revs(native_distance: int) -> float:
+        return native_distance / 4096
+
+    @staticmethod
+    def native_speed_to_rpm(native_speed: int):
+        return 600 * native_speed / 4096
+
+    def native_distance_to_feet(self, native_distance: int) -> float:
+        return self.revs_to_feet(SmartDrivetrain.native_distance_to_revs(native_distance))
+
+    def feet_to_native_distance(self, feet: float) -> int:
+        return int(SmartDrivetrain.revs_to_native_distance(self.feet_to_revs(feet)))
+
     def _set_motor_outputs(self, left: float, right: float):
         if self._mode == SmartDrivetrain.Mode.Speed:
             left = self.fps_to_rpm(left * self.max_speed)
@@ -263,8 +287,8 @@ class SmartDrivetrain(Subsystem, wpilib.MotorSafety):
         self.feed()
 
     def has_finished_motion_magic(self, margin=1/12):
-        left_err = self.revs_to_feet(self._left_motor.getPosition() - self._left_motor.getSetpoint())
-        right_err = self.revs_to_feet(self._right_motor.getPosition() - self._right_motor.getSetpoint())
+        left_err = self.native_distance_to_feet(self._left_motor.getClosedLoopError(0))
+        right_err = self.native_distance_to_feet(self._right_motor.getClosedLoopError(0))
         return abs(left_err + right_err) / 2 < margin
 
     def is_manual_control_mode(self):

@@ -9,12 +9,15 @@ import systems
 from control.TimedCommandBasedRobot import TimedCommandBasedRobot
 from dashboard import dashboard2
 from dashboard.dashboard2 import DashboardUpdateCommand
-from systems import SmartDrivetrain
+from systems import *
+from systems.drivetrain import Drivetrain
 
 
 class MyRobot(TimedCommandBasedRobot):
     def __init__(self):
         super().__init__()
+        # Initialize subsystems
+        systems.drivetrain = Drivetrain()
 
     def robotInit(self):
         # Start up continuous processes
@@ -28,8 +31,7 @@ class MyRobot(TimedCommandBasedRobot):
 
         DashboardUpdateCommand().start()
 
-        # Initialize subsystems
-        systems.drivetrain = SmartDrivetrain(TalonSRX(0), TalonSRX(1))
+
 
         self.driveCommand = OpDriveCommand(self)
 

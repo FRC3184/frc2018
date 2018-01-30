@@ -90,6 +90,5 @@ def _update_estimator(pose_estimator: PoseEstimator, sleep_sec=(10/1000)):
         pose_estimator.update(dt=sleep_sec)
         ct += sleep_sec
         if ct > 1:
-            print(get_current_pose())
             ct = 0
         robot_time.sleep(seconds=sleep_sec)

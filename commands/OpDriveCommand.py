@@ -34,7 +34,7 @@ class OpDriveCommand (Command):
         else:
             turn = 0
 
-        drive.arcade_drive(speed, turn)
+        drive.arcade_drive(speed, -turn)
 
     def finish(self):
         pass

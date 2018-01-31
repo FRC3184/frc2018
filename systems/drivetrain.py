@@ -17,7 +17,7 @@ class Drivetrain(Subsystem):
         self.talon_right_rear = TalonSRX(2)
         self.talon_right_front = TalonSRX(3)
 
-        self.setup_talons(self.talon_right_rear, self.talon_right_front)
+        self.setup_talons(self.talon_right_rear, self.talon_right_front, invert=True)
 
         self.robotdrive = SmartRobotDrive(self.talon_left_rear, self.talon_right_rear)
 

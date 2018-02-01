@@ -21,5 +21,7 @@ def plot_mp(mp):
 
 
 if __name__ == '__main__':
-    profile = MotionProfile(10, -10, 3, 1.5)
-    plot_mp(profile)
+    rev_profile = MotionProfile(10, -10, 3, 1.5)
+    for_profile = MotionProfile(-10, 10, 3, 1.5)
+    plot_mp(for_profile)
+    plot_mp(rev_profile)

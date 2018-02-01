@@ -25,6 +25,14 @@ class MotionProfile:
     Represents a trapezoidal motion profile
     """
     def __init__(self, start, end, cruise_speed, acc, frequency=100):
+        """
+        Generate a trapezoidal motion profile, starting at `start` and ending at `end`
+        :param start:
+        :param end:
+        :param cruise_speed: Magnitude of cruise velocity
+        :param acc: Magnitude of acceleration
+        :param frequency: Number of points to generate per second
+        """
         # https://www.desmos.com/calculator/ponjr7cwze
 
         # If we're going in reverse we need to flip the sign of speed and acc
@@ -32,6 +40,10 @@ class MotionProfile:
         dist = end - start
         cruise_speed = copysign(cruise_speed, dist)
         acc = copysign(acc, dist)
+
+        self.start = start
+        self.end = end
+        self.displacement = dist
 
         ramp_time = cruise_speed / acc
         ramp_dist = acc * ramp_time ** 2 / 2

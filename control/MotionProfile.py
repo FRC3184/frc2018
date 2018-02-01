@@ -1,24 +1,27 @@
-from typing import List, Sequence
+from typing import List, Sequence, Iterator
 
 import time
 from ctre import ControlMode
 from ctre.talonsrx import TalonSRX
 
+from ctre import TrajectoryPoint as TalonPoint
+
 from control import robot_time
 
 
 class TrajectoryPoint:
-    def __init__(self, position, velocity):
+    def __init__(self, position, velocity, acc, time):
         self.position = position
         self.velocity = velocity
-        self.time = 0  # TODO
+        self.acc = acc
+        self.time = time
 
 
 class MotionProfile:
     """
     Represents a trapezoidal motion profile
     """
-    def __init__(self, start, end, acc, cruise_speed, feedforward, frequency=100):
+    def __init__(self, start, end, cruise_speed, acc, frequency=100):
         # https://www.desmos.com/calculator/ponjr7cwze
 
         dist = end - start  # TODO Check signs
@@ -39,12 +42,12 @@ class MotionProfile:
 
         def get_pos(t):
             if t <= ramp_time:
-                return acc * t ** 2 / 2
+                return start + acc * t ** 2 / 2
             elif t <= ramp_time + cruise_time:
-                return ramp_dist + (t - ramp_time) * get_vel(ramp_time)
+                return start + ramp_dist + (t - ramp_time) * get_vel(ramp_time)
             else:
                 tp = (t - ramp_time - cruise_time)
-                return ramp_dist + cruise_dist + get_vel(ramp_time + cruise_time) * tp - acc * tp ** 2 / 2
+                return start + ramp_dist + cruise_dist + get_vel(ramp_time + cruise_time) * tp - acc * tp ** 2 / 2
 
         def get_vel(t):
             if t <= ramp_time:
@@ -63,11 +66,16 @@ class MotionProfile:
             else:
                 return -acc
 
-        self.points = []
+        self._points = []
         for i in range(int(time * frequency) + 1):
             t = i / frequency
-            self.points.append(TrajectoryPoint(position=get_pos(t),
-                                               velocity=get_vel(t)))
+            self._points.append(TrajectoryPoint(position=get_pos(t),
+                                                velocity=get_vel(t),
+                                                acc=get_acc(t),
+                                                time=t))
+
+    def __iter__(self) -> Iterator[TrajectoryPoint]:
+        return self._points.__iter__()
 
 
 class MotionProfileThread:
@@ -81,6 +89,9 @@ class MotionProfileThread:
     def start(self):
         self.time_begin = time.time().now()
 
+    def calc_feedforward(self, current_point):
+        return current_point.velocity
+
     def run(self):
         self.current_point = TrajectoryPoint(0,0)
         time_point = self.current_point.time
@@ -90,9 +101,7 @@ class MotionProfileThread:
 
         if time.time().now() - self.time_begin > time_point:
             self.current_point = self.points.pop()
-            vel = self.current_point.velocity
-            constant = 0
-            self.target.config_kF(self.slotIdx, vel + constant, self.timeoutMs)
+            self.target.config_kF(self.slotIdx, self.calc_feedforward(self.current_point), self.timeoutMs)
             self.target.set(ControlMode.Position, self.current_point.position)
 
         robot_time.sleep(millis=5)

@@ -2,8 +2,7 @@ from control.MotionProfile import MotionProfile
 import matplotlib.pylab as plot
 
 
-if __name__ == '__main__':
-    mp = MotionProfile(0, 10, 3, 1.5)
+def plot_mp(mp):
     times = []
     posz = []
     velz = []
@@ -19,3 +18,8 @@ if __name__ == '__main__':
     plot.plot(times, accs)
 
     plot.show()
+
+
+if __name__ == '__main__':
+    profile = MotionProfile(10, -10, 3, 1.5)
+    plot_mp(profile)

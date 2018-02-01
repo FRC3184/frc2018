@@ -1,3 +1,4 @@
+from math import copysign
 from typing import List, Sequence, Iterator
 
 import time
@@ -6,7 +7,9 @@ from ctre.talonsrx import TalonSRX
 
 from ctre import TrajectoryPoint as TalonPoint
 
+import mathutils
 from control import robot_time
+from mathutils import sgn
 
 
 class TrajectoryPoint:
@@ -24,14 +27,18 @@ class MotionProfile:
     def __init__(self, start, end, cruise_speed, acc, frequency=100):
         # https://www.desmos.com/calculator/ponjr7cwze
 
-        dist = end - start  # TODO Check signs
+        # If we're going in reverse we need to flip the sign of speed and acc
+        # Although in theory these are vectors, it makes the API easier if they're given as magnitude
+        dist = end - start
+        cruise_speed = copysign(cruise_speed, dist)
+        acc = copysign(acc, dist)
 
         ramp_time = cruise_speed / acc
         ramp_dist = acc * ramp_time ** 2 / 2
         cruise_dist = dist - 2 * ramp_dist
         cruise_time = cruise_dist / cruise_speed
 
-        if cruise_dist < 0:
+        if sgn(cruise_dist) != sgn(dist):
             # All ramp, no cruise. Fix parameters to match
             cruise_time = 0
             cruise_dist = 0

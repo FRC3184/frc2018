@@ -1,16 +1,17 @@
 import math
 from typing import List, Tuple
 
-from ctre import TrajectoryPoint as TalonPoint
+from ctre import TrajectoryPoint as TalonPoint, FeedbackDevice
 from ctre.talonsrx import TalonSRX
-from wpilib import DriverStation
+from wpilib import DriverStation, DigitalInput
 from wpilib.command import Subsystem
 
-from control.MotionProfile import MotionProfileThread, MotionProfile
+from control.MotionProfile import MotionProfile
 
 TOP_EXTENT = 70
 CARRIAGE_TRAVEL = 40
 
+# Two different PID indices for gain scheduling
 MAIN_IDX = 0
 EXTENT_IDX = 1
 
@@ -19,8 +20,8 @@ ACC = 1.5*CRUISE_SPEED
 
 GEAR_RATIO = 9
 SPOOL_RADIUS = 0.5
-CARRIAGE_WEIGHT = 20
-EXTENT_WEIGHT = 10
+CARRIAGE_WEIGHT = 15
+EXTENT_WEIGHT = 8
 
 
 class Elevator(Subsystem):
@@ -32,9 +33,29 @@ class Elevator(Subsystem):
 
         self.talon_slave.follow(self.talon_master)
 
+        # 1023 units per 12V
+        # This lets us pass in feedforward as voltage
         self.talon_master.config_kF(MAIN_IDX, 1023/12, timeoutMs=0)
         self.talon_master.config_kF(EXTENT_IDX, 1023/12, timeoutMs=0)
-        # so, to do custom feedforward in MP mode, you have to set the feedforward gain to 1023/12, and then pass in your desired feedforward voltage as TrajectoryPoint.velocity
+
+        self.talon_master.changeMotionControlFramePeriod(10)
+        self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, MAIN_IDX, timeoutMs=0)
+        self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, EXTENT_IDX, timeoutMs=0)
+
+        self.top_limit = DigitalInput(0)
+        self.bottom_limit = DigitalInput(1)
+
+        self.top_limit.enableInterrupts()
+        self.bottom_limit.enableInterrupts()
+
+        self.top_limit.requestInterrupts(handler=self.hit_top_limit)
+        self.bottom_limit.requestInterrupts(handler=self.hit_bottom_limit)
+
+    def hit_top_limit(self):
+        self.talon_master.setQuadraturePosition(self.in_to_native_units(70), timeoutMs=0)
+
+    def hit_bottom_limit(self):
+        self.talon_master.setQuadraturePosition(self.in_to_native_units(0), timeoutMs=0)
 
     def get_mass(self, pos):
         """
@@ -100,7 +121,7 @@ class Elevator(Subsystem):
 
         :return: The elevator's position as measured by the encoder, in inches. 0 is bottom, 70 is top
         """
-        raise NotImplementedError
+        return self.native_to_inches(self.talon_master.getQuadraturePosition())
 
     def get_stall_torque(self):
         """

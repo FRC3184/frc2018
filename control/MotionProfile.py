@@ -95,32 +95,3 @@ class MotionProfile:
 
     def __iter__(self) -> Iterator[TrajectoryPoint]:
         return self._points.__iter__()
-
-
-class MotionProfileThread:
-    def __init__(self, target: TalonSRX, points: List[TrajectoryPoint]):
-        self.timeoutMs = 0
-        self.target = target
-        self.points = points
-        self.margin = 0
-        self.slotIdx = 0
-
-    def start(self):
-        self.time_begin = time.time().now()
-
-    def calc_feedforward(self, current_point):
-        return current_point.velocity
-
-    def run(self):
-        self.current_point = TrajectoryPoint(0,0)
-        time_point = self.current_point.time
-
-        if self.target.getClosedLoopError(0) < self.margin:
-            self.time_begin = time.time().now()
-
-        if time.time().now() - self.time_begin > time_point:
-            self.current_point = self.points.pop()
-            self.target.config_kF(self.slotIdx, self.calc_feedforward(self.current_point), self.timeoutMs)
-            self.target.set(ControlMode.Position, self.current_point.position)
-
-        robot_time.sleep(millis=5)

@@ -47,6 +47,14 @@ class _OI:
     def get_elevator_manual_command(self):
         return self.gamepad.getRawAxis(0)
 
+    def intake_is_active(self):
+        return self.gamepad.getYButton()
+
+    def outtake_is_active(self):
+        return self.gamepad.getBButton()
+
+    def intake_is_open(self):
+        return self.gamepad.getXButton()
 
 def get() -> _OI:
     global _instance

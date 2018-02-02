@@ -95,3 +95,6 @@ class MotionProfile:
 
     def __iter__(self) -> Iterator[TrajectoryPoint]:
         return self._points.__iter__()
+
+    def __getitem__(self, item):
+        return self._points.__getitem__(item)

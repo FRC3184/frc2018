@@ -23,6 +23,8 @@ SPOOL_RADIUS = 0.5
 CARRIAGE_WEIGHT = 15
 EXTENT_WEIGHT = 8
 
+FREQUENCY = 100
+
 
 class Elevator(Subsystem):
     def __init__(self):
@@ -38,7 +40,7 @@ class Elevator(Subsystem):
         self.talon_master.config_kF(MAIN_IDX, 1023/12, timeoutMs=0)
         self.talon_master.config_kF(EXTENT_IDX, 1023/12, timeoutMs=0)
 
-        self.talon_master.changeMotionControlFramePeriod(10)
+        self.talon_master.changeMotionControlFramePeriod(1000//FREQUENCY)
         self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, MAIN_IDX, timeoutMs=0)
         self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, EXTENT_IDX, timeoutMs=0)
 
@@ -100,21 +102,20 @@ class Elevator(Subsystem):
 
     def gen_profile(self, start, end) -> Tuple[List[TalonPoint], int]:
         talon_points = []
-        freq = 100
-        rawmp = MotionProfile(start=start, end=end, cruise_speed=CRUISE_SPEED, acc=ACC, frequency=freq)
+        rawmp = MotionProfile(start=start, end=end, cruise_speed=CRUISE_SPEED, acc=ACC, frequency=FREQUENCY)
         for point in rawmp:
+            last = point == rawmp[-1]
             talonpt = TalonPoint(position=self.in_to_native_units(point.position),
                                  velocity=self.calc_ff(point.position, point.velocity, point.acc),
                                  headingDeg=0,
                                  profileSlotSelect0=self.get_pid_index(point.position),
                                  profileSlotSelect1=0,
-                                 isLastPoint=False,
+                                 isLastPoint=last,
                                  zeroPos=False,
                                  timeDur=0)
             talon_points.append(talonpt)
-        # talon_points[-1].isLastPoint = True TODO can't set attribute
 
-        return talon_points, freq
+        return talon_points, FREQUENCY
 
     def get_elevator_position(self):
         """

@@ -44,6 +44,17 @@ class _OI:
     def move_elevator_to_bottom(self):
         pass  # This is an example action
 
+    def get_elevator_manual_command(self):
+        return self.gamepad.getRawAxis(0)
+
+    def intake_is_active(self):
+        return self.gamepad.getYButton()
+
+    def outtake_is_active(self):
+        return self.gamepad.getBButton()
+
+    def intake_is_open(self):
+        return self.gamepad.getXButton()
 
 def get() -> _OI:
     global _instance

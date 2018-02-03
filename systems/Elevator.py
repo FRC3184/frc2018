@@ -168,4 +168,4 @@ class Elevator(Subsystem):
 
     def native_to_inches(self, native_distance):
         return (native_distance / 4096) * (2*math.pi*SPOOL_RADIUS)
-
+        self.talon_slave.follow(self.talon_master)

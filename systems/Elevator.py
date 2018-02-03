@@ -1,12 +1,14 @@
 import math
 from typing import List, Tuple
 
-from ctre import TrajectoryPoint as TalonPoint, FeedbackDevice
+from ctre import TrajectoryPoint as TalonPoint, FeedbackDevice, ControlMode
+from ctre._impl.autogen.ctre_sim_enums import SetValueMotionProfile
 from ctre.talonsrx import TalonSRX
-from wpilib import DriverStation, DigitalInput
+from wpilib import DriverStation, DigitalInput, threading
 from wpilib.command import Subsystem
 
-from control.MotionProfile import MotionProfile
+from control import robot_time
+from control.MotionProfile import MotionProfile, SRXMotionProfileManager
 
 TOP_EXTENT = 70
 CARRIAGE_TRAVEL = 40
@@ -26,38 +28,60 @@ EXTENT_WEIGHT = 8
 FREQUENCY = 100
 
 
+class ElevatorState:
+    HOLDING = 0
+    MOVING = 1
+    MANUAL = 2
+
+
 class Elevator(Subsystem):
-    def __init__(self):
+    def __init__(self, mock=False):
         super().__init__("Elevator")
 
         self.talon_master = TalonSRX(4)
         self.talon_slave = TalonSRX(5)
 
-        self.talon_slave.follow(self.talon_master)
-
-        # 1023 units per 12V
-        # This lets us pass in feedforward as voltage
-        self.talon_master.config_kF(MAIN_IDX, 1023/12, timeoutMs=0)
-        self.talon_master.config_kF(EXTENT_IDX, 1023/12, timeoutMs=0)
-
-        self.talon_master.changeMotionControlFramePeriod(1000//FREQUENCY)
-        self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, MAIN_IDX, timeoutMs=0)
-        self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, EXTENT_IDX, timeoutMs=0)
-
         self.top_limit = DigitalInput(0)
         self.bottom_limit = DigitalInput(1)
 
-        self.top_limit.enableInterrupts()
-        self.bottom_limit.enableInterrupts()
+        self._state = ElevatorState.HOLDING
 
-        self.top_limit.requestInterrupts(handler=self.hit_top_limit)
-        self.bottom_limit.requestInterrupts(handler=self.hit_bottom_limit)
+        if not mock:
+            self.mp_manager = SRXMotionProfileManager(self.talon_master, 1000 // FREQUENCY)
+
+            self.talon_slave.follow(self.talon_master)
+            # 1023 units per 12V
+            # This lets us pass in feedforward as voltage
+            self.talon_master.config_kF(MAIN_IDX, 1023/12, timeoutMs=0)
+            self.talon_master.config_kF(EXTENT_IDX, 1023/12, timeoutMs=0)
+
+            self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, MAIN_IDX, timeoutMs=0)
+            self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, EXTENT_IDX, timeoutMs=0)
+
+            self.top_limit.requestInterrupts(handler=self.hit_top_limit)
+            self.bottom_limit.requestInterrupts(handler=self.hit_bottom_limit)
+
+            self.top_limit.enableInterrupts()
+            self.bottom_limit.enableInterrupts()
 
     def hit_top_limit(self):
         self.talon_master.setQuadraturePosition(self.in_to_native_units(70), timeoutMs=0)
 
     def hit_bottom_limit(self):
         self.talon_master.setQuadraturePosition(self.in_to_native_units(0), timeoutMs=0)
+
+    def init_profile(self, new_pos):
+        profile, _ = self.gen_profile(self.get_elevator_position(), new_pos)
+        self.mp_manager.init_profile(profile)
+
+    def start_profile(self):
+        return self.mp_manager.start_profile()
+
+    def has_finished_profile(self):
+        return self.mp_manager.is_done()
+
+    def set_power(self, power):
+        self.talon_master.set(ControlMode.PercentOutput, power)
 
     def get_mass(self, pos):
         """

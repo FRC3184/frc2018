@@ -1,8 +1,10 @@
+import threading
 from math import copysign
 from typing import List, Sequence, Iterator
 
 import time
 from ctre import ControlMode
+from ctre._impl.autogen.ctre_sim_enums import SetValueMotionProfile
 from ctre.talonsrx import TalonSRX
 
 from ctre import TrajectoryPoint as TalonPoint
@@ -98,3 +100,44 @@ class MotionProfile:
 
     def __getitem__(self, item):
         return self._points.__getitem__(item)
+
+
+class SRXMotionProfileManager:
+    def __init__(self, talon: TalonSRX, frame_period: int, min_points=20):
+        self.talon = talon
+
+        self.talon.changeMotionControlFramePeriod(frame_period)
+        self.min_points = min_points
+        self.frame_period = frame_period
+
+        self._process_mp_thread = threading.Thread(target=self._process_mp)
+
+    def _process_mp(self):
+        while True:
+            status = self.get_status()
+            if status.topBufferCnt > 0:
+                self.talon.processMotionProfileBuffer()
+            robot_time.sleep(millis=self.frame_period//2)
+
+    def init_profile(self, points: List[TrajectoryPoint], process=True):
+        self.talon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value)
+        self.talon.clearMotionProfileTrajectories()
+
+        for pt in points:
+            self.talon.pushMotionProfileTrajectory(trajPt=pt)
+
+        self._process_mp_thread.start()
+
+    def start_profile(self):
+        if self.get_status().btmBufferCnt >= self.min_points:
+            self.talon.set(ControlMode.MotionProfile, SetValueMotionProfile.Enable.value)
+            return True
+        return False
+
+    def is_done(self):
+        return self.get_status().isLast
+
+    def get_status(self):
+        _, status = self.talon.getMotionProfileStatus()
+        return status
+

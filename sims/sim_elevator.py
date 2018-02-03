@@ -1,14 +1,17 @@
 from systems.Elevator import Elevator
 import matplotlib.pylab as plot
+import time
 
 if __name__ == '__main__':
-    elev = Elevator()
+    elev = Elevator(mock=True)
 
     print("Elevator hold torque w/ carriage: {} lb-in".format(elev.get_hold_torque(20)))
     print("Elevator hold torque w/ carriage + extent: {} lb-in".format(elev.get_hold_torque(50)))
     print("Elevator stall torque: {} lb-in".format(elev.get_stall_torque()))
 
-    talon_points, freq = elev.gen_profile(0, 70)
+    t_begin = time.time()
+    talon_points, freq = elev.gen_profile(70, 0)
+    print(f"Elapsed time: {time.time() - t_begin} s")
 
     times = []
     voltages = []

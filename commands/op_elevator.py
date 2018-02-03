@@ -4,24 +4,24 @@ from wpilib.command import Command
 
 import systems
 from control import OI
-from systems.Elevator import Elevator
+from systems.elevator import Elevator
 
 
-class OpElevatorCommand(Command):
-    def __init__ (self, robot):
+class OpElevatorManualCommand(Command):
+    def __init__ (self, elevator: Elevator):
         super().__init__ ()
-        self.requires(systems.elevator)
-        self.robot = robot
+        self.requires(elevator)
+        self.elevator = elevator
 
     def initialize(self):
         pass
 
     def execute(self):
         oi = OI.get()
-        elevator = typing.cast(systems.elevator, Elevator)
+        elevator = self.elevator
 
         power = oi.get_elevator_manual_command()
-        elevator.manual_set(power)
+        elevator.set_power(power)
 
     def finish(self):
         pass

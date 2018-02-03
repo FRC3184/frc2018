@@ -1,4 +1,2 @@
-drivetrain = None
-elevator = None
 
-__all__ = ['drivetrain', 'Elevator']
+__all__ = ['drivetrain', 'elevator', 'intake']

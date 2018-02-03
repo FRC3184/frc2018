@@ -2,27 +2,28 @@ from wpilib.command import Command
 
 import systems
 from control import OI
+from systems.drivetrain import Drivetrain
 
 
-class OpDriveCommand (Command):
-    def __init__ (self, robot):
+class OpDriveCommand(Command):
+    def __init__ (self, drivetrain: Drivetrain):
         super().__init__ ()
-        self.requires(systems.drivetrain)
-        self.robot = robot
+        self.requires(drivetrain)
+        self.drivetrain = drivetrain
 
     def initialize(self):
         pass
 
     def execute(self):
         oi = OI.get()
-        drive = systems.drivetrain
+        drive = self.drivetrain
 
         speed = oi.get_speed_command()
         turn = oi.get_turn_command()
 
         if speed > 0:
             speed = speed **2
-        elif (speed < 0):
+        elif speed < 0:
             speed = -(speed **2)
         else:
             speed = 0

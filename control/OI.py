@@ -2,7 +2,11 @@
 # There should be functions such as get_turn_command and do_lift
 # This is a singleton class, init() is called once at the beginning
 # From then on, .get() is called to get the instance and methods are called on the instance
+from typing import Callable
+
+import typing
 from wpilib import Joystick, XboxController
+from wpilib.command import Command
 
 _instance = None
 
@@ -13,9 +17,9 @@ class OnCondition(object):
         self.condition = condition
         self.oi = oi
 
-    def __call__(self, f):
-        self.oi.add_action_listener(self.condition, f)
-        return f
+    def __call__(self, action):
+        self.oi.add_action_listener(self.condition, action)
+        return action
 
 
 class OnClick(OnCondition):
@@ -30,7 +34,7 @@ class _OI:
         self.gamepad = XboxController(2)
 
         self._action_listeners = []
-        OnClick(self, self.left_joystick, 1)(self.move_elevator_to_bottom)
+        self._while_listeners = []
 
     def add_action_listener(self, condition, action):
         self._action_listeners.append((condition, action))
@@ -41,11 +45,8 @@ class _OI:
     def get_turn_command(self):
         return self.right_joystick.getX()
 
-    def move_elevator_to_bottom(self):
-        pass  # This is an example action
-
     def get_elevator_manual_command(self):
-        return self.gamepad.getRawAxis(0)
+        return self.gamepad.getY(XboxController.Hand.kLeft)
 
     def intake_is_active(self):
         return self.gamepad.getYButton()
@@ -56,6 +57,31 @@ class _OI:
     def intake_is_open(self):
         return self.gamepad.getXButton()
 
+    def elevator_is_manual_control(self):
+        return self.gamepad.getTriggerAxis(XboxController.Hand.kLeft) > 0.5
+
+    def elevator_move_to_top(self):
+        return self.gamepad.getBumper(XboxController.Hand.kRight)
+
+    def elevator_move_to_bottom(self):
+        return self.gamepad.getBumper(XboxController.Hand.kLeft)
+
+    def exec_while_condition(self, condition: Callable, cmd: Command):
+        self._while_listeners.append((condition, cmd))
+
+    def update(self):
+        for condition, action in self._action_listeners:
+            if condition():
+                action()
+        for condition, command in self._while_listeners:
+            command = typing.cast(Command, command)
+            cond_result = condition()
+            if command.isRunning() and not cond_result:
+                command.cancel()
+            elif not command.isRunning() and cond_result:
+                command.start()
+
+
 def get() -> _OI:
     global _instance
     if _instance is None:
@@ -65,3 +91,14 @@ def get() -> _OI:
 
 def init():
     get()
+
+
+class OIUpdateCommand(Command):
+    def __init__(self):
+        super().__init__()
+
+    def initialize(self):
+        init()
+
+    def execute(self):
+        get().update()

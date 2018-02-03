@@ -1,13 +1,14 @@
 from wpilib.command import Command
 
 import systems
+from systems.elevator import Elevator
 
 
 class MoveElevatorCommand(Command):
-    def __init__(self, target_pos):
+    def __init__(self, elevator: Elevator, target_pos):
         super().__init__()
 
-        self.elevator = systems.elevator
+        self.elevator = elevator
         self.requires(self.elevator)
         self.target_pos = target_pos
 

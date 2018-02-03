@@ -1,4 +1,4 @@
-from systems.Elevator import Elevator
+from systems.elevator import Elevator
 import matplotlib.pylab as plot
 import time
 

@@ -1,6 +1,7 @@
 import math
 from typing import List, Tuple
 
+import ctre
 from ctre import TrajectoryPoint as TalonPoint, FeedbackDevice, ControlMode
 from ctre._impl.autogen.ctre_sim_enums import SetValueMotionProfile
 from ctre.talonsrx import TalonSRX
@@ -9,6 +10,7 @@ from wpilib.command import Subsystem
 
 from control import robot_time
 from control.MotionProfile import MotionProfile, SRXMotionProfileManager
+from dashboard import dashboard2
 
 TOP_EXTENT = 70
 CARRIAGE_TRAVEL = 40
@@ -46,29 +48,31 @@ class Elevator(Subsystem):
 
         self._state = ElevatorState.HOLDING
 
+        dashboard2.graph("Elevator Position", self.get_elevator_position)
+
         if not mock:
             self.mp_manager = SRXMotionProfileManager(self.talon_master, 1000 // FREQUENCY)
 
             self.talon_slave.follow(self.talon_master)
             # 1023 units per 12V
             # This lets us pass in feedforward as voltage
-            self.talon_master.config_kF(MAIN_IDX, 1023/12, timeoutMs=0)
-            self.talon_master.config_kF(EXTENT_IDX, 1023/12, timeoutMs=0)
+            self.talon_master.config_kF(MAIN_IDX, 1023/12, 0)
+            self.talon_master.config_kF(EXTENT_IDX, 1023/12, 0)
 
-            self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, MAIN_IDX, timeoutMs=0)
-            self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, EXTENT_IDX, timeoutMs=0)
+            self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, MAIN_IDX, 0)
+            self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, EXTENT_IDX, 0)
 
             self.top_limit.requestInterrupts(handler=self.hit_top_limit)
+            # self.top_limit.allocateInterrupts(watcher=True)
             self.bottom_limit.requestInterrupts(handler=self.hit_bottom_limit)
-
-            self.top_limit.enableInterrupts()
-            self.bottom_limit.enableInterrupts()
+            # self.bottom_limit.allocateInterrupts(watcher=True)
 
     def hit_top_limit(self):
-        self.talon_master.setQuadraturePosition(self.in_to_native_units(70), timeoutMs=0)
+        print("Top limit")
+        self.talon_master.setQuadraturePosition(self.in_to_native_units(70), 0)
 
     def hit_bottom_limit(self):
-        self.talon_master.setQuadraturePosition(self.in_to_native_units(0), timeoutMs=0)
+        self.talon_master.setQuadraturePosition(self.in_to_native_units(0), 0)
 
     def init_profile(self, new_pos):
         profile, _ = self.gen_profile(self.get_elevator_position(), new_pos)
@@ -81,6 +85,10 @@ class Elevator(Subsystem):
         return self.mp_manager.is_done()
 
     def set_power(self, power):
+        if power > 0 and not self.top_limit.get():
+            return
+        elif power < 0 and not self.bottom_limit.get():
+            return
         self.talon_master.set(ControlMode.PercentOutput, power)
 
     def get_mass(self, pos):
@@ -168,4 +176,3 @@ class Elevator(Subsystem):
 
     def native_to_inches(self, native_distance):
         return (native_distance / 4096) * (2*math.pi*SPOOL_RADIUS)
-        self.talon_slave.follow(self.talon_master)

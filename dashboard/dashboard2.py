@@ -158,7 +158,7 @@ class DashboardUpdateCommand(Command):
         pass
 
     def execute(self):
-        update(robot_time.get_match_time())
+        update(robot_time.delta_time() / 1000)
 
     def isFinished(self):
         return False

@@ -58,7 +58,7 @@ class _OI:
         return self.gamepad.getXButton()
 
     def elevator_is_manual_control(self):
-        return self.gamepad.getTriggerAxis(XboxController.Hand.kLeft) > 0.5
+        return self.gamepad.getTriggerAxis(XboxController.Hand.kLeft) > 0.75
 
     def elevator_move_to_top(self):
         return self.gamepad.getBumper(XboxController.Hand.kRight)
@@ -96,9 +96,13 @@ def init():
 class OIUpdateCommand(Command):
     def __init__(self):
         super().__init__()
+        self.setRunWhenDisabled(True)
 
     def initialize(self):
         init()
 
     def execute(self):
         get().update()
+
+    def isFinished(self):
+        return False

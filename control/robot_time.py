@@ -24,3 +24,8 @@ def get_match_time():
 def millis():
     return datetime.now().timestamp() * 1000
 
+_start_time = millis()
+
+
+def delta_time():
+    return millis() - _start_time

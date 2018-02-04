@@ -16,8 +16,13 @@ TOP_EXTENT = 70
 CARRIAGE_TRAVEL = 40
 
 # Two different PID indices for gain scheduling
+# MAIN is between 0 and CARRIAGE_TRAVEL
+# EXTENT is between CARRIAGE TRAVEL and TOP EXTENT
 MAIN_IDX = 0
 EXTENT_IDX = 1
+
+ZERO_POS = 0
+ZERO_MAX_ERR = 10
 
 CRUISE_SPEED = 80
 ACC = 1.5*CRUISE_SPEED
@@ -34,6 +39,7 @@ class ElevatorState:
     HOLDING = 0
     MOVING = 1
     MANUAL = 2
+    ZEROING = 3
 
 
 class Elevator(Subsystem):
@@ -42,9 +48,6 @@ class Elevator(Subsystem):
 
         self.talon_master = TalonSRX(4)
         self.talon_slave = TalonSRX(5)
-
-        self.top_limit = DigitalInput(0)
-        self.bottom_limit = DigitalInput(1)
 
         self._state = ElevatorState.HOLDING
 
@@ -59,35 +62,29 @@ class Elevator(Subsystem):
             self.talon_master.config_kF(MAIN_IDX, 1023/12, 0)
             self.talon_master.config_kF(EXTENT_IDX, 1023/12, 0)
 
-            self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, MAIN_IDX, 0)
-            self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, EXTENT_IDX, 0)
-
-            self.top_limit.requestInterrupts(handler=self.hit_top_limit)
-            # self.top_limit.allocateInterrupts(watcher=True)
-            self.bottom_limit.requestInterrupts(handler=self.hit_bottom_limit)
-            # self.bottom_limit.allocateInterrupts(watcher=True)
-
-    def hit_top_limit(self):
-        print("Top limit")
-        self.talon_master.setQuadraturePosition(self.in_to_native_units(70), 0)
-
-    def hit_bottom_limit(self):
-        self.talon_master.setQuadraturePosition(self.in_to_native_units(0), 0)
+            self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0)
 
     def init_profile(self, new_pos):
+        if self._state != ElevatorState.HOLDING:
+            return False
         profile, _ = self.gen_profile(self.get_elevator_position(), new_pos)
         self.mp_manager.init_profile(profile)
+        return True
 
     def start_profile(self):
+        self._state = ElevatorState.MOVING
         return self.mp_manager.start_profile()
 
     def has_finished_profile(self):
         return self.mp_manager.is_done()
 
+    def finish_profile(self):
+        self._state = ElevatorState.HOLDING
+
     def set_power(self, power):
-        if power > 0 and not self.top_limit.get():
+        if power > 0 and not self.talon_master.isFwdLimitSwitchClosed():
             return
-        elif power < 0 and not self.bottom_limit.get():
+        elif power < 0 and not self.talon_master.isRevLimitSwitchClosed():
             return
         self.talon_master.set(ControlMode.PercentOutput, power)
 
@@ -176,3 +173,15 @@ class Elevator(Subsystem):
 
     def native_to_inches(self, native_distance):
         return (native_distance / 4096) * (2*math.pi*SPOOL_RADIUS)
+
+    def start_zero_position(self):
+        self.talon_master.selectProfileSlot(MAIN_IDX, 0)
+        self.talon_master.set(ControlMode.Position, ZERO_POS)
+        self._state = ElevatorState.ZEROING
+
+    def is_done_zeroing(self):
+        return self._state == ElevatorState.ZEROING and self.talon_master.getClosedLoopError(0) < ZERO_MAX_ERR
+
+    def finish_zero_position(self):
+        self._state = ElevatorState.HOLDING
+        self.talon_master.setQuadraturePosition(0, 0)

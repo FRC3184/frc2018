@@ -6,6 +6,7 @@ from ctre.talonsrx import TalonSRX
 from commands.move_elevator import MoveElevatorCommand
 from commands.op_drive import OpDriveCommand
 from commands.op_elevator import OpElevatorManualCommand
+from commands.op_intake import OpIntakeCommand
 from control import OI
 import systems
 from control.OI import OIUpdateCommand
@@ -27,6 +28,7 @@ class MyRobot(TimedCommandBasedRobot):
         self.intake = Intake()
 
         self.teleop_drive = OpDriveCommand(self.drivetrain)
+        self.telop_intake = OpIntakeCommand(self.intake)
 
     def robotInit(self):
         # Start up continuous processes
@@ -57,6 +59,7 @@ class MyRobot(TimedCommandBasedRobot):
     def teleopInit(self):
 
         self.teleop_drive.start()
+        self.telop_intake.start()
 
 
 if __name__ == '__main__':

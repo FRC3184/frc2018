@@ -37,7 +37,7 @@ class OpDriveCommand(Command):
 
         drive.arcade_drive(-speed, -turn)
 
-    def finish(self):
+    def end(self):
         pass
 
     def isFinished(self):

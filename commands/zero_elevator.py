@@ -26,7 +26,7 @@ class ElevatorZeroCommand(Command):
             if self.elevator.is_done_zeroing():
                 self.is_done = True
 
-    def finish(self):
+    def end(self):
         self.elevator.finish_zero_position()
 
     def isFinished(self):

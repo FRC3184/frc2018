@@ -25,7 +25,7 @@ class OpIntakeCommand(Command):
         else:
             intake.run_intake(0)
 
-    def finish(self):
+    def end(self):
         pass
 
     def isFinished(self):

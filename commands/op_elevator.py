@@ -23,12 +23,9 @@ class OpElevatorManualCommand(Command):
         power = oi.get_elevator_manual_command()
         elevator.set_power(power)
 
-    def finish(self):
+    def end(self):
         self.elevator.set_power(0)
-
-    def cancel(self):
-        super().cancel()
-        self.elevator.set_power(0)
+        self.elevator.hold()
 
     def isFinished(self):
         return False

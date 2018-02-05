@@ -25,5 +25,5 @@ class MoveElevatorCommand(Command):
     def isFinished(self):
         return self.elevator.has_finished_profile() or self.failed_init
 
-    def finish(self):
+    def end(self):
         self.elevator.finish_profile()

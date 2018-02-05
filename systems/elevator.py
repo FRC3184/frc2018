@@ -176,6 +176,7 @@ class Elevator(Subsystem):
 
     def start_zero_position(self):
         self.talon_master.selectProfileSlot(MAIN_IDX, 0)
+        self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0)
         self.talon_master.set(ControlMode.Position, ZERO_POS)
         self._state = ElevatorState.ZEROING
 
@@ -185,3 +186,9 @@ class Elevator(Subsystem):
     def finish_zero_position(self):
         self._state = ElevatorState.HOLDING
         self.talon_master.setQuadraturePosition(0, 0)
+
+    def hold(self):
+        pos = self.get_elevator_position()
+        self.talon_master.selectProfileSlot(self.get_pid_index(pos), 0)
+        self.talon_master.set(ControlMode.Position, self.in_to_native_units(pos))
+        self._state = ElevatorState.HOLDING

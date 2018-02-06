@@ -36,39 +36,7 @@ class _OI:
         self._action_listeners = []
         self._while_listeners = []
 
-    def add_action_listener(self, condition, action):
-        self._action_listeners.append((condition, action))
-
-    def get_speed_command(self):
-        return self.left_joystick.getY()
-
-    def get_turn_command(self):
-        return self.right_joystick.getX()
-
-    def get_elevator_manual_command(self):
-        return -self.gamepad.getY(XboxController.Hand.kLeft)
-
-    def intake_is_active(self):
-        return self.gamepad.getYButton()
-
-    def outtake_is_active(self):
-        return self.gamepad.getBButton()
-
-    def intake_is_open(self):
-        return self.gamepad.getXButton()
-
-    def elevator_is_manual_control(self):
-        return self.gamepad.getTriggerAxis(XboxController.Hand.kLeft) > 0.75
-
-    def elevator_move_to_top(self):
-        return self.gamepad.getBumper(XboxController.Hand.kRight)
-
-    def elevator_move_to_bottom(self):
-        return self.gamepad.getBumper(XboxController.Hand.kLeft)
-
-    def elevator_zero(self):
-        return self.left_joystick.getRawButton(8)
-
+    # Utility
     def exec_while_condition(self, condition: Callable, cmd: Command):
         self._while_listeners.append((condition, cmd))
 
@@ -83,6 +51,42 @@ class _OI:
                 command.cancel()
             elif not command.isRunning() and cond_result:
                 command.start()
+
+    def add_action_listener(self, condition, action):
+        self._action_listeners.append((condition, action))
+
+    # OpDrive
+    def get_speed_command(self):
+        return self.left_joystick.getY()
+
+    def get_turn_command(self):
+        return self.right_joystick.getX()
+
+    # Intake
+    def intake_is_active(self):
+        return self.gamepad.getYButton()
+
+    def outtake_is_active(self):
+        return self.gamepad.getBButton()
+
+    def arm_is_down(self):
+        return self.gamepad.getTriggerAxis(XboxController.Hand.kRight) > 0.75
+
+    # Elevator
+    def get_elevator_manual_command(self):
+        return -self.gamepad.getY(XboxController.Hand.kLeft)
+
+    def elevator_is_manual_control(self):
+        return self.gamepad.getTriggerAxis(XboxController.Hand.kLeft) > 0.75
+
+    def elevator_move_to_top(self):
+        return self.gamepad.getBumper(XboxController.Hand.kRight)
+
+    def elevator_move_to_bottom(self):
+        return self.gamepad.getBumper(XboxController.Hand.kLeft)
+
+    def elevator_zero(self):
+        return self.left_joystick.getRawButton(8)
 
 
 def get() -> _OI:

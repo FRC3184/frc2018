@@ -2,7 +2,7 @@ from wpilib.command import Command
 
 import systems
 from control import OI
-from systems.intake import Intake
+from systems.intake import Intake, ArmState
 
 
 class OpIntakeCommand(Command):
@@ -19,11 +19,16 @@ class OpIntakeCommand(Command):
         intake = self.intake
 
         if oi.intake_is_active():
-            intake.run_intake(1.0)
+            intake.intake()
         elif oi.outtake_is_active():
-            intake.run_intake(-1.0)
+            intake.eject()
         else:
             intake.run_intake(0)
+
+        if oi.arm_is_down():
+            intake.set_arm_state(ArmState.DOWN)
+        else:
+            intake.set_arm_state(ArmState.UP)
 
     def end(self):
         pass

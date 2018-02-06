@@ -21,11 +21,14 @@ class OpElevatorManualCommand(Command):
         elevator = self.elevator
 
         power = oi.get_elevator_manual_command()
+        if abs(power) < 0.05:
+            power = 0
         elevator.set_power(power)
+        print(elevator.get_elevator_position())
 
     def end(self):
         self.elevator.set_power(0)
-        self.elevator.hold()
+        # self.elevator.hold()
 
     def isFinished(self):
         return False

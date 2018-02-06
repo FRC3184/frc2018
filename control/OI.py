@@ -46,7 +46,7 @@ class _OI:
         return self.right_joystick.getX()
 
     def get_elevator_manual_command(self):
-        return self.gamepad.getY(XboxController.Hand.kLeft)
+        return -self.gamepad.getY(XboxController.Hand.kLeft)
 
     def intake_is_active(self):
         return self.gamepad.getYButton()
@@ -65,6 +65,9 @@ class _OI:
 
     def elevator_move_to_bottom(self):
         return self.gamepad.getBumper(XboxController.Hand.kLeft)
+
+    def elevator_zero(self):
+        return self.left_joystick.getRawButton(8)
 
     def exec_while_condition(self, condition: Callable, cmd: Command):
         self._while_listeners.append((condition, cmd))

@@ -119,7 +119,7 @@ class SRXMotionProfileManager:
                 self.talon.processMotionProfileBuffer()
             robot_time.sleep(millis=self.frame_period//2)
 
-    def init_profile(self, points: List[TrajectoryPoint], process=True):
+    def init_profile(self, points: List[TalonPoint], process=True):
         self.talon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value)
         self.talon.clearMotionProfileTrajectories()
 

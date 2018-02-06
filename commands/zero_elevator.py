@@ -16,7 +16,7 @@ class ElevatorZeroCommand(Command):
 
     def execute(self):
         if self._state == 0:
-            if self.elevator.talon_master.isRevLimitSwitchClosed():
+            if self.elevator.is_at_bottom():
                 self.elevator.set_power(0)
                 self._state = 1
             else:

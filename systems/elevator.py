@@ -12,8 +12,8 @@ from control import robot_time
 from control.MotionProfile import MotionProfile, SRXMotionProfileManager
 from dashboard import dashboard2
 
-TOP_EXTENT = 70
-CARRIAGE_TRAVEL = 40
+TOP_EXTENT = 62
+CARRIAGE_TRAVEL = 28.5
 
 # Two different PID indices for gain scheduling
 # MAIN is between 0 and CARRIAGE_TRAVEL
@@ -21,15 +21,15 @@ CARRIAGE_TRAVEL = 40
 MAIN_IDX = 0
 EXTENT_IDX = 1
 
-ZERO_POS = 0
-ZERO_MAX_ERR = 10
+ZERO_POS = 4100
+ZERO_MAX_ERR = 150
 
 CRUISE_SPEED = 80
 ACC = 1.5*CRUISE_SPEED
 
 GEAR_RATIO = 9
 SPOOL_RADIUS = 0.5
-CARRIAGE_WEIGHT = 15
+CARRIAGE_WEIGHT = 5
 EXTENT_WEIGHT = 8
 
 FREQUENCY = 100
@@ -52,9 +52,12 @@ class Elevator(Subsystem):
         self._state = ElevatorState.HOLDING
 
         dashboard2.graph("Elevator Position", self.get_elevator_position)
+        dashboard2.graph("Elevator Voltage", self.talon_master.getMotorOutputVoltage)
 
         if not mock:
             self.mp_manager = SRXMotionProfileManager(self.talon_master, 1000 // FREQUENCY)
+
+            self.talon_master.setQuadraturePosition(0, 0)
 
             self.talon_slave.follow(self.talon_master)
             # 1023 units per 12V
@@ -63,12 +66,16 @@ class Elevator(Subsystem):
             self.talon_master.config_kF(EXTENT_IDX, 1023/12, 0)
 
             self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0)
+            self.talon_master.setSensorPhase(True)
+            self.talon_master.setInverted(True)
+            self.talon_slave.setInverted(True)
 
     def init_profile(self, new_pos):
         if self._state != ElevatorState.HOLDING:
             return False
         profile, _ = self.gen_profile(self.get_elevator_position(), new_pos)
         self.mp_manager.init_profile(profile)
+        self.talon_master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0)
         return True
 
     def start_profile(self):
@@ -82,10 +89,7 @@ class Elevator(Subsystem):
         self._state = ElevatorState.HOLDING
 
     def set_power(self, power):
-        if power > 0 and not self.talon_master.isFwdLimitSwitchClosed():
-            return
-        elif power < 0 and not self.talon_master.isRevLimitSwitchClosed():
-            return
+        self._state = ElevatorState.MANUAL
         self.talon_master.set(ControlMode.PercentOutput, power)
 
     def get_mass(self, pos):
@@ -192,3 +196,9 @@ class Elevator(Subsystem):
         self.talon_master.selectProfileSlot(self.get_pid_index(pos), 0)
         self.talon_master.set(ControlMode.Position, self.in_to_native_units(pos))
         self._state = ElevatorState.HOLDING
+
+    def is_at_top(self):
+        return self.talon_master.isFwdLimitSwitchClosed()
+
+    def is_at_bottom(self):
+        return self.talon_master.isRevLimitSwitchClosed()

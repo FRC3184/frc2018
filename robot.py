@@ -7,6 +7,7 @@ from commands.move_elevator import MoveElevatorCommand
 from commands.op_drive import OpDriveCommand
 from commands.op_elevator import OpElevatorManualCommand
 from commands.op_intake import OpIntakeCommand
+from commands.zero_elevator import ElevatorZeroCommand
 from control import OI
 import systems
 from control.OI import OIUpdateCommand
@@ -43,13 +44,15 @@ class MyRobot(TimedCommandBasedRobot):
         OIUpdateCommand().start()
 
         elev_manual_command = OpElevatorManualCommand(self.elevator)
-        elev_move_to_top = MoveElevatorCommand(self.elevator, 70)
+        elev_move_to_top = MoveElevatorCommand(self.elevator, 60)
         elev_move_to_bottom = MoveElevatorCommand(self.elevator, 0)
+        elev_zero = ElevatorZeroCommand(self.elevator)
 
         OI.get().exec_while_condition(condition=OI.get().elevator_is_manual_control, cmd=elev_manual_command)
         OI.get().add_action_listener(condition=OI.get().elevator_move_to_bottom, action=elev_move_to_bottom.start)
         OI.get().add_action_listener(condition=OI.get().elevator_move_to_top, action=elev_move_to_top.start)
 
+        OI.get().add_action_listener(condition=OI.get().elevator_zero, action=elev_zero.start)
     def disabledInit(self):
         pass
 

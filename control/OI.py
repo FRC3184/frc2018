@@ -56,10 +56,10 @@ class _OI:
 
     # OpDrive
     def get_left_power(self):
-        return self.gamepad.getX(self, XboxController.Hand.kLeft)
+        return self.gamepad.getY(XboxController.Hand.kLeft)
 
     def get_right_power(self):
-        return self.gamepad.getX(self, XboxController.Hand.kRight)
+        return self.gamepad.getY(XboxController.Hand.kRight)
 
     # Intake
     def intake_is_active(self):

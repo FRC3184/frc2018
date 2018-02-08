@@ -46,10 +46,10 @@ class SmartRobotDrive(wpilib.MotorSafety):
                   right_encoder_callback=self.get_right_distance,
                   gyro_callback=(None if wpilib.hal.isSimulation() else self.get_heading_rads),
                   wheelbase=self.robot_width)
-        dashboard2.graph("Pose X", lambda: pose.get_current_pose().x)
-        dashboard2.graph("Pose Y", lambda: pose.get_current_pose().y)
-        dashboard2.graph("Distance to target",
-                         lambda: pose.get_current_pose().distance(mathutils.Vector2(6, -4)))
+        dashboard2.add_graph("Pose X", lambda: pose.get_current_pose().x)
+        dashboard2.add_graph("Pose Y", lambda: pose.get_current_pose().y)
+        dashboard2.add_graph("Distance to target",
+                             lambda: pose.get_current_pose().distance(mathutils.Vector2(6, -4)))
 
         self._max_output = 1
         self._mode = SmartRobotDrive.Mode.PercentVbus
@@ -67,7 +67,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
                   wheelbase=self.robot_width,
                   encoder_factor=self.get_fps_rpm_ratio())
 
-        dashboard2.graph("Heading", lambda: pose.get_current_pose().heading * 180 / math.pi)
+        dashboard2.add_graph("Heading", lambda: pose.get_current_pose().heading * 180 / math.pi)
 
     def _update_model(self):
         while True:

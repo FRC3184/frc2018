@@ -87,12 +87,19 @@ class LinePath(Path):
 
 
 class PurePursuitController:
-    def __init__(self, pose: pose.Pose, waypoints: List[Vector2], lookahead_base: float):
-        self.pose = pose
+    def __init__(self, waypoints: List[Vector2], lookahead_base: float):
         self.lookahead_base = lookahead_base
         self.path = LinePath(waypoints)
+        self.waypoints = waypoints
         self.unpassed_waypoints = waypoints[:]
         self.end_point = waypoints[-1]
+
+    def init(self):
+        """
+        Resets passed waypoints
+        :return:
+        """
+        self.unpassed_waypoints = self.waypoints[:]
 
     def lookahead(self, speed: float) -> float:
         """
@@ -125,6 +132,9 @@ class PurePursuitController:
         except ZeroDivisionError:
             curv = 0
         return curv
+
+    def is_approaching_end(self, pose):
+        return len(self.unpassed_waypoints) == 0
 
     def is_at_end(self, pose, dist_margin=1/12):
         """

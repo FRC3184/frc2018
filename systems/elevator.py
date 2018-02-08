@@ -51,8 +51,8 @@ class Elevator(Subsystem):
 
         self._state = ElevatorState.HOLDING
 
-        dashboard2.graph("Elevator Position", self.get_elevator_position)
-        dashboard2.graph("Elevator Voltage", self.talon_master.getMotorOutputVoltage)
+        dashboard2.add_graph("Elevator Position", self.get_elevator_position)
+        dashboard2.add_graph("Elevator Voltage", self.talon_master.getMotorOutputVoltage)
 
         if not mock:
             self.mp_manager = SRXMotionProfileManager(self.talon_master, 1000 // FREQUENCY)

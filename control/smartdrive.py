@@ -71,7 +71,6 @@ class SmartRobotDrive(wpilib.MotorSafety):
 
     def _update_model(self):
         while True:
-            print("Model!")
             now = robot_time.millis()
             dt = (now - self._model_last_time) / 1000
             self._model_last_time = now

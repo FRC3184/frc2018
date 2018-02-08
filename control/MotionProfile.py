@@ -3,6 +3,8 @@ from math import copysign
 from typing import List, Sequence, Iterator
 
 import time
+
+import hal
 from ctre import ControlMode
 from ctre._impl.autogen.ctre_sim_enums import SetValueMotionProfile
 from ctre.talonsrx import TalonSRX
@@ -105,8 +107,8 @@ class MotionProfile:
 class SRXMotionProfileManager:
     def __init__(self, talon: TalonSRX, frame_period: int, min_points=20):
         self.talon = talon
-
-        self.talon.changeMotionControlFramePeriod(frame_period)
+        if not hal.isSimulation():
+            self.talon.configMotionProfileTrajectoryPeriod(frame_period, 0)
         self.min_points = min_points
         self.frame_period = frame_period
 

@@ -18,7 +18,7 @@ class Intake(Subsystem):
         self.solenoid_lift = DoubleSolenoid(0, 1)
         self.set_arm_state(ArmState.UP)
 
-        self.power = 1
+        self.power = .5
 
     def run_intake(self, power):
         """

@@ -18,24 +18,24 @@ class OpDriveCommand(Command):
         oi = OI.get()
         drive = self.drivetrain
 
-        speed = oi.get_speed_command()
-        turn = oi.get_turn_command()
+        left = oi.get_right_power()
+        right = oi.get_right_power()
 
-        if speed > 0:
-            speed = speed **2
-        elif speed < 0:
-            speed = -(speed **2)
+        if left > 0:
+            left = left **2
+        elif left < 0:
+            left = -(left **2)
         else:
-            speed = 0
+            left = 0
 
-        if turn > 0:
-            turn = turn ** 2
-        elif turn < 0:
-            turn = -(turn ** 2)
+        if right > 0:
+            right = right ** 2
+        elif right < 0:
+            right = -(right ** 2)
         else:
-            turn = 0
+            right = 0
 
-        drive.arcade_drive(-speed, -turn)
+        drive.tank_drive(left, right)
 
     def end(self):
         pass

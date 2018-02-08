@@ -29,9 +29,8 @@ class OnClick(OnCondition):
 
 class _OI:
     def __init__(self):
-        self.left_joystick = Joystick(0)
-        self.right_joystick = Joystick(1)
-        self.gamepad = XboxController(2)
+        self.gamepad = XboxController(0)
+        self.gamepad1 = XboxController(1)
 
         self._action_listeners = []
         self._while_listeners = []
@@ -56,11 +55,11 @@ class _OI:
         self._action_listeners.append((condition, action))
 
     # OpDrive
-    def get_speed_command(self):
-        return self.left_joystick.getY()
+    def get_left_power(self):
+        return self.gamepad.getX(self, XboxController.Hand.kLeft)
 
-    def get_turn_command(self):
-        return self.right_joystick.getX()
+    def get_right_power(self):
+        return self.gamepad.getX(self, XboxController.Hand.kRight)
 
     # Intake
     def intake_is_active(self):

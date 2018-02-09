@@ -19,8 +19,9 @@ class MoveElevatorCommand(Command):
         self.failed_init = not self.elevator.init_profile(self.target_pos)
 
     def execute(self):
-        # Keep trying to start the profile. Even if it has started we don't care
-        self.elevator.start_profile()
+        if not self.failed_init:
+            # Keep trying to start the profile. Even if it has started we don't care
+            self.elevator.start_profile()
 
     def isFinished(self):
         return self.elevator.has_finished_profile() or self.failed_init

@@ -127,8 +127,8 @@ class SRXMotionProfileManager:
 
         for pt in points:
             self.talon.pushMotionProfileTrajectory(trajPt=pt)
-
-        self._process_mp_thread.start()
+        if not self._process_mp_thread.is_alive():
+            self._process_mp_thread.start()
 
     def start_profile(self):
         if self.get_status().btmBufferCnt >= self.min_points:

@@ -140,6 +140,6 @@ class SRXMotionProfileManager:
         return self.get_status().isLast
 
     def get_status(self):
-        _, status = self.talon.getMotionProfileStatus()
+        status = self.talon.getMotionProfileStatus()
         return status
 

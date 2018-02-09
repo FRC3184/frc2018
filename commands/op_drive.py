@@ -1,5 +1,6 @@
 from wpilib.command import Command
 
+import mathutils
 import systems
 from control import OI
 from systems.drivetrain import Drivetrain
@@ -18,24 +19,10 @@ class OpDriveCommand(Command):
         oi = OI.get()
         drive = self.drivetrain
 
-        left = oi.get_right_power()
-        right = oi.get_right_power()
+        power = mathutils.signed_power(oi.get_left_power(), 2)
+        turn = mathutils.signed_power(oi.get_turn_command(), 2)
 
-        if left > 0:
-            left = left **2
-        elif left < 0:
-            left = -(left **2)
-        else:
-            left = 0
-
-        if right > 0:
-            right = right ** 2
-        elif right < 0:
-            right = -(right ** 2)
-        else:
-            right = 0
-
-        drive.tank_drive(left, right)
+        drive.arcade_drive(power, turn * 0.5)
 
     def end(self):
         pass

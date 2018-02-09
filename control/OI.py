@@ -56,36 +56,39 @@ class _OI:
 
     # OpDrive
     def get_left_power(self):
-        return self.gamepad.getY(XboxController.Hand.kLeft)
+        return -self.gamepad.getY(XboxController.Hand.kLeft)
 
     def get_right_power(self):
-        return self.gamepad.getY(XboxController.Hand.kRight)
+        return -self.gamepad.getY(XboxController.Hand.kRight)
+
+    def get_turn_command(self):
+        return -self.gamepad.getX(XboxController.Hand.kRight)
 
     # Intake
     def intake_is_active(self):
-        return self.gamepad.getYButton()
+        return self.gamepad1.getYButton()
 
     def outtake_is_active(self):
-        return self.gamepad.getBButton()
+        return self.gamepad1.getBButton()
 
     def arm_is_down(self):
-        return self.gamepad.getTriggerAxis(XboxController.Hand.kRight) > 0.75
+        return self.gamepad1.getTriggerAxis(XboxController.Hand.kRight) > 0.75
 
     # Elevator
     def get_elevator_manual_command(self):
-        return -self.gamepad.getY(XboxController.Hand.kLeft)
+        return -self.gamepad1.getY(XboxController.Hand.kLeft)
 
     def elevator_is_manual_control(self):
-        return self.gamepad.getTriggerAxis(XboxController.Hand.kLeft) > 0.75
+        return self.gamepad1.getTriggerAxis(XboxController.Hand.kLeft) > 0.75
 
     def elevator_move_to_top(self):
-        return self.gamepad.getBumper(XboxController.Hand.kRight)
+        return self.gamepad1.getBumper(XboxController.Hand.kRight)
 
     def elevator_move_to_bottom(self):
-        return self.gamepad.getBumper(XboxController.Hand.kLeft)
+        return self.gamepad1.getBumper(XboxController.Hand.kLeft)
 
     def elevator_zero(self):
-        return self.left_joystick.getRawButton(8)
+        return False
 
 
 def get() -> _OI:

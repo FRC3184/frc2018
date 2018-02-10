@@ -52,12 +52,12 @@ class Elevator(Subsystem):
 
         self._state = ElevatorState.HOLDING
 
-        self.nlogger = Logger("/home/lvuser/logs/elevator.csv")
+        self.nlogger = Logger("elevator")
         self.nlogger.add("Time", robot_time.delta_time)
         self.nlogger.add("Position", self.get_elevator_position)
         self.nlogger.add("Voltage", self.talon_master.getMotorOutputVoltage)
         self.nlogger.add("Current", self.talon_master.getOutputCurrent)
-        #self.nlogger.start()
+        # self.nlogger.start()
 
         dashboard2.add_graph("Elevator Position", self.get_elevator_position)
         dashboard2.add_graph("Elevator Voltage", self.talon_master.getMotorOutputVoltage)

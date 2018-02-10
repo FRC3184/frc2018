@@ -1,12 +1,28 @@
+import hal
+import os
 from wpilib.command import Command
+from time import strftime, gmtime
+
+
+def get_logger_timestamp():
+    return strftime("%H.%M.%S..%Y.%m.%d", gmtime())
+
+
+if hal.isSimulation():
+    BASEDIR = "./logs"
+else:
+    BASEDIR = "/home/lvuser/logs"
+if not os.path.exists(BASEDIR):
+    os.makedirs(BASEDIR)
 
 
 class Logger:
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, name):
+        self.filename = f"{BASEDIR}/{name}.{get_logger_timestamp()}.csv"
         self._lock = False
         self.watchers = []
         self._file = None
+        self.update_command = LoggerUpdateCommand(self)
 
     def add(self, name, callback):
         if not self._lock:
@@ -19,7 +35,7 @@ class Logger:
             for name, _ in self.watchers:
                 print(name, end=", ", file=self._file)
             print(file=self._file)
-            self.get_update_command().start()
+            self.update_command.start()
 
     def update(self):
         if self._lock:
@@ -30,17 +46,18 @@ class Logger:
 
     def end(self):
         self._file.close()
+        self.update_command.cancel()
+        self._lock = False
 
-    def get_update_command(self):
-        class LoggerUpdateCommand(Command):
-            def __init__(self, logger: Logger):
-                super().__init__(f"LoggerUpdateCommand {logger.filename}")
-                self.setRunWhenDisabled(True)
-                self.logger = logger
 
-            def execute(self):
-                self.logger.update()
+class LoggerUpdateCommand(Command):
+    def __init__(self, logger: Logger):
+        super().__init__(f"LoggerUpdateCommand {logger.filename}")
+        self.setRunWhenDisabled(True)
+        self.logger = logger
 
-            def isFinished(self):
-                return False
-        return LoggerUpdateCommand(self)
+    def execute(self):
+        self.logger.update()
+
+    def isFinished(self):
+        return False

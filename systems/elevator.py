@@ -36,6 +36,12 @@ EXTENT_WEIGHT = 8
 FREQUENCY = 100
 
 
+class ElevatorPositions:
+    BOTTOM = 0
+    SWITCH = 20
+    TOP = TOP_EXTENT
+
+
 class ElevatorState:
     HOLDING = 0
     MOVING = 1

@@ -3,6 +3,7 @@
 import wpilib
 from ctre.talonsrx import TalonSRX
 
+from commands.auto.SwitchOnly import SwitchOnly
 from commands.move_elevator import MoveElevatorCommand
 from commands.op_drive import OpDriveCommand
 from commands.op_elevator import OpElevatorManualCommand
@@ -31,6 +32,8 @@ class MyRobot(TimedCommandBasedRobot):
         self.teleop_drive = OpDriveCommand(self.drivetrain, self.elevator)
         self.telop_intake = OpIntakeCommand(self.intake)
 
+        self.auto_chooser = None
+
     def robotInit(self):
         # Start up continuous processes
         # In simulation, cd is code dir. On the robot, it's something else so we need to use abs dir
@@ -43,6 +46,8 @@ class MyRobot(TimedCommandBasedRobot):
         DashboardUpdateCommand().start()
         OIUpdateCommand().start()
 
+        # Actions
+
         elev_manual_command = OpElevatorManualCommand(self.elevator)
         elev_move_to_top = MoveElevatorCommand(self.elevator, 60)
         elev_move_to_bottom = MoveElevatorCommand(self.elevator, 0)
@@ -53,11 +58,17 @@ class MyRobot(TimedCommandBasedRobot):
         OI.get().add_action_listener(condition=OI.get().elevator_move_to_top, action=elev_move_to_top.start)
 
         OI.get().add_action_listener(condition=OI.get().elevator_zero, action=elev_zero.start)
+
+        # Auto modes
+        auto_switch_only = SwitchOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        self.auto_chooser = dashboard2.add_chooser("Autonomous")
+        self.auto_chooser.add_option("Switch Only", auto_switch_only)
+
     def disabledInit(self):
         pass
 
     def autonomousInit(self):
-        pass
+        self.auto_chooser.get_selected().start()
 
     def teleopInit(self):
 

@@ -24,7 +24,6 @@ class Drivetrain(Subsystem):
     def setup_talons(self, master: TalonSRX, slave: TalonSRX, invert=False, pidIdx=0, timeoutMs=0):
         slave.follow(master)
         master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, pidIdx, timeoutMs)
-        master.setSensorPhase(True)
 
         master.configOpenLoopRamp(1/3, timeoutMs)
         master.configContinuousCurrentLimit(50, timeoutMs)

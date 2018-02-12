@@ -67,7 +67,8 @@ def gen():
     q = Queue()
     for g, _ in graphs.items():
         q.put(ServerSentEvent(json.dumps({"action": "make_chart", "name": g}), "action"))
-    for name, opts in choosers.items():
+    for name, chooser in choosers.items():
+        opts = list(chooser.options.keys())
         q.put(ServerSentEvent(json.dumps({"action": "make_chooser", "name": name, "options": opts}), "action"))
     for name, _ in indicators.items():
         q.put(ServerSentEvent(json.dumps({"action": "make_indicator", "name": name}), "action"))
@@ -132,8 +133,10 @@ class Chooser:
         self.default = self.options[name]
 
 
-def add_chooser(name):
+def add_chooser(name) -> Chooser:
     choosers[name] = Chooser(name)
+    return choosers[name]
+
 
 def add_indicator(name, callback):
     indicators[name] = callback

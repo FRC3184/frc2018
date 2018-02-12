@@ -1,6 +1,6 @@
 from ctre import ControlMode
 from wpilib import Talon, DoubleSolenoid
-from wpilib.command import Subsystem
+from wpilib.command import Subsystem, Command
 
 
 class ArmState:
@@ -16,6 +16,7 @@ class Intake(Subsystem):
         self.talon_right = Talon(1)
 
         self.solenoid_lift = DoubleSolenoid(0, 1)
+        self.state = None
         self.set_arm_state(ArmState.UP)
 
         self.power = .5
@@ -37,6 +38,7 @@ class Intake(Subsystem):
         self.run_intake(-self.power)
 
     def set_arm_state(self, state):
+        self.state = state
         if state == ArmState.DOWN:
             self.solenoid_lift.set(DoubleSolenoid.Value.kForward)
         else:

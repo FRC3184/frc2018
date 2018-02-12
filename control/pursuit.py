@@ -3,6 +3,20 @@ from mathutils import LineSegment, Vector2
 from control import pose
 
 
+def flip_waypoints_x(waypoints: List[Vector2]):
+    waypoints_ = []
+    for k in waypoints:
+        waypoints_.append(Vector2(-k.x, k.y))
+    return waypoints_
+
+
+def flip_waypoints_y(waypoints: List[Vector2]):
+    waypoints_ = []
+    for k in waypoints:
+        waypoints_.append(Vector2(k.x, -k.y))
+    return waypoints_
+
+
 class Path:
     def __init__(self):
         pass

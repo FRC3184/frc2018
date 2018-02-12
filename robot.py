@@ -28,7 +28,7 @@ class MyRobot(TimedCommandBasedRobot):
         self.elevator = Elevator()
         self.intake = Intake()
 
-        self.teleop_drive = OpDriveCommand(self.drivetrain)
+        self.teleop_drive = OpDriveCommand(self.drivetrain, self.elevator)
         self.telop_intake = OpIntakeCommand(self.intake)
 
     def robotInit(self):

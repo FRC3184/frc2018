@@ -22,10 +22,24 @@ class OpDriveCommand(Command):
         drive = self.drivetrain
         elevator = self.elevator
 
-        power = self.get_speed_scale(elevator.get_elevator_position())*mathutils.signed_power(oi.get_left_power(), 2)
-        turn = mathutils.signed_power(oi.get_turn_command(), 2)
+        if oi.get_fine_forward():
+            power = .1
+        elif oi.get_fine_backward():
+            power = -.1
+        else :
+            power = self.get_speed_scale(elevator.get_elevator_position()) * mathutils.signed_power(oi.get_left_power(),2)
 
-        drive.arcade_drive(power, turn * 0.5)
+        if oi.get_fine_left_turn():
+            turn = -.1
+        elif oi.get_fine_right_turn():
+            turn = .1
+        else :
+            turn = mathutils.signed_power(oi.get_turn_command(), 2)
+
+        if oi.get_spot_turn():
+            drive.tank_drive(.1,-.1)
+        else:
+            drive.arcade_drive(power, turn * 0.5)
 
     def end(self):
         pass

@@ -20,34 +20,52 @@ if __name__ == '__main__':
     targetp_y = []
     distance = []
     times = []
-    width = 29.25 / 12
-    max_speed = 13
-    acc = 10
-    hopper_x = -2.47 + width / 2 - width
-    hopper_y = 6 + 6.5/12 + width / 2
-    path = [Vector2(0, 0), Vector2(5, 0), Vector2(5, 5), Vector2(5, 10), Vector2(10, 10), Vector2(10, 5),
-            Vector2(15, 5)]
+    width = 24 / 12
+    max_speed = 16
+    cruise_speed = 1
+    acc = 1
+
+    accel_dist = (1 / 2) * cruise_speed ** 2 / acc
+    path = [Vector2(0, 0), Vector2(3, 0), Vector2(6, 5), Vector2(9, 5)]
     pose = Pose(0, 0, 0 * math.pi/4)
-    speed = max_speed
+
+    _begin_pose = pose
+    _end_pose = path[-1]
 
     lookahead = 1
     dt = 1/1000
     current_time = 0
     lines = []
 
-    pursuit = PurePursuitController(pose, path, lookahead)
+    pursuit = PurePursuitController(path, lookahead)
     lines = pursuit.path.path
 
     start = time.perf_counter()
     while not pursuit.is_at_end(pose):
+        poz = pose
+        dist_to_end = _end_pose.distance(poz)
+        dist_to_begin = _begin_pose.distance(poz)
+
+        if pursuit.is_approaching_end(poz) and dist_to_end < accel_dist:
+            speed = cruise_speed * dist_to_end / accel_dist
+        elif dist_to_begin < accel_dist:
+            speed = cruise_speed * dist_to_begin / accel_dist
+        else:
+            speed = cruise_speed
+
+        if speed < 0.1:
+            speed = 0.1
+        speed *= max_speed
+
         current_time += dt
         if current_time >= 10:
             break
         try:
-            curve = pursuit.curvature(pose, speed / max_speed)
+            curve = pursuit.curvature(pose, speed)
         except ValueError:
             print("Break")
             break
+
         if curve == 0:
             left_speed = right_speed = speed
         else:

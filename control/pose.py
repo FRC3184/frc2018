@@ -35,11 +35,19 @@ class Pose(Vector2):
 def init(left_encoder_callback, right_encoder_callback, gyro_callback=None,
                    current_pose=Pose(0, 0, 0), wheelbase=None, encoder_factor=1):
     global _estimator, _estimator_thread
+    # Only one estimator should be running at a time
+    if _estimator_thread is not None:
+        return
     _estimator = PoseEstimator(left_encoder_callback, right_encoder_callback, gyro_callback,
                                current_pose, wheelbase, encoder_factor)
-    if _estimator_thread is None:
-        _estimator_thread = threading.Thread(target=lambda: _update_estimator(_estimator))
-        _estimator_thread.start()
+    _estimator_thread = threading.Thread(target=lambda: _update_estimator(_estimator))
+    _estimator_thread.start()
+
+
+def set_new_pose(pose: Pose):
+    global _estimator
+    if _estimator is not None:
+        _estimator.current_pose = pose
 
 
 def get_current_pose() -> Pose:

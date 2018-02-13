@@ -22,17 +22,17 @@ if __name__ == '__main__':
     times = []
     width = 24 / 12
     max_speed = 16
-    cruise_speed = 1
-    acc = 1
+    cruise_speed = 0.5
+    acc = 0.1
 
     accel_dist = (1 / 2) * cruise_speed ** 2 / acc
-    path = [Vector2(0, 0), Vector2(3, 0), Vector2(6, 5), Vector2(9, 5)]
-    pose = Pose(0, 0, 0 * math.pi/4)
+    path = [Vector2(2, 0), Vector2(5, 0), Vector2(5, 5), Vector2(9, 5)]
+    pose = Pose(2, 0, 0 * math.pi/4)
 
-    _begin_pose = pose
+    _begin_pose = Vector2(pose.x, pose.y)
     _end_pose = path[-1]
 
-    lookahead = 1
+    lookahead = 0.75
     dt = 1/1000
     current_time = 0
     lines = []
@@ -55,7 +55,6 @@ if __name__ == '__main__':
 
         if speed < 0.1:
             speed = 0.1
-        speed *= max_speed
 
         current_time += dt
         if current_time >= 10:
@@ -65,6 +64,7 @@ if __name__ == '__main__':
         except ValueError:
             print("Break")
             break
+        speed *= max_speed
 
         if curve == 0:
             left_speed = right_speed = speed

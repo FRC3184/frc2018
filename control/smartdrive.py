@@ -29,7 +29,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         :param kwargs: 
         '''
         wpilib.MotorSafety.__init__(self)
-        self.robot_width = kwargs.pop("robot_width", 29.25 / 12)  # TODO measure this
+        self.robot_width = kwargs.pop("robot_width", 24 / 12)
         self.max_turn_radius = kwargs.pop("max_radius", 10)
         self.wheel_diameter = kwargs.pop("wheel_diameter", 6)
         self.max_speed = kwargs.pop("max_speed", 15)

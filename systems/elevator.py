@@ -13,7 +13,7 @@ from control import robot_time
 from control.MotionProfile import MotionProfile, SRXMotionProfileManager
 from dashboard import dashboard2
 
-TOP_EXTENT = 62
+TOP_EXTENT = 68
 CARRIAGE_TRAVEL = 28.5
 
 # Two different PID indices for gain scheduling
@@ -25,11 +25,11 @@ EXTENT_IDX = 1
 ZERO_POS = 4100
 ZERO_MAX_ERR = 150
 
-CRUISE_SPEED = 80
-ACC = 1.5*CRUISE_SPEED
+CRUISE_SPEED = 88
+ACC = 2*CRUISE_SPEED
 
 GEAR_RATIO = 9
-SPOOL_RADIUS = 1
+SPOOL_RADIUS = 0.5
 CARRIAGE_WEIGHT = 5
 EXTENT_WEIGHT = 8
 
@@ -142,6 +142,10 @@ class Elevator(Subsystem):
         return hold_voltage + vel_voltage + acc_voltage
 
     def gen_profile(self, start, end) -> Tuple[List[TalonPoint], int]:
+        if not 0 <= start <= TOP_EXTENT:
+            raise ValueError(f"Start must be within 0 and {TOP_EXTENT}")
+        if not 0 <= end <= TOP_EXTENT:
+            raise ValueError(f"End must be within 0 and {TOP_EXTENT}")
         talon_points = []
         rawmp = MotionProfile(start=start, end=end, cruise_speed=CRUISE_SPEED, acc=ACC, frequency=FREQUENCY)
         for point in rawmp:

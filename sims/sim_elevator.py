@@ -10,8 +10,8 @@ if __name__ == '__main__':
     print("Elevator stall torque: {} lb-in".format(elev.get_stall_torque()))
 
     t_begin = time.time()
-    talon_points, freq = elev.gen_profile(70, 0)
-    print(f"Elapsed time: {time.time() - t_begin} s")
+    talon_points, freq = elev.gen_profile(0, 68)
+    print(f"Profile generation time: {1000 * (time.time() - t_begin)} ms")
 
     times = []
     voltages = []

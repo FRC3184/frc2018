@@ -44,7 +44,7 @@ class MyRobot(TimedCommandBasedRobot):
         OIUpdateCommand().start()
 
         elev_manual_command = OpElevatorManualCommand(self.elevator)
-        elev_move_to_top = MoveElevatorCommand(self.elevator, 60)
+        elev_move_to_top = MoveElevatorCommand(self.elevator, 68)
         elev_move_to_bottom = MoveElevatorCommand(self.elevator, 0)
         elev_zero = ElevatorZeroCommand(self.elevator)
 
@@ -53,6 +53,7 @@ class MyRobot(TimedCommandBasedRobot):
         OI.get().add_action_listener(condition=OI.get().elevator_move_to_top, action=elev_move_to_top.start)
 
         OI.get().add_action_listener(condition=OI.get().elevator_zero, action=elev_zero.start)
+
     def disabledInit(self):
         pass
 

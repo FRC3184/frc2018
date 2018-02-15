@@ -1,6 +1,8 @@
 import math
 import threading
 
+import wpilib
+
 from control import robot_time
 from mathutils import Vector2
 
@@ -38,8 +40,8 @@ def init(left_encoder_callback, right_encoder_callback, gyro_callback=None,
     _estimator = PoseEstimator(left_encoder_callback, right_encoder_callback, gyro_callback,
                                current_pose, wheelbase, encoder_factor)
     if _estimator_thread is None:
-        _estimator_thread = threading.Thread(target=lambda: _update_estimator(_estimator))
-        _estimator_thread.start()
+        _estimator_thread = wpilib.Notifier(run=lambda: _estimator.update(dt=10/1000))
+        _estimator_thread.startPeriodic(100/1000)
 
 
 def get_current_pose() -> Pose:
@@ -80,13 +82,8 @@ class PoseEstimator:
         dist = (dist_left + dist_right) / 2
         self.current_pose.x += dist * math.cos(self.current_pose.heading)
         self.current_pose.y += dist * math.sin(self.current_pose.heading)
+        print(dist)
 
 
 def _update_estimator(pose_estimator: PoseEstimator, sleep_sec=(10/1000)):
-    ct = 0
-    while True:
-        pose_estimator.update(dt=sleep_sec)
-        ct += sleep_sec
-        if ct > 1:
-            ct = 0
-        robot_time.sleep(seconds=sleep_sec)
+    pose_estimator.update(dt=sleep_sec)

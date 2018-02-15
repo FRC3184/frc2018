@@ -42,10 +42,6 @@ class SmartRobotDrive(wpilib.MotorSafety):
         self._model_right_dist = 0
         self._model_last_time = robot_time.millis()
 
-        pose.init(left_encoder_callback=self.get_left_distance,
-                  right_encoder_callback=self.get_right_distance,
-                  gyro_callback=(None if wpilib.hal.isSimulation() else self.get_heading_rads),
-                  wheelbase=self.robot_width)
         dashboard2.add_graph("Pose X", lambda: pose.get_current_pose().x)
         dashboard2.add_graph("Pose Y", lambda: pose.get_current_pose().y)
         dashboard2.add_graph("Distance to target",
@@ -63,7 +59,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         self.setSafetyEnabled(True)
 
         pose.init(left_encoder_callback=self.get_left_distance, right_encoder_callback=self.get_right_distance,
-                  gyro_callback=(self.get_heading if not wpilib.hal.isSimulation() else None),
+                  gyro_callback=self.get_heading_rads,
                   wheelbase=self.robot_width,
                   encoder_factor=self.get_fps_rpm_ratio())
 
@@ -225,13 +221,13 @@ class SmartRobotDrive(wpilib.MotorSafety):
         return -self.ahrs.getYaw() * math.pi / 180
 
     def get_left_distance(self):
-        if wpilib.hal.isSimulation():
+        if wpilib.hal.isSimulation() and False:
             return self._model_left_dist
         else:
-            return self.native_distance_to_feet(self._left_motor.getQuadraturePosition())
+            return -self.native_distance_to_feet(self._left_motor.getQuadraturePosition())
 
     def get_right_distance(self):
-        if wpilib.hal.isSimulation():
+        if wpilib.hal.isSimulation() and False:
             return self._model_right_dist
         else:
             return self.native_distance_to_feet(self._right_motor.getQuadraturePosition())
@@ -271,7 +267,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         return 600 * native_speed / 4096
 
     def native_distance_to_feet(self, native_distance: int) -> float:
-        return self.revs_to_feet(SmartRobotDrive.native_distance_to_revs(native_distance))
+        return (native_distance / 4096) * math.pi * self.wheel_diameter
 
     def feet_to_native_distance(self, feet: float) -> int:
         return int(SmartRobotDrive.revs_to_native_distance(self.feet_to_revs(feet)))

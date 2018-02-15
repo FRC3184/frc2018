@@ -59,9 +59,9 @@ class SmartRobotDrive(wpilib.MotorSafety):
         self.setSafetyEnabled(True)
 
         pose.init(left_encoder_callback=self.get_left_distance, right_encoder_callback=self.get_right_distance,
-                  gyro_callback=self.get_heading_rads,
+                  gyro_callback=None if wpilib.hal.isSimulation() else self.get_heading_rads,
                   wheelbase=self.robot_width,
-                  encoder_factor=self.get_fps_rpm_ratio())
+                  encoder_factor=1)
 
         dashboard2.add_graph("Heading", lambda: pose.get_current_pose().heading * 180 / math.pi)
 
@@ -77,8 +77,11 @@ class SmartRobotDrive(wpilib.MotorSafety):
             else:
                 print("Can't update model outside of PercentVBus")
                 continue
-            self._model_left_dist += self._left_motor.getMotorOutputPercent() * self.max_speed * dt * factor
-            self._model_right_dist += self._right_motor.getMotorOutputPercent() * self.max_speed * dt * factor
+            try:
+                self._model_left_dist += self._left_motor.getMotorOutputPercent() * self.max_speed * dt * factor * 12
+                self._model_right_dist += self._right_motor.getMotorOutputPercent() * self.max_speed * dt * factor * 12
+            except AssertionError:
+                pass
             robot_time.sleep(millis=20)
 
     def set_mode(self, mode):
@@ -221,13 +224,13 @@ class SmartRobotDrive(wpilib.MotorSafety):
         return -self.ahrs.getYaw() * math.pi / 180
 
     def get_left_distance(self):
-        if wpilib.hal.isSimulation() and False:
+        if wpilib.hal.isSimulation():
             return self._model_left_dist
         else:
             return -self.native_distance_to_feet(self._left_motor.getQuadraturePosition())
 
     def get_right_distance(self):
-        if wpilib.hal.isSimulation() and False:
+        if wpilib.hal.isSimulation():
             return self._model_right_dist
         else:
             return self.native_distance_to_feet(self._right_motor.getQuadraturePosition())

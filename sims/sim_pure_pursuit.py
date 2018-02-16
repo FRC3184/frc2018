@@ -26,7 +26,7 @@ if __name__ == '__main__':
     acc = 0.1
 
     accel_dist = (1 / 2) * cruise_speed ** 2 / acc
-    path = [Vector2(2, 0), Vector2(5, 0), Vector2(5, 5), Vector2(9, 5)]
+    path = [Vector2(0, 0), Vector2(16, 0), Vector2(20, 10), Vector2(20.5, 10)]
     pose = Pose(2, 0, 0 * math.pi/4)
 
     _begin_pose = Vector2(pose.x, pose.y)

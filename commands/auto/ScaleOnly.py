@@ -5,25 +5,27 @@ from wpilib.command import CommandGroup, ConditionalCommand
 from commands.IntakeCommands import MoveIntakeCommand, TimedRunIntakeCommand
 from commands.move_elevator import MoveElevatorCommand
 from commands.pursuit_drive import PursuitDriveCommand
-from control import GameData, pursuit
+from control import GameData, pursuit, pose
+from control.pose import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator, ElevatorPositions
 from systems.intake import Intake, ArmState
 
 
-class SwitchOnly(CommandGroup):
+class ScaleOnly(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
-        super().__init__("SwitchOnly command")
-        drive_path_waypoints = [Vector2(0, 0), Vector2(3, 0), Vector2(5, 3), Vector2(8, 3)]
+        super().__init__("ScaleOnly command")
+        close_waypoints = [Vector2(0, 0), Vector2(16, 0), Vector2(20.5, 2)]
+        far_waypoints = [Vector2(0, 0), Vector2(20, 0), Vector2(20, 10), Vector2(20.5, 10)]
         cruise = 0.6
         acc = 0.6
         drive_path_left = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
-                                               waypoints=drive_path_waypoints, drive=drive)
+                                               waypoints=far_waypoints, drive=drive)
         drive_path_right = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
-                                              waypoints=pursuit.flip_waypoints_y(drive_path_waypoints),
+                                              waypoints=close_waypoints,
                                               drive=drive)
-        drive_path_chooser = ConditionalCommand("SwitchOnlySideCondition")
+        drive_path_chooser = ConditionalCommand("ScaleOnlySideCondition")
         drive_path_chooser.onFalse = drive_path_right
         drive_path_chooser.onTrue = drive_path_left
         drive_path_chooser.condition = lambda: GameData.get_own_switch_side() == GameData.Side.LEFT
@@ -38,3 +40,6 @@ class SwitchOnly(CommandGroup):
 
         self.addSequential(intake_out)
         self.addSequential(drop_cube)
+
+    def initialize(self):
+        pass  # pose.set_new_pose(Pose(x=0, y=-10, heading=0))

@@ -81,8 +81,11 @@ class SmartRobotDrive(wpilib.MotorSafety):
             else:
                 print("Can't update model outside of PercentVBus")
                 continue
-            self._model_left_dist += self._left_motor.getMotorOutputPercent() * self.max_speed * dt * factor
-            self._model_right_dist += self._right_motor.getMotorOutputPercent() * self.max_speed * dt * factor
+            try:
+                self._model_left_dist += self._left_motor.getMotorOutputPercent() * self.max_speed * dt * factor
+                self._model_right_dist += self._right_motor.getMotorOutputPercent() * self.max_speed * dt * factor
+            except AssertionError:
+                pass
             robot_time.sleep(millis=20)
 
     def set_mode(self, mode):
@@ -101,8 +104,10 @@ class SmartRobotDrive(wpilib.MotorSafety):
                 self.setSafetyEnabled(False)
                 self._max_output = 0  # The idea of a max setpoint doesn't make sense for motion profiles
 
-    def _radius_turn(self, pow, radius):
+    def radius_turn(self, pow, radius, keep_positive=True):
         D = self.robot_width / 2
+        if abs(radius) < D:
+            radius = math.copysign(D, radius)
         turn_dir = mathutils.sgn(radius)
         radius = abs(radius)
         Vo = pow
@@ -123,8 +128,8 @@ class SmartRobotDrive(wpilib.MotorSafety):
                 return
             turn_power = mathutils.signed_power(turn_power, 1/3)
             radius = self.robot_width / 2 + self.max_turn_radius * (1 - abs(turn_power))
-            self._radius_turn(forward_power * power_factor,
-                              radius * mathutils.sgn(turn_power))
+            self.radius_turn(forward_power * power_factor,
+                             radius * mathutils.sgn(turn_power))
         else:
             warnings.warn("Not in a control mode for Radius Drive", RuntimeWarning)
             self._set_motor_outputs(0, 0)

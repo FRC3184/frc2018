@@ -63,6 +63,7 @@ class MyRobot(TimedCommandBasedRobot):
         auto_switch_only = SwitchOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         self.auto_chooser = dashboard2.add_chooser("Autonomous")
         self.auto_chooser.add_option("Switch Only", auto_switch_only)
+        self.auto_chooser.set_default("Switch Only")
 
     def disabledInit(self):
         pass
@@ -77,4 +78,4 @@ class MyRobot(TimedCommandBasedRobot):
 
 
 if __name__ == '__main__':
-    wpilib.run(MyRobot)
+    wpilib.run(MyRobot, physics_enabled=True)

@@ -120,8 +120,8 @@ class Elevator(Subsystem):
         """
         if pos <= CARRIAGE_TRAVEL:
             return CARRIAGE_WEIGHT
-        elif pos <= TOP_EXTENT:
-            return CARRIAGE_WEIGHT + EXTENT_WEIGHT
+
+        return CARRIAGE_WEIGHT + EXTENT_WEIGHT
 
     def get_hold_torque(self, pos):
         """

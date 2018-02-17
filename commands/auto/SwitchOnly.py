@@ -15,14 +15,15 @@ from systems.intake import Intake, ArmState
 class SwitchOnly(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnly command")
-        drive_path_waypoints = [Vector2(0, 0), Vector2(3, 0), Vector2(5, 3), Vector2(8, 3)]
+        drive_path_waypoints = [Vector2(0, 0), Vector2(3, 0), Vector2(3, 3), Vector2(8, 3)]
         cruise = 0.6
         acc = 0.6
+        lookahead = 2
         drive_path_left = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
-                                               waypoints=drive_path_waypoints, drive=drive)
+                                               waypoints=drive_path_waypoints, drive=drive, lookahead_base=lookahead)
         drive_path_right = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
                                               waypoints=pursuit.flip_waypoints_y(drive_path_waypoints),
-                                              drive=drive)
+                                              drive=drive, lookahead_base=lookahead)
         drive_path_chooser = ConditionalCommand("SwitchOnlySideCondition")
         drive_path_chooser.onFalse = drive_path_right
         drive_path_chooser.onTrue = drive_path_left

@@ -7,7 +7,7 @@ from systems.drivetrain import Drivetrain
 
 
 class PursuitDriveCommand(Command):
-    def __init__(self, drive: Drivetrain, waypoints: [Vector2], cruise_speed, acc, dist_margin=2/12):
+    def __init__(self, drive: Drivetrain, waypoints: [Vector2], cruise_speed, acc, dist_margin=2/12, lookahead_base=3):
         super().__init__("PursuitDriveCommand")
         self.requires(drive)
 
@@ -18,7 +18,7 @@ class PursuitDriveCommand(Command):
 
         self.accel_dist = (1/2) * self.cruise_speed**2 / self.acc
 
-        self.pp_controller = PurePursuitController(waypoints, lookahead_base=1)
+        self.pp_controller = PurePursuitController(waypoints, lookahead_base=lookahead_base)
         cur_pose = pose.get_current_pose()
         self._begin_pose = Vector2(cur_pose.x, cur_pose.y)
         self._end_pose = waypoints[-1]
@@ -40,7 +40,8 @@ class PursuitDriveCommand(Command):
         if speed < 0.1:
             speed = 0.1
 
-        curvature = self.pp_controller.curvature(poz, speed)
+        curvature, cte = self.pp_controller.curvature(poz, speed)
+        print(cte)
         if curvature == 0:
             self.drive.tank_drive(speed, speed)
         else:

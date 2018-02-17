@@ -106,8 +106,6 @@ class SmartRobotDrive(wpilib.MotorSafety):
 
     def radius_turn(self, pow, radius, keep_positive=True):
         D = self.robot_width / 2
-        if abs(radius) < D:
-            radius = math.copysign(D, radius)
         turn_dir = mathutils.sgn(radius)
         radius = abs(radius)
         Vo = pow

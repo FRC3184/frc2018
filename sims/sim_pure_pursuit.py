@@ -26,13 +26,13 @@ if __name__ == '__main__':
     acc = 0.1
 
     accel_dist = (1 / 2) * cruise_speed ** 2 / acc
-    path = [Vector2(0, 0), Vector2(16, 0), Vector2(20, 10), Vector2(20.5, 10)]
+    path = [Vector2(0, 0), Vector2(20, 0), Vector2(20, 14), Vector2(20.5, 14)]
     pose = Pose(2, 0, 0 * math.pi/4)
 
     _begin_pose = Vector2(pose.x, pose.y)
     _end_pose = path[-1]
 
-    lookahead = 0.75
+    lookahead = 5
     dt = 1/1000
     current_time = 0
     lines = []
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         if current_time >= 10:
             break
         try:
-            curve = pursuit.curvature(pose, speed)
+            curve, cte = pursuit.curvature(pose, speed)
         except ValueError:
             print("Break")
             break

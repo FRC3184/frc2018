@@ -17,14 +17,17 @@ class ScaleOnly(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("ScaleOnly command")
         close_waypoints = [Vector2(0, 0), Vector2(16, 0), Vector2(20.5, 2)]
-        far_waypoints = [Vector2(0, 0), Vector2(20, 0), Vector2(20, 10), Vector2(20.5, 10)]
+        far_waypoints = [Vector2(0, 0), Vector2(20, 0), Vector2(20, 17.5)]
         cruise = 0.6
         acc = 0.6
+        margin = 3/12
+        lookahead = 3
         drive_path_left = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
-                                               waypoints=far_waypoints, drive=drive)
+                                               waypoints=far_waypoints, drive=drive, dist_margin=margin,
+                                              lookahead_base=lookahead)
         drive_path_right = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
                                               waypoints=close_waypoints,
-                                              drive=drive)
+                                              drive=drive, dist_margin=margin, lookahead_base=lookahead)
         drive_path_chooser = ConditionalCommand("ScaleOnlySideCondition")
         drive_path_chooser.onFalse = drive_path_right
         drive_path_chooser.onTrue = drive_path_left

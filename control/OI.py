@@ -64,6 +64,34 @@ class _OI:
     def get_turn_command(self):
         return -self.gamepad.getX(XboxController.Hand.kRight)
 
+    def get_fine_left_turn(self):
+        return self.gamepad1.getXButton()
+
+    def get_fine_right_turn(self):
+        return self.gamepad1.getBButton()
+
+    def get_fine_forward(self):
+        return self.gamepad1.get
+
+    def get_fine_forward(self):
+        if self.gamepad1.getPOV() == 0 :
+            self.state == True
+        else :
+            self.state == False
+
+        return self.state
+
+    def get_fine_backward(self):
+        if self.gamepad1.getPOV() == 4:
+            self.state == True
+        else:
+            self.state == False
+
+        return self.state
+
+    def get_spot_turn(self):
+        return self.gamepad1.getBumper(XboxController.Hand.kLeft)
+
     # Intake
     def intake_is_active(self):
         return self.gamepad1.getYButton()

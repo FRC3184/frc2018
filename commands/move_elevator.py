@@ -17,6 +17,8 @@ class MoveElevatorCommand(Command):
     def initialize(self):
         # If we couldn't initialize the profile, there's no point in moving forward
         self.failed_init = not self.elevator.init_profile(self.target_pos)
+        if self.failed_init:
+            print("Elevator FAILED INIT")
 
     def execute(self):
         if not self.failed_init:
@@ -27,4 +29,5 @@ class MoveElevatorCommand(Command):
         return self.elevator.has_finished_profile() or self.failed_init
 
     def end(self):
+        print("Finished profile")
         self.elevator.finish_profile()

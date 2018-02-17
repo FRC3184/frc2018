@@ -29,7 +29,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         :param kwargs: 
         '''
         wpilib.MotorSafety.__init__(self)
-        self.robot_width = kwargs.pop("robot_width", 29.25 / 12)  # TODO measure this
+        self.robot_width = kwargs.pop("robot_width", 24 / 12)
         self.max_turn_radius = kwargs.pop("max_radius", 10)
         self.wheel_diameter = kwargs.pop("wheel_diameter", 6)
         self.max_speed = kwargs.pop("max_speed", 15)
@@ -63,9 +63,9 @@ class SmartRobotDrive(wpilib.MotorSafety):
         self.setSafetyEnabled(True)
 
         pose.init(left_encoder_callback=self.get_left_distance, right_encoder_callback=self.get_right_distance,
-                  gyro_callback=(self.get_heading if not wpilib.hal.isSimulation() else None),
+                  gyro_callback=None if wpilib.hal.isSimulation() else self.get_heading_rads,
                   wheelbase=self.robot_width,
-                  encoder_factor=self.get_fps_rpm_ratio())
+                  encoder_factor=1)
 
         dashboard2.add_graph("Heading", lambda: pose.get_current_pose().heading * 180 / math.pi)
 
@@ -82,8 +82,8 @@ class SmartRobotDrive(wpilib.MotorSafety):
                 print("Can't update model outside of PercentVBus")
                 continue
             try:
-                self._model_left_dist += self._left_motor.getMotorOutputPercent() * self.max_speed * dt * factor
-                self._model_right_dist += self._right_motor.getMotorOutputPercent() * self.max_speed * dt * factor
+                self._model_left_dist += self._left_motor.getMotorOutputPercent() * self.max_speed * dt * factor * 12
+                self._model_right_dist += self._right_motor.getMotorOutputPercent() * self.max_speed * dt * factor * 12
             except AssertionError:
                 pass
             robot_time.sleep(millis=20)
@@ -231,7 +231,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         if wpilib.hal.isSimulation():
             return self._model_left_dist
         else:
-            return self.native_distance_to_feet(self._left_motor.getQuadraturePosition())
+            return -self.native_distance_to_feet(self._left_motor.getQuadraturePosition())
 
     def get_right_distance(self):
         if wpilib.hal.isSimulation():
@@ -274,7 +274,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         return 600 * native_speed / 4096
 
     def native_distance_to_feet(self, native_distance: int) -> float:
-        return self.revs_to_feet(SmartRobotDrive.native_distance_to_revs(native_distance))
+        return (native_distance / 4096) * math.pi * self.wheel_diameter
 
     def feet_to_native_distance(self, feet: float) -> int:
         return int(SmartRobotDrive.revs_to_native_distance(self.feet_to_revs(feet)))

@@ -4,7 +4,7 @@ from wpilib.command import Command
 
 import systems
 from control import OI
-from systems.elevator import Elevator
+from systems.elevator import Elevator, ElevatorState
 
 
 class OpElevatorManualCommand(Command):
@@ -24,11 +24,13 @@ class OpElevatorManualCommand(Command):
         if abs(power) < 0.05:
             power = 0
         elevator.set_power(power)
+        if self.elevator.is_at_bottom():
+            self.elevator.talon_master.setQuadraturePosition(0, 0)
         print(elevator.get_elevator_position())
 
     def end(self):
         self.elevator.set_power(0)
-        # self.elevator.hold()
+        self.elevator.hold()
 
     def isFinished(self):
         return False

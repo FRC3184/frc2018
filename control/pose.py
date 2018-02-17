@@ -1,6 +1,8 @@
 import math
 import threading
 
+import wpilib
+
 from control import robot_time
 from mathutils import Vector2
 
@@ -35,19 +37,11 @@ class Pose(Vector2):
 def init(left_encoder_callback, right_encoder_callback, gyro_callback=None,
                    current_pose=Pose(0, 0, 0), wheelbase=None, encoder_factor=1):
     global _estimator, _estimator_thread
-    # Only one estimator should be running at a time
-    if _estimator_thread is not None:
-        return
     _estimator = PoseEstimator(left_encoder_callback, right_encoder_callback, gyro_callback,
                                current_pose, wheelbase, encoder_factor)
-    _estimator_thread = threading.Thread(target=lambda: _update_estimator(_estimator))
-    _estimator_thread.start()
-
-
-def set_new_pose(pose: Pose):
-    global _estimator
-    if _estimator is not None:
-        _estimator.current_pose = pose
+    if _estimator_thread is None:
+        _estimator_thread = wpilib.Notifier(run=lambda: _estimator.update(dt=10/1000))
+        _estimator_thread.startPeriodic(10/1000)
 
 
 def get_current_pose() -> Pose:

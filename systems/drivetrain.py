@@ -40,4 +40,7 @@ class Drivetrain(Subsystem):
         self.robotdrive.tank_drive(left_power, right_power)
 
     def curvature_drive(self, drive_power, turn_command):
-        pass
+        self.robotdrive.radius_drive(drive_power, turn_command, 1)
+
+    def arc(self, speed, radius):
+        self.robotdrive.radius_turn(speed, radius)

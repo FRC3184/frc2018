@@ -3,6 +3,20 @@ from mathutils import LineSegment, Vector2
 from control import pose
 
 
+def flip_waypoints_x(waypoints: List[Vector2]):
+    waypoints_ = []
+    for k in waypoints:
+        waypoints_.append(Vector2(-k.x, k.y))
+    return waypoints_
+
+
+def flip_waypoints_y(waypoints: List[Vector2]):
+    waypoints_ = []
+    for k in waypoints:
+        waypoints_.append(Vector2(k.x, -k.y))
+    return waypoints_
+
+
 class Path:
     def __init__(self):
         pass
@@ -62,12 +76,12 @@ class LinePath(Path):
         """
         project_points = []
         goal = None
-        error = 0
+        error = None
 
         if len(unpassed_waypoints) <= 1:
             end_err = pose.distance(self.end_point)
             if end_err < lookahead_radius:
-                return self.end_point, error
+                return self.end_point, end_err
 
         # Project the robot's pose onto each line to find the closest line to the robot
         # If we can't find a point that intersects the lookahead circle, use the closest point
@@ -109,13 +123,13 @@ class PurePursuitController:
         """
         return self.lookahead_base * (0.75 + speed)
 
-    def curvature(self, pose: pose.Pose, speed: float) -> float:
+    def curvature(self, pose: pose.Pose, speed: float) -> Tuple[float, float]:
         """
         Calculate the curvature of the arc needed to continue following the path
         curvature is 1/(radius of turn)
         :param pose: The robot's pose
         :param speed: The speed of the robot, from 0.0 to 1.0 as a percent of max speed
-        :return: The curvature of the path
+        :return: The curvature of the path and the cross track error
         """
         lookahead_radius = self.lookahead(speed)
 
@@ -131,7 +145,7 @@ class PurePursuitController:
             curv = -2 * goal.translated(pose).y / dist ** 2
         except ZeroDivisionError:
             curv = 0
-        return curv
+        return curv, goal.translated(pose).y
 
     def is_approaching_end(self, pose):
         return len(self.unpassed_waypoints) == 0

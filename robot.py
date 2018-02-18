@@ -3,10 +3,13 @@
 import wpilib
 from ctre.talonsrx import TalonSRX
 
+from commands.auto.ScaleOnly import ScaleOnly
+from commands.auto.SwitchOnly import SwitchOnly
 from commands.move_elevator import MoveElevatorCommand
 from commands.op_drive import OpDriveCommand
 from commands.op_elevator import OpElevatorManualCommand
 from commands.op_intake import OpIntakeCommand
+from commands.pursuit_drive import PursuitDriveCommand
 from commands.zero_elevator import ElevatorZeroCommand
 from control import OI
 import systems
@@ -14,6 +17,7 @@ from control.OI import OIUpdateCommand
 from control.TimedCommandBasedRobot import TimedCommandBasedRobot
 from dashboard import dashboard2
 from dashboard.dashboard2 import DashboardUpdateCommand
+from mathutils import Vector2
 from systems import *
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator
@@ -31,6 +35,8 @@ class MyRobot(TimedCommandBasedRobot):
         self.teleop_drive = OpDriveCommand(self.drivetrain, self.elevator)
         self.telop_intake = OpIntakeCommand(self.intake)
 
+        self.auto_chooser = None
+
     def robotInit(self):
         # Start up continuous processes
         # In simulation, cd is code dir. On the robot, it's something else so we need to use abs dir
@@ -43,6 +49,8 @@ class MyRobot(TimedCommandBasedRobot):
         DashboardUpdateCommand().start()
         OIUpdateCommand().start()
 
+        # Actions
+
         elev_manual_command = OpElevatorManualCommand(self.elevator)
         elev_move_to_top = MoveElevatorCommand(self.elevator, 68)
         elev_move_to_bottom = MoveElevatorCommand(self.elevator, 0)
@@ -54,11 +62,23 @@ class MyRobot(TimedCommandBasedRobot):
 
         OI.get().add_action_listener(condition=OI.get().elevator_zero, action=elev_zero.start)
 
+
+        # Auto modes
+        auto_switch_only = SwitchOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        auto_scale_only = ScaleOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        self.auto_chooser = dashboard2.add_chooser("Autonomous")
+        self.auto_chooser.add_option("Switch Only", auto_switch_only)
+        self.auto_chooser.add_option("Scale Only", auto_scale_only)
+        self.auto_chooser.add_option("Drive Forward", PursuitDriveCommand(acc=0.3, cruise_speed=0.6,
+                                                                          waypoints=[Vector2(0, 0), Vector2(10, 0)],
+                                                                          drive=self.drivetrain))
+        self.auto_chooser.set_default("Drive Forward")
+
     def disabledInit(self):
         pass
 
     def autonomousInit(self):
-        pass
+        self.auto_chooser.get_selected().start()
 
     def teleopInit(self):
 
@@ -67,4 +87,4 @@ class MyRobot(TimedCommandBasedRobot):
 
 
 if __name__ == '__main__':
-    wpilib.run(MyRobot)
+    wpilib.run(MyRobot, physics_enabled=True)

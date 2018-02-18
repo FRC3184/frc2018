@@ -15,7 +15,7 @@ from systems.intake import Intake, ArmState
 class SwitchOnly(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnly command")
-        drive_path_waypoints = [Vector2(0, 0), Vector2(3, 0), Vector2(3, 3), Vector2(8, 3)]
+        drive_path_waypoints = [Vector2(0, 0), Vector2(3, 0), Vector2(3, 4), Vector2(8, 4)]
         cruise = 0.6
         acc = 0.6
         lookahead = 2

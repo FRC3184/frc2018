@@ -16,7 +16,6 @@ from dashboard import dashboard2
 class SmartRobotDrive(wpilib.MotorSafety):
     class Mode:
         PercentVbus = ctre.ControlMode.PercentOutput
-        Voltage = ctre.ControlMode.PercentOutput
         Speed = ctre.ControlMode.Velocity
         MotionMagic = ctre.ControlMode.MotionMagic
         MotionProfile = ctre.ControlMode.MotionProfile
@@ -32,7 +31,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         self.robot_width = kwargs.pop("robot_width", 24 / 12)
         self.max_turn_radius = kwargs.pop("max_radius", 10)
         self.wheel_diameter = kwargs.pop("wheel_diameter", 6)
-        self.max_speed = kwargs.pop("max_speed", 15)
+        self.max_speed = kwargs.pop("max_speed", 16)
 
         self.ahrs = AHRS.create_i2c()
         self._left_motor = left_motor
@@ -44,7 +43,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
 
         pose.init(left_encoder_callback=self.get_left_distance,
                   right_encoder_callback=self.get_right_distance,
-                  gyro_callback=(None if wpilib.hal.isSimulation() else self.get_heading_rads),
+                  gyro_callback=self.get_heading_rads,
                   wheelbase=self.robot_width)
         dashboard2.add_graph("Pose X", lambda: pose.get_current_pose().x)
         dashboard2.add_graph("Pose Y", lambda: pose.get_current_pose().y)
@@ -76,14 +75,12 @@ class SmartRobotDrive(wpilib.MotorSafety):
             self._model_last_time = now
             if self._mode == SmartRobotDrive.Mode.PercentVbus:
                 factor = 1
-            elif self._mode == SmartRobotDrive.Mode.Voltage:
-                factor = 1/12
             else:
                 print("Can't update model outside of PercentVBus")
                 continue
             try:
-                self._model_left_dist += self._left_motor.getMotorOutputPercent() * self.max_speed * dt * factor * 12
-                self._model_right_dist += self._right_motor.getMotorOutputPercent() * self.max_speed * dt * factor * 12
+                self._model_left_dist += self._left_motor.getMotorOutputPercent() * self.max_speed * dt * factor
+                self._model_right_dist += self._right_motor.getMotorOutputPercent() * self.max_speed * dt * factor
             except AssertionError:
                 pass
             robot_time.sleep(millis=20)
@@ -93,9 +90,6 @@ class SmartRobotDrive(wpilib.MotorSafety):
             self._mode = mode
             if self._mode == SmartRobotDrive.Mode.PercentVbus:
                 self._max_output = 1
-                self.setSafetyEnabled(True)
-            elif self._mode == SmartRobotDrive.Mode.Voltage:
-                self._max_output = 12
                 self.setSafetyEnabled(True)
             elif self._mode == SmartRobotDrive.Mode.Speed:
                 self._max_output = self.rpm_to_native_speed(self.get_fps_rpm_ratio())
@@ -274,7 +268,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         return 600 * native_speed / 4096
 
     def native_distance_to_feet(self, native_distance: int) -> float:
-        return (native_distance / 4096) * math.pi * self.wheel_diameter
+        return (native_distance / 4096) * math.pi * self.wheel_diameter / 12
 
     def feet_to_native_distance(self, feet: float) -> int:
         return int(SmartRobotDrive.revs_to_native_distance(self.feet_to_revs(feet)))

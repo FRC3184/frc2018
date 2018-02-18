@@ -13,8 +13,8 @@ class PursuitDriveCommand(Command):
 
         self.drive = drive
         self.margin = dist_margin
-        self.cruise_speed = cruise_speed
-        self.acc = acc
+        self.cruise_speed = cruise_speed * drive.robotdrive.max_speed
+        self.acc = acc * drive.robotdrive.max_speed
 
         self.accel_dist = (1/2) * self.cruise_speed**2 / self.acc
 
@@ -37,12 +37,12 @@ class PursuitDriveCommand(Command):
         else:
             speed = self.cruise_speed
 
-        min_speed = 0.2
+        min_speed = 0.2 * self.drive.robotdrive.max_speed
         if speed < min_speed:
             speed = min_speed
 
+        speed /= self.drive.robotdrive.max_speed
         curvature, cte = self.pp_controller.curvature(poz, speed)
-        print(cte)
         if curvature == 0:
             self.drive.tank_drive(speed, speed)
         else:

@@ -154,7 +154,7 @@ def update(time):
     # Try to send the pose, but it will throw an error if it hasn't been initialized yet
     try:
         poze = pose.get_current_pose()
-        send_message({"x": poze.x, "y": poze.y, "heading": poze.heading}, event="pose")
+        send_message({"x": poze.x * 12, "y": poze.y * 12, "heading": poze.heading}, event="pose")
     except ValueError:
         pass
 

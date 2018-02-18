@@ -16,7 +16,7 @@ from dashboard import dashboard2
 TOP_EXTENT = 68.5
 CARRIAGE_TRAVEL = 32
 
-TRAVEL_RATIO = TOP_EXTENT / 47.6
+TRAVEL_RATIO = 1  # TOP_EXTENT / 47.6
 
 # Two different PID indices for gain scheduling
 # MAIN is between 0 and CARRIAGE_TRAVEL
@@ -33,7 +33,7 @@ CRUISE_SPEED = 40
 ACC = 2*CRUISE_SPEED
 
 GEAR_RATIO = 20
-SPOOL_RADIUS = 0.5
+SPOOL_RADIUS = 0.25
 CARRIAGE_WEIGHT = 20 + 10/16
 EXTENT_WEIGHT = 10
 

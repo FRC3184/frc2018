@@ -9,6 +9,7 @@ from commands.move_elevator import MoveElevatorCommand
 from commands.op_drive import OpDriveCommand
 from commands.op_elevator import OpElevatorManualCommand
 from commands.op_intake import OpIntakeCommand
+from commands.pursuit_drive import PursuitDriveCommand
 from commands.zero_elevator import ElevatorZeroCommand
 from control import OI
 import systems
@@ -16,6 +17,7 @@ from control.OI import OIUpdateCommand
 from control.TimedCommandBasedRobot import TimedCommandBasedRobot
 from dashboard import dashboard2
 from dashboard.dashboard2 import DashboardUpdateCommand
+from mathutils import Vector2
 from systems import *
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator
@@ -67,7 +69,10 @@ class MyRobot(TimedCommandBasedRobot):
         self.auto_chooser = dashboard2.add_chooser("Autonomous")
         self.auto_chooser.add_option("Switch Only", auto_switch_only)
         self.auto_chooser.add_option("Scale Only", auto_scale_only)
-        self.auto_chooser.set_default("Scale Only")
+        self.auto_chooser.add_option("Drive Forward", PursuitDriveCommand(acc=0.3, cruise_speed=0.6,
+                                                                          waypoints=[Vector2(0, 0), Vector2(10, 0)],
+                                                                          drive=self.drivetrain))
+        self.auto_chooser.set_default("Drive Forward")
 
     def disabledInit(self):
         pass

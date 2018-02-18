@@ -37,8 +37,9 @@ class PursuitDriveCommand(Command):
         else:
             speed = self.cruise_speed
 
-        if speed < 0.1:
-            speed = 0.1
+        min_speed = 0.2
+        if speed < min_speed:
+            speed = min_speed
 
         curvature, cte = self.pp_controller.curvature(poz, speed)
         print(cte)

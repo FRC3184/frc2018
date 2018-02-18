@@ -19,7 +19,7 @@ class Intake(Subsystem):
         self.state = None
         self.set_arm_state(ArmState.UP)
 
-        self.power = .5
+        self.power = .75
 
     def run_intake(self, power):
         """

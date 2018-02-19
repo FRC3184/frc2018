@@ -1,6 +1,8 @@
 from ctre import ControlMode
-from wpilib import Talon, DoubleSolenoid
+from wpilib import Talon, DoubleSolenoid, AnalogInput
 from wpilib.command import Subsystem
+
+from dashboard import dashboard2
 
 
 class ArmState:
@@ -18,7 +20,13 @@ class Intake(Subsystem):
         self.solenoid_lift = DoubleSolenoid(0, 1)
         self.set_arm_state(ArmState.UP)
 
-        self.power = .5
+        self.power = .75
+
+        self.in_sensor = AnalogInput(0)
+        dashboard2.add_graph("Ultrasonic", self.get_reported_distance)
+
+    def get_reported_distance(self):
+        return self.in_sensor.getVoltage() * 254 / 5
 
     def run_intake(self, power):
         """

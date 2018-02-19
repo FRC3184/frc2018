@@ -7,6 +7,7 @@ WEEKZERO = False
 WZ_GAMEDATA_HOST = '10.0.100.44'
 WZ_GAMEDATA_PORT = 5555
 _cached_string = None
+_robot_side = None
 
 
 class Side:
@@ -34,10 +35,15 @@ def get_message():
             _cached_string = getGameSpecificMessage_WeekZero()
         else:
             _cached_string = DriverStation.getInstance().getGameSpecificMessage()
-    if _cached_string == "":
-        _cached_string = "LLL"
-        DriverStation.getInstance().reportWarning("Got empty game data string", False)
     return _cached_string
+
+
+def init(placement):
+    global _robot_side, _cached_string
+    _robot_side = placement
+    get_message()
+    while get_message() == "":
+        _cached_string = None
 
 
 def get_own_switch_side():
@@ -50,3 +56,7 @@ def get_scale_side():
 
 def get_opp_switch_side():
     return Side.from_char(get_message()[2])
+
+
+def get_robot_side():
+    return _robot_side

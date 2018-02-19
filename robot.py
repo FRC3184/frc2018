@@ -11,7 +11,7 @@ from commands.op_elevator import OpElevatorManualCommand
 from commands.op_intake import OpIntakeCommand
 from commands.pursuit_drive import PursuitDriveCommand
 from commands.zero_elevator import ElevatorZeroCommand
-from control import OI
+from control import OI, GameData
 import systems
 from control.OI import OIUpdateCommand
 from control.TimedCommandBasedRobot import TimedCommandBasedRobot
@@ -36,6 +36,7 @@ class MyRobot(TimedCommandBasedRobot):
         self.telop_intake = OpIntakeCommand(self.intake)
 
         self.auto_chooser = None
+        self.side_chooser = None
 
     def robotInit(self):
         # Start up continuous processes
@@ -62,6 +63,10 @@ class MyRobot(TimedCommandBasedRobot):
 
         OI.get().add_action_listener(condition=OI.get().elevator_zero, action=elev_zero.start)
 
+        self.side_chooser = dashboard2.add_chooser("Starting Position")
+        self.side_chooser.add_option("Left", GameData.Side.LEFT)
+        self.side_chooser.add_option("Right", GameData.Side.LEFT)
+        self.side_chooser.set_default("Right")
 
         # Auto modes
         auto_switch_only = SwitchOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
@@ -72,12 +77,13 @@ class MyRobot(TimedCommandBasedRobot):
         self.auto_chooser.add_option("Drive Forward", PursuitDriveCommand(acc=0.3, cruise_speed=0.6,
                                                                           waypoints=[Vector2(0, 0), Vector2(10, 0)],
                                                                           drive=self.drivetrain))
-        self.auto_chooser.set_default("Drive Forward")
+        self.auto_chooser.set_default("Scale Only")
 
     def disabledInit(self):
         pass
 
     def autonomousInit(self):
+        GameData.init(self.side_chooser.get_selected())
         self.auto_chooser.get_selected().start()
 
     def teleopInit(self):

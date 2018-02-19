@@ -33,7 +33,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         self.wheel_diameter = kwargs.pop("wheel_diameter", 6)
         self.max_speed = kwargs.pop("max_speed", 16)
 
-        self.ahrs = AHRS.create_i2c()
+        self.ahrs = AHRS.create_spi()
         self._left_motor = left_motor
         self._right_motor = right_motor
 
@@ -47,8 +47,6 @@ class SmartRobotDrive(wpilib.MotorSafety):
                   wheelbase=self.robot_width)
         dashboard2.add_graph("Pose X", lambda: pose.get_current_pose().x)
         dashboard2.add_graph("Pose Y", lambda: pose.get_current_pose().y)
-        dashboard2.add_graph("Distance to target",
-                             lambda: pose.get_current_pose().distance(mathutils.Vector2(6, -4)))
 
         self._max_output = 1
         self._mode = SmartRobotDrive.Mode.PercentVbus
@@ -62,7 +60,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         self.setSafetyEnabled(True)
 
         pose.init(left_encoder_callback=self.get_left_distance, right_encoder_callback=self.get_right_distance,
-                  gyro_callback=None if wpilib.hal.isSimulation() else self.get_heading_rads,
+                  gyro_callback=self.get_heading_rads,
                   wheelbase=self.robot_width,
                   encoder_factor=1)
 
@@ -218,7 +216,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
             self._set_motor_outputs(0, 0)
 
     def get_heading(self):
-        return self.ahrs.getYaw()
+        return -self.ahrs.getYaw()
 
     def get_heading_rads(self):
         return -self.ahrs.getYaw() * math.pi / 180

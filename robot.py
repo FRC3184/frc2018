@@ -4,6 +4,7 @@ import wpilib
 from ctre.talonsrx import TalonSRX
 
 from commands.auto.ScaleOnly import ScaleOnly
+from commands.auto.SwitchAndScale import SwitchAndScale
 from commands.auto.SwitchOnly import SwitchOnly
 from commands.move_elevator import MoveElevatorCommand
 from commands.op_drive import OpDriveCommand
@@ -71,13 +72,15 @@ class MyRobot(TimedCommandBasedRobot):
         # Auto modes
         auto_switch_only = SwitchOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_scale_only = ScaleOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        auto_switch_scale = SwitchAndScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         self.auto_chooser = dashboard2.add_chooser("Autonomous")
         self.auto_chooser.add_option("Switch Only", auto_switch_only)
         self.auto_chooser.add_option("Scale Only", auto_scale_only)
+        self.auto_chooser.add_option("Switch and Scale", auto_switch_scale)
         self.auto_chooser.add_option("Drive Forward", PursuitDriveCommand(acc=0.3, cruise_speed=0.6,
                                                                           waypoints=[Vector2(0, 0), Vector2(10, 0)],
                                                                           drive=self.drivetrain))
-        self.auto_chooser.set_default("Scale Only")
+        self.auto_chooser.set_default("Switch and Scale")
 
     def disabledInit(self):
         pass

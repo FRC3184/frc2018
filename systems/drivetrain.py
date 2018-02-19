@@ -24,7 +24,6 @@ class Drivetrain(Subsystem):
     def setup_talons(self, master: TalonSRX, slave: TalonSRX, invert=False, pidIdx=0, timeoutMs=0):
         slave.follow(master)
         master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, pidIdx, timeoutMs)
-        master.setSensorPhase(True)
 
         master.configOpenLoopRamp(1/3, timeoutMs)
         master.configContinuousCurrentLimit(50, timeoutMs)
@@ -41,4 +40,7 @@ class Drivetrain(Subsystem):
         self.robotdrive.tank_drive(left_power, right_power)
 
     def curvature_drive(self, drive_power, turn_command):
-        pass
+        self.robotdrive.radius_drive(drive_power, turn_command, 1)
+
+    def arc(self, speed, radius):
+        self.robotdrive.radius_turn(speed, radius)

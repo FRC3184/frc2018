@@ -129,8 +129,6 @@ class LineSegment:
         return (tr_point.x / self.slope.x + tr_point.y / self.slope.y) / 2
 
     def r(self, t):
-        if t > self.max_t or t < 0:
-            raise ValueError("t outside range")
         return self.intersect + self.slope * t
 
     def on_line(self, point: Vector2, epsilon=1e-3):

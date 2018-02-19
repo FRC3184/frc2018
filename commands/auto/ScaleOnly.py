@@ -49,7 +49,7 @@ class ScaleOnly(CommandGroup):
         drive_path_flip_chooser.condition = lambda: GameData.get_own_switch_side() == GameData.Side.RIGHT
 
         drive_flip_chooser = ConditionalCommand("DriveFlipCondition")
-        drive_flip_chooser.condition = lambda: GameData.get_robot_side() != GameData.Side.RIGHT
+        drive_flip_chooser.condition = lambda: GameData.get_robot_side() == GameData.Side.RIGHT
         drive_flip_chooser.onTrue = drive_path_chooser
         drive_flip_chooser.onFalse = drive_path_flip_chooser
 

@@ -65,7 +65,7 @@ class MyRobot(TimedCommandBasedRobot):
 
         self.side_chooser = dashboard2.add_chooser("Starting Position")
         self.side_chooser.add_option("Left", GameData.Side.LEFT)
-        self.side_chooser.add_option("Right", GameData.Side.LEFT)
+        self.side_chooser.add_option("Right", GameData.Side.RIGHT)
         self.side_chooser.set_default("Right")
 
         # Auto modes

@@ -65,6 +65,8 @@ class PoseEstimator:
 
         self.current_pose = current_pose
 
+        self.gyro_offset = 0
+
     def update(self, dt):
         enc_left = self.left_encoder_callback()
         enc_right = self.right_encoder_callback()
@@ -76,7 +78,7 @@ class PoseEstimator:
         # Use gyro for heading if we can, otherwise difference between wheels
         # In future, combine approaches?
         if self.gyro_callback is not None:
-            self.current_pose.heading = self.gyro_callback()
+            self.current_pose.heading = self.gyro_callback() - self.gyro_offset
         else:
             self.current_pose.heading += (dist_right - dist_left) / self.robot_width
         dist = (dist_left + dist_right) / 2
@@ -84,11 +86,6 @@ class PoseEstimator:
         self.current_pose.y += dist * math.sin(self.current_pose.heading)
 
 
-def _update_estimator(pose_estimator: PoseEstimator, sleep_sec=(10/1000)):
-    ct = 0
-    while True:
-        pose_estimator.update(dt=sleep_sec)
-        ct += sleep_sec
-        if ct > 1:
-            ct = 0
-        robot_time.sleep(seconds=sleep_sec)
+def set_new_pose(poz: Pose):
+    _estimator.gyro_offset = get_current_pose().heading
+    _estimator.current_pose = poz

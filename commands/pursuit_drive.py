@@ -7,7 +7,8 @@ from systems.drivetrain import Drivetrain
 
 
 class PursuitDriveCommand(Command):
-    def __init__(self, drive: Drivetrain, waypoints: [Vector2], cruise_speed, acc, dist_margin=2/12, lookahead_base=3):
+    def __init__(self, drive: Drivetrain, waypoints: [Vector2], cruise_speed, acc, dist_margin=2/12,
+                 lookahead_base=2, reverse=False):
         super().__init__("PursuitDriveCommand")
         self.requires(drive)
 
@@ -22,6 +23,8 @@ class PursuitDriveCommand(Command):
         cur_pose = pose.get_current_pose()
         self._begin_pose = Vector2(cur_pose.x, cur_pose.y)
         self._end_pose = waypoints[-1]
+
+        self.reverse = reverse
 
     def initialize(self):
         self.pp_controller.init()
@@ -43,6 +46,8 @@ class PursuitDriveCommand(Command):
 
         speed /= self.drive.robotdrive.max_speed
         curvature, cte = self.pp_controller.curvature(poz, speed)
+        speed *= (-1 if self.reverse else 1)
+        curvature *= (-1 if self.reverse else 1)
         if curvature == 0:
             self.drive.tank_drive(speed, speed)
         else:

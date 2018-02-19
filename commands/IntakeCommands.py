@@ -11,6 +11,7 @@ class MoveIntakeCommand(Command):
         self.new_state = new_state
         self.old_state = None
         self.timer = Timer()
+        self.requires(intake)
 
     def initialize(self):
         self.old_state = self.intake.state
@@ -32,7 +33,11 @@ class TimedRunIntakeCommand(TimedCommand):
         super().__init__("TimedRunIntake", time)
         self.power = power
         self.intake = intake
+        self.requires(intake)
 
     def execute(self):
         self.intake.run_intake(self.power)
+
+    def end(self):
+        self.intake.run_intake(0)
 

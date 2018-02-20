@@ -5,7 +5,8 @@ from wpilib.command import CommandGroup, ConditionalCommand
 from commands.IntakeCommands import MoveIntakeCommand, TimedRunIntakeCommand
 from commands.move_elevator import MoveElevatorCommand
 from commands.pursuit_drive import PursuitDriveCommand
-from control import GameData, pursuit
+from control import GameData, pursuit, pose
+from control.pose import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator, ElevatorPositions
@@ -15,7 +16,7 @@ from systems.intake import Intake, ArmState
 class SwitchOnly(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnly command")
-        drive_path_waypoints = [Vector2(0, 0), Vector2(3, 0), Vector2(3, 4), Vector2(8, 4)]
+        drive_path_waypoints = [Vector2(1.5, 0), Vector2(4.5, 0), Vector2(4.5, 4), Vector2(9.5, 4)]
         cruise = 0.6
         acc = 0.6
         lookahead = 2
@@ -39,3 +40,6 @@ class SwitchOnly(CommandGroup):
 
         self.addSequential(intake_out)
         self.addSequential(drop_cube)
+
+    def initialize(self):
+        pose.set_new_pose(Pose(1.5, 0, 0))

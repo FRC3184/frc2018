@@ -28,6 +28,7 @@ class PursuitDriveCommand(Command):
 
     def initialize(self):
         self.pp_controller.init()
+        print("Started pursuit")
 
     def execute(self):
         poz = pose.get_current_pose()
@@ -51,10 +52,14 @@ class PursuitDriveCommand(Command):
         if curvature == 0:
             self.drive.tank_drive(speed, speed)
         else:
-            self.drive.arc(speed, 1/curvature)
+            radius = 1/curvature
+            if abs(radius) < self.drive.robotdrive.robot_width / 4:
+                self.drive.tank_drive(speed, speed)
+            else:
+                self.drive.arc(speed, radius)
 
     def isFinished(self):
         return self.pp_controller.is_at_end(pose.get_current_pose(), self.margin)
 
     def end(self):
-        pass
+        print("Ended pursuit")

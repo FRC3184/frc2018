@@ -147,7 +147,7 @@ class PurePursuitController:
     def is_approaching_end(self, pose):
         return len(self.unpassed_waypoints) == 0
 
-    def is_at_end(self, pose, dist_margin=1/12):
+    def is_at_end(self, pose, dist_margin=3/12):
         """
         See if the robot has completed its path
         :param pose: The robot pose
@@ -155,4 +155,4 @@ class PurePursuitController:
         """
         translated_end = self.end_point.translated(pose)
         err = abs(translated_end.x)
-        return self.is_approaching_end(pose) and err < dist_margin
+        return self.is_approaching_end(pose) and translated_end.x < 0

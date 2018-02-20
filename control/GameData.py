@@ -42,8 +42,6 @@ def init(placement):
     global _robot_side, _cached_string
     _robot_side = placement
     get_message()
-    while get_message() == "":
-        _cached_string = None
 
 
 def get_own_switch_side():

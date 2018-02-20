@@ -51,6 +51,8 @@ class MyRobot(TimedCommandBasedRobot):
         DashboardUpdateCommand().start()
         OIUpdateCommand().start()
 
+        wpilib.CameraServer.launch()
+
         # Actions
 
         elev_manual_command = OpElevatorManualCommand(self.elevator)
@@ -80,7 +82,7 @@ class MyRobot(TimedCommandBasedRobot):
         self.auto_chooser.add_option("Drive Forward", PursuitDriveCommand(acc=0.3, cruise_speed=0.6,
                                                                           waypoints=[Vector2(0, 0), Vector2(10, 0)],
                                                                           drive=self.drivetrain))
-        self.auto_chooser.set_default("Switch and Scale")
+        self.auto_chooser.set_default("Switch Only")
 
     def disabledInit(self):
         pass

@@ -1,7 +1,8 @@
 from wpilib import Timer
 from wpilib.command import Command, TimedCommand
 
-from systems.intake import Intake, ArmState
+from systems.drivetrain import Drivetrain
+from systems.intake import Intake, ArmState, GrabState
 
 
 class MoveIntakeCommand(Command):
@@ -14,7 +15,7 @@ class MoveIntakeCommand(Command):
         self.requires(intake)
 
     def initialize(self):
-        self.old_state = self.intake.state
+        self.old_state = self.intake.get_arm_state()
         self.intake.set_arm_state(self.new_state)
         self.timer.reset()
         self.timer.start()
@@ -41,3 +42,37 @@ class TimedRunIntakeCommand(TimedCommand):
     def end(self):
         self.intake.run_intake(0)
 
+
+class AcquireCube(Command):
+    def __init__(self, drive_speed, timeout, drive: Drivetrain, intake: Intake):
+        super().__init__("AcquireCube", timeout)
+        self.drive_speed = drive_speed
+        self.drive = drive
+        self.intake = intake
+        self.requires(intake)
+        self.requires(drive)
+        self.state = 0
+        self.timer = Timer()
+
+    def initialize(self):
+        self.state = 0
+        self.intake.set_arm_state(ArmState.DOWN)
+        self.intake.set_grab_state(GrabState.OUT)
+        self.timer.start()
+
+    def execute(self):
+        if self.state == 0:
+            self.drive.arcade_drive(0, 0)
+            if self.timer.get() > 0.2:
+                self.state = 1
+        elif self.state == 1:
+            self.intake.intake()
+            self.drive.arcade_drive(self.drive_speed, 0)
+
+    def isFinished(self):
+        return self.intake.has_acquired_cube()
+
+    def end(self):
+        self.intake.set_grab_state(GrabState.IN)
+        self.intake.set_arm_state(ArmState.UP)
+        self.drive.arcade_drive(0, 0)

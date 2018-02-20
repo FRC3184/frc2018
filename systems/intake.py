@@ -1,5 +1,5 @@
 from ctre import ControlMode
-from wpilib import Talon, DoubleSolenoid, AnalogInput
+from wpilib import Talon, DoubleSolenoid, AnalogInput, Solenoid
 from wpilib.command import Subsystem
 
 from dashboard import dashboard2
@@ -10,6 +10,11 @@ class ArmState:
     UP = 1
 
 
+class GrabState:
+    IN = 0
+    OUT = 1
+
+
 class Intake(Subsystem):
     def __init__(self):
         super().__init__("Intake")
@@ -17,8 +22,8 @@ class Intake(Subsystem):
         self.talon_left = Talon(0)
         self.talon_right = Talon(1)
 
-        self.solenoid_lift = DoubleSolenoid(0, 1)
-        self.state = None
+        self.solenoid_lift = Solenoid(0)
+        self.solenoid_grab = Solenoid(1)
         self.set_arm_state(ArmState.UP)
 
         self.power = .75
@@ -45,9 +50,23 @@ class Intake(Subsystem):
     def eject(self):
         self.run_intake(-self.power)
 
+    def get_arm_state(self):
+        return ArmState.DOWN if not self.solenoid_lift.get() else ArmState.UP
+
     def set_arm_state(self, state):
-        self.state = state
         if state == ArmState.DOWN:
-            self.solenoid_lift.set(DoubleSolenoid.Value.kForward)
+            self.solenoid_lift.set(False)
         else:
-            self.solenoid_lift.set(DoubleSolenoid.Value.kReverse)
+            self.solenoid_lift.set(True)
+
+    def get_grab_state(self):
+        return GrabState.OUT if self.solenoid_grab.get() else GrabState.IN
+
+    def set_grab_state(self, state):
+        if state == GrabState.OUT:
+            self.solenoid_grab.set(True)
+        else:
+            self.solenoid_grab.set(False)
+
+    def has_acquired_cube(self):
+        return self.get_reported_distance() < 10

@@ -53,7 +53,7 @@ class PursuitDriveCommand(Command):
             self.drive.tank_drive(speed, speed)
         else:
             radius = 1/curvature
-            if abs(radius) < self.drive.robotdrive.robot_width / 4:
+            if abs(radius) < self.drive.robotdrive.robot_width / 4 and False:
                 self.drive.tank_drive(speed, speed)
             else:
                 self.drive.arc(speed, radius)

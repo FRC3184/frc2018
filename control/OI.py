@@ -89,6 +89,9 @@ class _OI:
     def arm_is_down(self):
         return self.op_gamepad.getTriggerAxis(XboxController.Hand.kRight) > 0.75
 
+    def arm_is_open(self):
+        return self.op_gamepad.getBumper(XboxController.Hand.kLeft)
+
     # Elevator
     def get_elevator_manual_command(self):
         return -self.op_gamepad.getY(XboxController.Hand.kLeft)
@@ -97,10 +100,10 @@ class _OI:
         return self.op_gamepad.getTriggerAxis(XboxController.Hand.kLeft) > 0.75
 
     def elevator_move_to_top(self):
-        return self.op_gamepad.getBumper(XboxController.Hand.kRight)
+        return self.op_gamepad.getPOV() == 0
 
     def elevator_move_to_bottom(self):
-        return self.op_gamepad.getBumper(XboxController.Hand.kLeft)
+        return self.op_gamepad.getPOV() == 180
 
     def elevator_zero(self):
         return False

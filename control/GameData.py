@@ -41,7 +41,8 @@ def get_message():
 def init(placement):
     global _robot_side, _cached_string
     _robot_side = placement
-    get_message()
+    while len(get_message()) < 3:
+        pass
 
 
 def get_own_switch_side():

@@ -3,10 +3,12 @@ from wpilib.command import CommandGroup, ConditionalCommand, PrintCommand
 
 from commands.IntakeCommands import MoveIntakeCommand, TimedRunIntakeCommand
 from commands.WaitUntilCondition import WaitUntilConditionCommand
+from commands.auto.SimpleDriveCommand import TimeDriveCommand, DistanceDriveCommand
 from commands.reset_pose import ResetPoseCommand
 from commands.move_elevator import MoveElevatorCommand
 from commands.pursuit_drive import PursuitDriveCommand
 from control import GameData, pursuit, pose
+from control.pose import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator, ElevatorPositions
@@ -16,8 +18,8 @@ from systems.intake import Intake, ArmState
 class ScaleOnly(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("ScaleOnly command")
-        close_waypoints = [Vector2(0, 0), Vector2(16, 0), Vector2(22, 3)]
-        far_waypoints = [Vector2(0, 0), Vector2(18, 0), Vector2(18, 17), Vector2(20.5, 16.5)]
+        close_waypoints = [Vector2(0, -10), Vector2(16, -10), Vector2(22, -7)]
+        far_waypoints = [Vector2(0, -10), Vector2(18, -10), Vector2(18, 7), Vector2(20.5, 6.5)]
         cruise = 0.6
         acc = 0.6
         margin = 3/12
@@ -63,9 +65,8 @@ class ScaleOnly(CommandGroup):
         intake_out = MoveIntakeCommand(intake, ArmState.DOWN)
         drop_cube = TimedRunIntakeCommand(intake, time=0.5, power=-intake.power)
 
-        reset_pose = ResetPoseCommand()
-        drive_back = PursuitDriveCommand(drive=drive, waypoints=[Vector2(0, 0), Vector2(-2, 0)],
-                                                 cruise_speed=0.6, acc=0.2, reverse=True)
+        # reset_pose = ResetPoseCommand()
+        drive_back = DistanceDriveCommand(drive=drive, power=-0.5, distance=2)
 
         self.addParallel(elev_group)
         self.addSequential(drive_flip_chooser)
@@ -73,8 +74,8 @@ class ScaleOnly(CommandGroup):
         self.addSequential(intake_out)
         self.addSequential(drop_cube)
 
-        self.addSequential(reset_pose)
+        # self.addSequential(reset_pose)
         self.addSequential(drive_back)
 
     def initialize(self):
-        pass  # pose.set_new_pose(Pose(x=0, y=-10, heading=0))
+        pose.set_new_pose(Pose(x=1.5, y=-10, heading=0))

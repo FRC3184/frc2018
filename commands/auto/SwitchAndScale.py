@@ -3,7 +3,7 @@ from wpilib.command import CommandGroup, ConditionalCommand, PrintCommand
 
 from commands.IntakeCommands import MoveIntakeCommand, TimedRunIntakeCommand
 from commands.WaitUntilCondition import WaitUntilConditionCommand
-from commands.auto.TimeDriveCommand import TimeDriveCommand
+from commands.auto.SimpleDriveCommand import TimeDriveCommand
 from commands.auto.TurnToAngle import TurnToAngle
 from commands.reset_pose import ResetPoseCommand
 from commands.move_elevator import MoveElevatorCommand

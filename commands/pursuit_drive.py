@@ -1,3 +1,4 @@
+import hal
 from wpilib.command import Command
 
 from control import pose
@@ -29,6 +30,13 @@ class PursuitDriveCommand(Command):
     def initialize(self):
         self.pp_controller.init()
         print("Started pursuit")
+
+        if hal.isSimulation():
+            from pyfrc.sim import get_user_renderer
+            render = get_user_renderer()
+            poz = pose.get_current_pose()
+            render.draw_line(line_pts=[(w.x + 1.5, -w.y + 13.5) for w in self.pp_controller.waypoints],
+                             robot_coordinates=False)
 
     def execute(self):
         poz = pose.get_current_pose()

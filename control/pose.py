@@ -33,6 +33,12 @@ class Pose(Vector2):
         elif type(other) == Vector2:
             return Vector2(self.x - other.x, self.y - other.y)
 
+    def copy(self):
+        return Pose(self.x, self.y, self.heading)
+
+    def __copy__(self):
+        return self.copy()
+
 
 def init(left_encoder_callback, right_encoder_callback, gyro_callback=None,
                    current_pose=Pose(0, 0, 0), wheelbase=None, encoder_factor=1):

@@ -5,17 +5,8 @@
       "w": 3,
       "h": 2,
       "starting_x": 2,
-      "starting_y": 13.5,
+      "starting_y": 23.5,
       "starting_angle": 0
-    },
-    "field": {
-      "w": 27,
-      "h": 27,
-      "px_per_ft": 15,
-      "image": "2018-field.gif",
-      "objects": [
-        { "color": "yellow", "rect": [20, 6, 0.5, 0.5] }
-      ]
     }
   }
 }

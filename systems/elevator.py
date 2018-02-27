@@ -1,16 +1,13 @@
 import math
 from typing import List, Tuple
 
-import ctre
 from ctre import TrajectoryPoint as TalonPoint, FeedbackDevice, ControlMode
-from ctre._impl.autogen.ctre_sim_enums import SetValueMotionProfile
 from ctre.talonsrx import TalonSRX
-from wpilib import DriverStation, DigitalInput, threading
 from wpilib.command import Subsystem
 
 from Logger import Logger
 from control import robot_time
-from control.MotionProfile import MotionProfile, SRXMotionProfileManager
+from control.motion_profile import MotionProfile, SRXMotionProfileManager
 from dashboard import dashboard2
 
 TOP_EXTENT = 68.5

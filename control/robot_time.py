@@ -1,6 +1,6 @@
 import time
-
 from datetime import datetime
+
 import wpilib
 
 _auto_time = 15  # Seconds in auto period

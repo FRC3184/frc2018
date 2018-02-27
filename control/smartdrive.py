@@ -1,14 +1,13 @@
+import math
 import threading
 import warnings
 
 import ctre.talonsrx
 import wpilib
-import math
 from robotpy_ext.common_drivers.navx.ahrs import AHRS
-from wpilib.command import Subsystem
 
-import mathutils
 import control.pose as pose
+import mathutils
 from control import robot_time
 from dashboard import dashboard2
 

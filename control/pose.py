@@ -1,9 +1,7 @@
 import math
-import threading
 
 import wpilib
 
-from control import robot_time
 from mathutils import Vector2
 
 _estimator_thread = None

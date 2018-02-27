@@ -1,10 +1,7 @@
-import typing
-
 from wpilib.command import Command
 
-import systems
 from control import OI
-from systems.elevator import Elevator, ElevatorState
+from systems.elevator import Elevator
 
 
 class OpElevatorManualCommand(Command):

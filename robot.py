@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
 
 import wpilib
-from ctre.talonsrx import TalonSRX
 
-from commands.auto.ScaleOnly import ScaleOnly
-from commands.auto.SwitchAndScale import SwitchAndScale
-from commands.auto.SwitchOnly import SwitchOnly
-from commands.move_elevator import MoveElevatorCommand
+from commands.auto.scale_only import ScaleOnly
+from commands.auto.switch_and_scale import SwitchAndScale
+from commands.auto.switch_only import SwitchOnly
+from commands.auto_move_elevator import MoveElevatorCommand
 from commands.op_drive import OpDriveCommand
 from commands.op_elevator import OpElevatorManualCommand
 from commands.op_intake import OpIntakeCommand
 from commands.pursuit_drive import PursuitDriveCommand
 from commands.zero_elevator import ElevatorZeroCommand
-from control import OI, GameData
-import systems
+from control import OI, game_data
 from control.OI import OIUpdateCommand
 from control.TimedCommandBasedRobot import TimedCommandBasedRobot
 from dashboard import dashboard2
 from dashboard.dashboard2 import DashboardUpdateCommand
 from mathutils import Vector2
-from systems import *
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator
 from systems.intake import Intake
@@ -67,8 +64,8 @@ class MyRobot(TimedCommandBasedRobot):
         OI.get().add_action_listener(condition=OI.get().elevator_zero, action=elev_zero.start)
 
         self.side_chooser = dashboard2.add_chooser("Starting Position")
-        self.side_chooser.add_option("Left", GameData.Side.LEFT)
-        self.side_chooser.add_option("Right", GameData.Side.RIGHT)
+        self.side_chooser.add_option("Left", game_data.Side.LEFT)
+        self.side_chooser.add_option("Right", game_data.Side.RIGHT)
         self.side_chooser.set_default("Right")
 
         # Auto modes
@@ -88,7 +85,7 @@ class MyRobot(TimedCommandBasedRobot):
         pass
 
     def autonomousInit(self):
-        GameData.init(self.side_chooser.get_selected())
+        game_data.init(self.side_chooser.get_selected())
         self.auto_chooser.get_selected().start()
 
     def teleopInit(self):

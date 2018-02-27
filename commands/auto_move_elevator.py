@@ -1,6 +1,5 @@
 from wpilib.command import Command
 
-import systems
 from systems.elevator import Elevator
 
 

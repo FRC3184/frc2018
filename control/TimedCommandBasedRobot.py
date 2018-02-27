@@ -1,5 +1,4 @@
-import hal
-from wpilib import TimedRobot, SmartDashboard
+from wpilib import TimedRobot
 
 from wpilib.command.scheduler import Scheduler
 from wpilib.livewindow import LiveWindow

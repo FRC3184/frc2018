@@ -1,6 +1,8 @@
-from systems.elevator import Elevator
-import matplotlib.pylab as plot
 import time
+
+import matplotlib.pylab as plot
+
+from systems.elevator import Elevator
 
 if __name__ == '__main__':
     elev = Elevator(mock=True)

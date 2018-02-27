@@ -1,5 +1,4 @@
-from ctre import ControlMode
-from wpilib import Talon, DoubleSolenoid, AnalogInput, Solenoid
+from wpilib import Talon, DoubleSolenoid, AnalogInput
 from wpilib.command import Subsystem
 
 from dashboard import dashboard2

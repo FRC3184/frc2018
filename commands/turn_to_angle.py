@@ -1,7 +1,7 @@
 import math
+
 from wpilib.command import Command
 
-from control import pose
 from systems.drivetrain import Drivetrain
 
 

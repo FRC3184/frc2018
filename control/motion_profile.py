@@ -1,17 +1,13 @@
 import threading
 from math import copysign
-from typing import List, Sequence, Iterator
-
-import time
+from typing import List, Iterator
 
 import hal
 from ctre import ControlMode
+from ctre import TrajectoryPoint as TalonPoint
 from ctre._impl.autogen.ctre_sim_enums import SetValueMotionProfile
 from ctre.talonsrx import TalonSRX
 
-from ctre import TrajectoryPoint as TalonPoint
-
-import mathutils
 from control import robot_time
 from mathutils import sgn
 

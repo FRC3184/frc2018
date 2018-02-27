@@ -1,6 +1,7 @@
 from typing import List, Tuple, Optional
-from mathutils import LineSegment, Vector2
+
 from control import pose
+from mathutils import LineSegment, Vector2
 
 
 def flip_waypoints_x(waypoints: List[Vector2]):

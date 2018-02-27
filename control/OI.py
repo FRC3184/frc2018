@@ -2,10 +2,10 @@
 # There should be functions such as get_turn_command and do_lift
 # This is a singleton class, init() is called once at the beginning
 # From then on, .get() is called to get the instance and methods are called on the instance
+import typing
 from typing import Callable
 
-import typing
-from wpilib import Joystick, XboxController
+from wpilib import XboxController
 from wpilib.command import Command
 
 _instance = None

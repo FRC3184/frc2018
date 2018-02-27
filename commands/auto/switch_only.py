@@ -1,11 +1,10 @@
-import commandbased.flowcontrol as fc
 import hal
 from wpilib.command import CommandGroup, ConditionalCommand
 
-from commands.IntakeCommands import MoveIntakeCommand, TimedRunIntakeCommand
-from commands.move_elevator import MoveElevatorCommand
+from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand
+from commands.auto_move_elevator import MoveElevatorCommand
 from commands.pursuit_drive import PursuitDriveCommand
-from control import GameData, pursuit, pose
+from control import game_data, pursuit, pose
 from control.pose import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
@@ -28,7 +27,7 @@ class SwitchOnly(CommandGroup):
         drive_path_chooser = ConditionalCommand("SwitchOnlySideCondition")
         drive_path_chooser.onFalse = drive_path_right
         drive_path_chooser.onTrue = drive_path_left
-        drive_path_chooser.condition = lambda: GameData.get_own_switch_side() == GameData.Side.LEFT
+        drive_path_chooser.condition = lambda: game_data.get_own_switch_side() == game_data.Side.LEFT
 
         elevator_to_height = MoveElevatorCommand(elevator, ElevatorPositions.SWITCH)
         intake_out = MoveIntakeCommand(intake, ArmState.DOWN)

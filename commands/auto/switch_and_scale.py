@@ -1,14 +1,13 @@
 import hal
 from wpilib.command import CommandGroup, ConditionalCommand, PrintCommand
 
-from commands.IntakeCommands import MoveIntakeCommand, TimedRunIntakeCommand
-from commands.WaitUntilCondition import WaitUntilConditionCommand
-from commands.auto.SimpleDriveCommand import TimeDriveCommand
-from commands.auto.TurnToAngle import TurnToAngle
-from commands.reset_pose import ResetPoseCommand
-from commands.move_elevator import MoveElevatorCommand
+from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand
+from commands.auto_move_elevator import MoveElevatorCommand
+from commands.auto_simple_drive import TimeDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
-from control import GameData, pursuit, pose
+from commands.turn_to_angle import TurnToAngle
+from commands.wait_until import WaitUntilConditionCommand
+from control import game_data, pursuit, pose
 from control.pose import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
@@ -42,15 +41,15 @@ class SwitchAndScale(CommandGroup):
         drive_path_chooser = ConditionalCommand("StandardScaleOnlySideCondition")
         drive_path_chooser.onFalse = drive_path_far
         drive_path_chooser.onTrue = drive_path_close
-        drive_path_chooser.condition = lambda: GameData.get_scale_side() == GameData.Side.RIGHT
+        drive_path_chooser.condition = lambda: game_data.get_scale_side() == game_data.Side.RIGHT
 
         drive_path_flip_chooser = ConditionalCommand("FlipScaleOnlySideCondition")
         drive_path_flip_chooser.onFalse = drive_path_close_flipped
         drive_path_flip_chooser.onTrue = drive_path_far_flipped
-        drive_path_flip_chooser.condition = lambda: GameData.get_scale_side() == GameData.Side.RIGHT
+        drive_path_flip_chooser.condition = lambda: game_data.get_scale_side() == game_data.Side.RIGHT
 
         drive_flip_chooser = ConditionalCommand("DriveFlipCondition")
-        drive_flip_chooser.condition = lambda: GameData.get_robot_side() == GameData.Side.RIGHT
+        drive_flip_chooser.condition = lambda: game_data.get_robot_side() == game_data.Side.RIGHT
         drive_flip_chooser.onTrue = drive_path_chooser
         drive_flip_chooser.onFalse = drive_path_flip_chooser
 
@@ -69,7 +68,7 @@ class SwitchAndScale(CommandGroup):
         drive_back = TimeDriveCommand(drive, time=0.2, power=-0.5)
 
         spin_chooser = ConditionalCommand("SpinChooser")
-        spin_chooser.condition = lambda: GameData.get_scale_side() == GameData.Side.RIGHT
+        spin_chooser.condition = lambda: game_data.get_scale_side() == game_data.Side.RIGHT
         spin_chooser.onTrue = TurnToAngle(drive, 180, delta=False)
         spin_chooser.onFalse = TurnToAngle(drive, -180, delta=False)
 
@@ -77,7 +76,7 @@ class SwitchAndScale(CommandGroup):
         switch_path_far = [Vector2(20, -10), Vector2(18, 7)]
 
         switch_path_chooser = ConditionalCommand("SwitchPathChooser")
-        switch_path_chooser.condition = lambda: GameData.get_own_switch_side() == GameData.get_robot_side()
+        switch_path_chooser.condition = lambda: game_data.get_own_switch_side() == game_data.get_robot_side()
         switch_path_chooser.onTrue = PursuitDriveCommand(drive, switch_path_close, cruise, acc)
         switch_path_chooser.onFalse = PursuitDriveCommand(drive, switch_path_far, cruise, acc)
 

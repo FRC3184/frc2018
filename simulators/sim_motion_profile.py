@@ -1,5 +1,6 @@
-from control.MotionProfile import MotionProfile
 import matplotlib.pylab as plot
+
+from control.motion_profile import MotionProfile
 
 
 def plot_mp(mp):

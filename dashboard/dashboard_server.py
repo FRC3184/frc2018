@@ -1,8 +1,7 @@
-import os
+import time
+import urllib.parse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
-import urllib.parse
-import time
 
 # Currently very limited. Does not serve images. Cannot deal with different mimetypes in the same directory...
 

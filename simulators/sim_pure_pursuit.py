@@ -1,10 +1,11 @@
 import math
-import matplotlib.pylab as plot
 import time
 
+import matplotlib.pylab as plot
+
+from control.pose import Pose
 from control.pursuit import PurePursuitController
 from mathutils import Vector2
-from control.pose import Pose
 
 
 def radius_ratio(R, D):

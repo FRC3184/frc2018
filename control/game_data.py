@@ -1,5 +1,4 @@
 import socket
-import sys
 
 from wpilib import DriverStation
 

@@ -1,6 +1,5 @@
 from wpilib.command import Command
 
-import systems
 from control import OI
 from systems.intake import Intake, ArmState, GrabState
 

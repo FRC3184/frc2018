@@ -1,7 +1,8 @@
-import hal
 import os
-from wpilib.command import Command
 from time import strftime, gmtime
+
+import hal
+from wpilib.command import Command
 
 
 def get_logger_timestamp():

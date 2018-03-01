@@ -9,7 +9,7 @@ from systems.drivetrain import Drivetrain
 
 class PursuitDriveCommand(Command):
     def __init__(self, drive: Drivetrain, waypoints: [Vector2], cruise_speed, acc, dist_margin=2/12,
-                 lookahead_base=2, reverse=False):
+                 lookahead_base=5, reverse=False):
         super().__init__("PursuitDriveCommand")
         self.requires(drive)
 
@@ -30,6 +30,9 @@ class PursuitDriveCommand(Command):
     def initialize(self):
         self.pp_controller.init()
         print("Started pursuit")
+        cur_pose = pose.get_current_pose()
+        self._begin_pose = Vector2(cur_pose.x, cur_pose.y)
+        print(f"Accel dist: {self.accel_dist}")
 
         if hal.isSimulation():
             from pyfrc.sim import get_user_renderer
@@ -61,7 +64,7 @@ class PursuitDriveCommand(Command):
             self.drive.tank_drive(speed, speed)
         else:
             radius = 1/curvature
-            if abs(radius) < self.drive.robotdrive.robot_width / 4 and False:
+            if abs(radius) < self.drive.robotdrive.robot_width / 8:
                 self.drive.tank_drive(speed, speed)
             else:
                 self.drive.arc(speed, radius)

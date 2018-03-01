@@ -29,11 +29,10 @@ def getGameSpecificMessage_WeekZero():
 
 def get_message():
     global _cached_string
-    if _cached_string is None:
-        if WEEKZERO:
-            _cached_string = getGameSpecificMessage_WeekZero()
-        else:
-            _cached_string = DriverStation.getInstance().getGameSpecificMessage()
+    if WEEKZERO:
+        _cached_string = getGameSpecificMessage_WeekZero()
+    else:
+        _cached_string = DriverStation.getInstance().getGameSpecificMessage()
     return _cached_string
 
 

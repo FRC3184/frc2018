@@ -119,7 +119,8 @@ class PurePursuitController:
         :param speed: Robot speed, from 0.0 to 1.0 as a percent of the max speed
         :return: Radius of the lookahead circle
         """
-        return self.lookahead_base * (0.75 + speed)
+        base_ratio = 3/4
+        return self.lookahead_base * (base_ratio + (1 - base_ratio) * speed)
 
     def curvature(self, pose: pose.Pose, speed: float) -> Tuple[float, float]:
         """
@@ -157,3 +158,6 @@ class PurePursuitController:
         translated_end = self.end_point.translated(pose)
         err = abs(translated_end.x)
         return self.is_approaching_end(pose) and translated_end.x < 0
+
+    def get_endcte(self, pose):
+        return self.end_point.translated(pose).y

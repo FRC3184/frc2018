@@ -48,7 +48,7 @@ class MyRobot(TimedCommandBasedRobot):
         DashboardUpdateCommand().start()
         OIUpdateCommand().start()
 
-        wpilib.CameraServer.launch()
+        # wpilib.CameraServer.launch()
 
         # Actions
 

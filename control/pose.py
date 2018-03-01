@@ -69,7 +69,7 @@ class PoseEstimator:
 
         self.current_pose = current_pose
 
-        self.gyro_offset = 0
+        self.gyro_offset = math.pi
 
     def update(self, dt):
         enc_left = self.left_encoder_callback()
@@ -92,5 +92,5 @@ class PoseEstimator:
 
 
 def set_new_pose(poz: Pose):
-    _estimator.gyro_offset = get_current_pose().heading
+    _estimator.gyro_offset = get_current_pose().heading + math.pi
     _estimator.current_pose = poz

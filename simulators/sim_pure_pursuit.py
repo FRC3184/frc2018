@@ -12,56 +12,49 @@ def radius_ratio(R, D):
     return (R - D/2)/(R + D/2)
 
 
-if __name__ == '__main__':
+def simulate(path, lookahead, do_plot=False, do_print=False, print_danger=False, cruise_speed=0.6, acc=0.6):
     travel_x = []
     travel_y = []
-    target_x = []
-    target_y = []
-    targetp_x = []
-    targetp_y = []
     distance = []
     times = []
     width = 24 / 12
     max_speed = 16
-    cruise_speed = 0.5
-    acc = 0.1
 
     accel_dist = (1 / 2) * (cruise_speed * max_speed) ** 2 / (acc * max_speed)
-    path = [Vector2(0, 0), Vector2(20, 0), Vector2(20, 14)]
-    pose = Pose(2, 0, 0 * math.pi/4)
+
+    pose = Pose(path[0].x, path[0].y, 0 * math.pi/4)
 
     _begin_pose = Vector2(pose.x, pose.y)
     _end_pose = path[-1]
 
-    lookahead = 3
     dt = 1/1000
     current_time = 0
-    lines = []
 
     pursuit = PurePursuitController(path, lookahead)
     lines = pursuit.path.path
 
     start = time.perf_counter()
+    score = 0
     while not pursuit.is_at_end(pose):
         poz = pose
         dist_to_end = _end_pose.distance(poz)
         dist_to_begin = _begin_pose.distance(poz)
 
         if pursuit.is_approaching_end(poz) and dist_to_end < accel_dist:
-            speed = cruise_speed * dist_to_end / accel_dist
+            speed = max_speed * cruise_speed * dist_to_end / accel_dist
         elif dist_to_begin < accel_dist:
-            speed = cruise_speed * dist_to_begin / accel_dist
+            speed = max_speed * cruise_speed * dist_to_begin / accel_dist
         else:
-            speed = cruise_speed
+            speed = max_speed * cruise_speed
 
         minspeed = 0.1 * max_speed
         if speed < minspeed:
             speed = minspeed
 
-        speed = max_speed
+        # speed = max_speed
 
         current_time += dt
-        if current_time >= 10:
+        if current_time >= 15:
             break
 
         curve, cte = pursuit.curvature(pose, speed / max_speed)
@@ -70,6 +63,11 @@ if __name__ == '__main__':
             left_speed = right_speed = speed
         else:
             radius = 1 / curve
+            if abs(radius) < width / 2:
+                if do_print and print_danger:
+                    print(f"Danger! Radius {abs(radius)} smaller than possible {width / 2} at {poz}")
+                score += (width / 2 - abs(radius))
+                radius = math.copysign(width / 2, radius)
             if radius > 0:
                 left_speed = speed
                 right_speed = speed * radius_ratio(radius, width)
@@ -82,8 +80,8 @@ if __name__ == '__main__':
         vel = (left_speed + right_speed) / 2
         angular_rate = (right_speed - left_speed) / width
 
-        pose.x += dt * speed * math.cos(pose.heading)
-        pose.y += dt * speed * math.sin(pose.heading)
+        pose.x += dt * vel * math.cos(pose.heading)
+        pose.y += dt * vel * math.sin(pose.heading)
         pose.heading += dt * angular_rate
         # print("{}\t{}\t{}\t{}\t{}\t{}".format(time, pose.x, pose.y, target.x, target.y, pose.distance(path[-1])))
 
@@ -92,15 +90,61 @@ if __name__ == '__main__':
         distance += [pose.distance(path[-1])]
         times += [current_time]
     elapsed_realtime = time.perf_counter() - start
-    print("Simulated {} seconds in {} real seconds".format(current_time, elapsed_realtime))
+    score = score/(current_time/dt)
+    cte = abs(pursuit.get_endcte(pose))
+    if do_print:
+        print("Simulated {} seconds in {} real seconds".format(current_time, elapsed_realtime))
+        print(f"Final CTE: {cte}")
+        print(f"Radius score: {score}")
+
+    if do_plot:
+        for line in lines:
+            line.plot(plot)
+        plot.plot(travel_x, travel_y)
+
+        for wp in path:
+            plot.plot(wp.x, wp.y, 'bo')
+        # plot.show()
+
+    return score, cte
+
+
+if __name__ == '__main__':
+    path = [Vector2(0, -10), Vector2(20, -10), Vector2(19, 7), Vector2(23, 7)]
+    #simulate(path, 3.75, do_plot=True, do_print=True)
+
+    lookaheads = []
+    scores = []
+    ctes = []
+    alls = []
+    scale = 6
+    for i in range(int(1.5*scale), 5*scale, 1):
+        l = i/scale
+        lookaheads.append(l)
+        score, cte = simulate(path, l)
+        scores.append(score)
+        ctes.append(cte)
+        alls.append(cte + score)
+
+    allowed = []
+    scoress = []
+    for i in range(len(lookaheads)):
+        scoress += [(lookaheads[i], scores[i])]
+        if ctes[i] <= 3/12:
+            allowed.append((lookaheads[i], scores[i]))
+    try:
+        min_l = min(allowed, key=lambda x: x[1])
+    except ValueError:
+        min_l = min(scoress, key=lambda x: x[1])
+    print(f"Minimized lookahead: {min_l[0]}")
+
+    plot.figure(1)
+    plot.plot(lookaheads, scores, label="Curve score")
+    plot.axvline(min_l[0], color='r', linestyle='dashed', linewidth=2)
+    plot.plot(lookaheads, ctes, label="Cross Track Error Score")
+    plot.plot(lookaheads, alls, label="Overall Score")
+    plot.legend()
+
     plot.figure(2)
-    for line in lines:
-        line.plot(plot)
-    plot.plot(travel_x, travel_y)
-    # plot.plot(target_x, target_y)
-
-    for wp in path:
-        plot.plot(wp.x, wp.y, 'bo')
+    simulate(path, min_l[0], do_plot=True, do_print=True)
     plot.show()
-
-

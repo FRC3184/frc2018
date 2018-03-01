@@ -218,19 +218,19 @@ class SmartRobotDrive(wpilib.MotorSafety):
         return -self.ahrs.getYaw()
 
     def get_heading_rads(self):
-        return -self.ahrs.getYaw() * math.pi / 180
+        return self.get_heading() * math.pi / 180
 
     def get_left_distance(self):
         if wpilib.hal.isSimulation():
             return self._model_left_dist
         else:
-            return -self.native_distance_to_feet(self._left_motor.getQuadraturePosition())
+            return self.native_distance_to_feet(self._left_motor.getQuadraturePosition())
 
     def get_right_distance(self):
         if wpilib.hal.isSimulation():
             return self._model_right_dist
         else:
-            return self.native_distance_to_feet(self._right_motor.getQuadraturePosition())
+            return -self.native_distance_to_feet(self._right_motor.getQuadraturePosition())
 
     def default(self):
         self._set_motor_outputs(0, 0)

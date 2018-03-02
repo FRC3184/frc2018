@@ -12,16 +12,14 @@ from systems.elevator import Elevator, ElevatorPositions
 from systems.intake import Intake, ArmState
 
 
-class SwitchOnly(CommandGroup):
+class SwitchOnlyCenter(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnly command")
-        drive_path_waypoints = [Vector2(1.5, 0), Vector2(4, 0), Vector2(6, 5), Vector2(9.5, 5)]
-        flipped_path = pursuit.flip_waypoints_y(drive_path_waypoints)
-        print(flipped_path)
-        print(drive_path_waypoints)
-        cruise = 0.6
-        acc = 0.6
-        lookahead = 3.5
+        drive_path_waypoints = [Vector2(1.5, 0), Vector2(4, 0), Vector2(6, 6), Vector2(9.5, 6)]
+        flipped_path = [Vector2(1.5, 0), Vector2(4, 0), Vector2(5, -5), Vector2(9.5, -5)]
+        cruise = 0.8
+        acc = 1
+        lookahead = 5
         drive_path_left = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
                                               waypoints=drive_path_waypoints, drive=drive, lookahead_base=lookahead)
         drive_path_right = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
@@ -46,3 +44,10 @@ class SwitchOnly(CommandGroup):
 
     def initialize(self):
         pose.set_new_pose(Pose(1.5, 0, 0))
+
+
+class SwitchOnlySide(CommandGroup):
+    def __init__(self):
+        super().__init__("SwitchOnlyFromSide")
+
+        self.addSequential()

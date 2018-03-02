@@ -33,6 +33,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         self.max_speed = kwargs.pop("max_speed", 16)
 
         self.ahrs = AHRS.create_spi()
+        self.ahrs.reset()
         self._left_motor = left_motor
         self._right_motor = right_motor
 

@@ -2,6 +2,8 @@ import socket
 
 from wpilib import DriverStation
 
+from control import robot_time
+
 WEEKZERO = False
 WZ_GAMEDATA_HOST = '10.0.100.44'
 WZ_GAMEDATA_PORT = 5555
@@ -12,10 +14,11 @@ _robot_side = None
 class Side:
     LEFT = 0
     RIGHT = 1
+    CENTER = 2
 
     @staticmethod
     def from_char(char):
-        return Side.LEFT if char == "L" else Side.RIGHT
+        return Side.LEFT if char == "L" else (Side.RIGHT if char == "R" else Side.CENTER)
 
 
 def getGameSpecificMessage_WeekZero():
@@ -39,8 +42,14 @@ def get_message():
 def init(placement):
     global _robot_side, _cached_string
     _robot_side = placement
+    count = 1
     while len(get_message()) < 3:
-        pass
+        print(f"Getting game-specific message... Retry {count}")
+        if count == 10:
+            print("Canceling game-specific message, either you messed up or you need to talk to an FTA!")
+            _cached_string = "RRR"
+            break
+        robot_time.sleep(seconds=1)
 
 
 def get_own_switch_side():

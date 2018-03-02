@@ -38,7 +38,7 @@ class PursuitDriveCommand(Command):
             from pyfrc.sim import get_user_renderer
             render = get_user_renderer()
             poz = pose.get_current_pose()
-            render.draw_line(line_pts=[(w.x + 1.5, -w.y + 13.5) for w in self.pp_controller.waypoints],
+            render.draw_line(line_pts=[(w.x, -w.y + 13.5) for w in self.pp_controller.waypoints],
                              robot_coordinates=False)
 
     def execute(self):
@@ -60,11 +60,15 @@ class PursuitDriveCommand(Command):
         curvature, cte = self.pp_controller.curvature(poz, speed)
         speed *= (-1 if self.reverse else 1)
         curvature *= (-1 if self.reverse else 1)
+        print(f"{self.pp_controller.is_approaching_end(poz)} {cte}")
         if curvature == 0:
             self.drive.tank_drive(speed, speed)
         else:
             radius = 1/curvature
-            if abs(radius) < self.drive.robotdrive.robot_width / 8:
+            # TODO find some way to remove this
+            # Currently, removing it will cause oscillation
+            # However, it makes the path less optimal
+            if False and abs(cte) < 3/12 and abs(radius) < self.drive.robotdrive.robot_width / 2:
                 self.drive.tank_drive(speed, speed)
             else:
                 self.drive.arc(speed, radius)

@@ -63,12 +63,14 @@ def simulate(path, lookahead, do_plot=False, do_print=False, print_danger=False,
             left_speed = right_speed = speed
         else:
             radius = 1 / curve
-            if abs(radius) < width / 2:
+            if abs(radius) < width / 8:
+                left_speed = right_speed = speed
+            elif abs(radius) < width / 2:
                 if do_print and print_danger:
                     print(f"Danger! Radius {abs(radius)} smaller than possible {width / 2} at {poz}")
                 score += (width / 2 - abs(radius))
                 radius = math.copysign(width / 2, radius)
-            if radius > 0:
+            elif radius > 0:
                 left_speed = speed
                 right_speed = speed * radius_ratio(radius, width)
             else:
@@ -110,7 +112,7 @@ def simulate(path, lookahead, do_plot=False, do_print=False, print_danger=False,
 
 
 if __name__ == '__main__':
-    path = [Vector2(0, -10), Vector2(20, -10), Vector2(19, 7), Vector2(23, 7)]
+    path = [Vector2(1.5, 0), Vector2(4, 0), Vector2(6, 6), Vector2(9.5, 6)]
     #simulate(path, 3.75, do_plot=True, do_print=True)
 
     lookaheads = []

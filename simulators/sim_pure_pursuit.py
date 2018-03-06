@@ -64,23 +64,13 @@ def simulate(path, lookahead, do_plot=False, do_print=False, print_danger=False,
             left_speed = right_speed = speed
         else:
             radius = 1 / curve
-            if abs(cte) < 3/12 and abs(radius) > 15:
-                left_speed = right_speed = speed
+            if radius > 0:
+                left_speed = speed
+                right_speed = speed * radius_ratio(radius, width)
             else:
-                if abs(radius) < width / 2:
-                    if do_print and print_danger:
-                        print(f"Danger! Radius {abs(radius)} smaller than possible {width / 2} at {poz}")
-                    score += (width / 2 - abs(radius))
-                    radius = math.copysign(width / 2, radius)
-                if radius > 0:
-                    left_speed = speed
-                    right_speed = speed * radius_ratio(radius, width)
-                else:
-                    right_speed = speed
-                    left_speed = speed * radius_ratio(-radius, width)
+                right_speed = speed
+                left_speed = speed * radius_ratio(-radius, width)
 
-        right_speed *= error_factor
-        left_speed *= (1/error_factor)
         left_dist = left_speed * dt
         right_dist = right_speed * dt
         vel = (left_speed + right_speed) / 2
@@ -116,42 +106,6 @@ def simulate(path, lookahead, do_plot=False, do_print=False, print_danger=False,
 
 
 if __name__ == '__main__':
-    path = [Vector2(1.5, 0), Vector2(4, 0), Vector2(6, 6), Vector2(9.5, 6)]
+    path = [Vector2(0, 0), Vector2(5, 0), Vector2(5, 5), Vector2(10, 10)]
     simulate(path, 2, do_plot=True, do_print=True)
-    plot.show()
-    assert 1 == 0
-    lookaheads = []
-    scores = []
-    ctes = []
-    alls = []
-    scale = 6
-    for i in range(int(1*scale), 5*scale, 1):
-        l = i/scale
-        lookaheads.append(l)
-        score, cte = simulate(path, l)
-        scores.append(score)
-        ctes.append(cte)
-        alls.append(cte + score)
-
-    allowed = []
-    scoress = []
-    for i in range(len(lookaheads)):
-        scoress += [(lookaheads[i], scores[i])]
-        if ctes[i] <= 3/12:
-            allowed.append((lookaheads[i], scores[i]))
-    try:
-        min_l = min(allowed, key=lambda x: x[1])
-    except ValueError:
-        min_l = min(scoress, key=lambda x: x[1])
-    print(f"Minimized lookahead: {min_l[0]}")
-
-    plot.figure(1)
-    plot.plot(lookaheads, scores, label="Curve score")
-    plot.axvline(min_l[0], color='r', linestyle='dashed', linewidth=2)
-    plot.plot(lookaheads, ctes, label="Cross Track Error Score")
-    plot.plot(lookaheads, alls, label="Overall Score")
-    plot.legend()
-
-    plot.figure(2)
-    simulate(path, min_l[0], do_plot=True, do_print=True, error_factor=0.99)
     plot.show()

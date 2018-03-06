@@ -64,15 +64,7 @@ class PursuitDriveCommand(Command):
             self.drive.tank_drive(speed, speed)
         else:
             radius = 1/curvature
-            # TODO find some way to remove this
-            # Currently, removing it will cause oscillation
-            # However, it makes the path less optimal
-            if abs(radius) < self.drive.robotdrive.robot_width / 2:
-                pass # print(radius)
-            if False and abs(cte) < 3/12 and abs(radius) > 10:
-                self.drive.tank_drive(speed, speed)
-            else:
-                self.drive.arc(speed, radius)
+            self.drive.arc(speed, radius)
 
     def isFinished(self):
         return self.pp_controller.is_at_end(pose.get_current_pose(), self.margin)

@@ -100,8 +100,6 @@ class SmartRobotDrive(wpilib.MotorSafety):
         D = self.robot_width / 2
         turn_dir = mathutils.sgn(radius)
         radius = abs(radius)
-        if False and radius < D:
-            radius = D
         Vo = pow
         Vi = Vo * (radius - D) / (radius + D)
 

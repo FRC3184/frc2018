@@ -12,7 +12,8 @@ def radius_ratio(R, D):
     return (R - D/2)/(R + D/2)
 
 
-def simulate(path, lookahead, do_plot=False, do_print=False, print_danger=False, cruise_speed=0.6, acc=0.6):
+def simulate(path, lookahead, do_plot=False, do_print=False, print_danger=False, cruise_speed=0.6, acc=0.6,
+             error_factor: float=1):
     travel_x = []
     travel_y = []
     distance = []
@@ -63,20 +64,23 @@ def simulate(path, lookahead, do_plot=False, do_print=False, print_danger=False,
             left_speed = right_speed = speed
         else:
             radius = 1 / curve
-            if abs(radius) < width / 8:
+            if abs(cte) < 3/12 and abs(radius) > 15:
                 left_speed = right_speed = speed
-            elif abs(radius) < width / 2:
-                if do_print and print_danger:
-                    print(f"Danger! Radius {abs(radius)} smaller than possible {width / 2} at {poz}")
-                score += (width / 2 - abs(radius))
-                radius = math.copysign(width / 2, radius)
-            elif radius > 0:
-                left_speed = speed
-                right_speed = speed * radius_ratio(radius, width)
             else:
-                right_speed = speed
-                left_speed = speed * radius_ratio(-radius, width)
+                if abs(radius) < width / 2:
+                    if do_print and print_danger:
+                        print(f"Danger! Radius {abs(radius)} smaller than possible {width / 2} at {poz}")
+                    score += (width / 2 - abs(radius))
+                    radius = math.copysign(width / 2, radius)
+                if radius > 0:
+                    left_speed = speed
+                    right_speed = speed * radius_ratio(radius, width)
+                else:
+                    right_speed = speed
+                    left_speed = speed * radius_ratio(-radius, width)
 
+        right_speed *= error_factor
+        left_speed *= (1/error_factor)
         left_dist = left_speed * dt
         right_dist = right_speed * dt
         vel = (left_speed + right_speed) / 2
@@ -120,7 +124,7 @@ if __name__ == '__main__':
     ctes = []
     alls = []
     scale = 6
-    for i in range(int(1.5*scale), 5*scale, 1):
+    for i in range(int(1*scale), 5*scale, 1):
         l = i/scale
         lookaheads.append(l)
         score, cte = simulate(path, l)
@@ -148,5 +152,5 @@ if __name__ == '__main__':
     plot.legend()
 
     plot.figure(2)
-    simulate(path, min_l[0], do_plot=True, do_print=True)
+    simulate(path, min_l[0], do_plot=True, do_print=True, error_factor=0.99)
     plot.show()

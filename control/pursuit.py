@@ -1,7 +1,12 @@
 from typing import List, Tuple, Optional
 
+import hal
+
 from control import pose
 from mathutils import LineSegment, Vector2
+
+if hal.isSimulation():
+    from pyfrc.sim import get_user_renderer
 
 
 def flip_waypoints_x(waypoints: List[Vector2]):
@@ -140,11 +145,16 @@ class PurePursuitController:
                 break
 
         goal, dist = self.path.calc_goal(pose, lookahead_radius, self.unpassed_waypoints)
+        goal_rs = goal.translated(pose)
+        if hal.isSimulation():
+            render = get_user_renderer()
+            render.draw_line([(0, 0), (goal_rs.x, goal_rs.y)], color="#0000ff", robot_coordinates=True, arrow=False)
+        goaly = goal.translated(pose).y
         try:
-            curv = -2 * goal.translated(pose).y / dist ** 2
+            curv = -2 * goaly / dist ** 2
         except ZeroDivisionError:
             curv = 0
-        return curv, goal.translated(pose).y
+        return curv, dist
 
     def is_approaching_end(self, pose):
         return len(self.unpassed_waypoints) == 0

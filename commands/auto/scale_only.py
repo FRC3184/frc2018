@@ -22,7 +22,7 @@ class ScaleOnly(CommandGroup):
         cruise = 0.6
         acc = 0.6
         margin = 3/12
-        lookahead = 8
+        lookahead = 2
         drive_path_far = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
                                              waypoints=far_waypoints, drive=drive, dist_margin=margin,
                                              lookahead_base=lookahead)

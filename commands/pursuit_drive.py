@@ -68,8 +68,8 @@ class PursuitDriveCommand(Command):
             # Currently, removing it will cause oscillation
             # However, it makes the path less optimal
             if abs(radius) < self.drive.robotdrive.robot_width / 2:
-                print(radius)
-            if abs(cte) < 3/12 and abs(radius) > 10:
+                pass # print(radius)
+            if False and abs(cte) < 3/12 and abs(radius) > 10:
                 self.drive.tank_drive(speed, speed)
             else:
                 self.drive.arc(speed, radius)

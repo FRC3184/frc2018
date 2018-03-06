@@ -117,8 +117,9 @@ def simulate(path, lookahead, do_plot=False, do_print=False, print_danger=False,
 
 if __name__ == '__main__':
     path = [Vector2(1.5, 0), Vector2(4, 0), Vector2(6, 6), Vector2(9.5, 6)]
-    #simulate(path, 3.75, do_plot=True, do_print=True)
-
+    simulate(path, 2, do_plot=True, do_print=True)
+    plot.show()
+    assert 1 == 0
     lookaheads = []
     scores = []
     ctes = []

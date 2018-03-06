@@ -38,7 +38,7 @@ class PursuitDriveCommand(Command):
             from pyfrc.sim import get_user_renderer
             render = get_user_renderer()
             poz = pose.get_current_pose()
-            render.draw_line(line_pts=[(w.x, -w.y + 14) for w in self.pp_controller.waypoints],
+            render.draw_line(line_pts=[(w.x, -w.y + 13.5) for w in self.pp_controller.waypoints],
                              robot_coordinates=False)
 
     def execute(self):

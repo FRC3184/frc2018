@@ -82,6 +82,7 @@ class LinePath(Path):
         :return: The goal and the distance to the goal
         """
         project_points = []
+        goals = []
         goal = None
         error = None
 
@@ -148,8 +149,10 @@ class PurePursuitController:
         goal_rs = goal.translated(pose)
         if hal.isSimulation():
             render = get_user_renderer()
-            render.draw_line([(0, 0), (goal_rs.x, goal_rs.y)], color="#0000ff", robot_coordinates=True, arrow=False)
-        goaly = goal.translated(pose).y
+            render.draw_line([(pose.x, -pose.y + 13.5), (goal.x, -goal.y + 13.5)], color="#0000ff", arrow=False)
+        goaly = goal_rs.y
+        goal_rs_dist = goal_rs.distance(Vector2(0,0))
+        assert abs(goal_rs_dist - lookahead_radius) < 1e-3
         try:
             curv = -2 * goaly / dist ** 2
         except ZeroDivisionError:

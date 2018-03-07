@@ -4,7 +4,8 @@ import wpilib
 
 from commands.auto.scale_only import ScaleOnly
 from commands.auto.switch_and_scale import SwitchAndScale
-from commands.auto.switch_only import SwitchOnlyCenter
+from commands.auto.switch_only import SwitchOnlyCenter, SwitchOnlyMonolith
+from commands.auto.vault import VaultOnly
 from commands.auto_move_elevator import MoveElevatorCommand
 from commands.op_drive import OpDriveCommand
 from commands.op_elevator import OpElevatorManualCommand
@@ -65,17 +66,20 @@ class MyRobot(TimedCommandBasedRobot):
 
         self.side_chooser = dashboard2.add_chooser("Starting Position")
         self.side_chooser.add_option("Left", game_data.Side.LEFT)
+        self.side_chooser.add_option("Center", game_data.Side.CENTER)
         self.side_chooser.add_option("Right", game_data.Side.RIGHT)
-        self.side_chooser.set_default("Right")
+        self.side_chooser.set_default("Center")
 
         # Auto modes
-        auto_switch_only = SwitchOnlyCenter(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        auto_switch_only = SwitchOnlyMonolith(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_scale_only = ScaleOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_switch_scale = SwitchAndScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        auto_vault = VaultOnly(drive=self.drivetrain, intake=self.intake)
         self.auto_chooser = dashboard2.add_chooser("Autonomous")
         self.auto_chooser.add_option("Switch Only", auto_switch_only)
         self.auto_chooser.add_option("Scale Only", auto_scale_only)
         self.auto_chooser.add_option("Switch and Scale", auto_switch_scale)
+        self.auto_chooser.add_option("Vault Only", auto_vault)
         self.auto_chooser.add_option("Drive Forward", PursuitDriveCommand(acc=0.6, cruise_speed=0.6,
                                                                           waypoints=[Vector2(0, 0), Vector2(10, 0)],
                                                                           drive=self.drivetrain))

@@ -1,10 +1,12 @@
 import hal
-from wpilib.command import CommandGroup, ConditionalCommand
+from wpilib.command import CommandGroup, ConditionalCommand, Command, PrintCommand
 
 from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand
 from commands.auto_move_elevator import MoveElevatorCommand
 from commands.pursuit_drive import PursuitDriveCommand
+from commands.turn_to_angle import TurnToAngle
 from control import game_data, pursuit, pose
+from control.game_data import Side
 from control.pose import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
@@ -47,7 +49,49 @@ class SwitchOnlyCenter(CommandGroup):
 
 
 class SwitchOnlySide(CommandGroup):
-    def __init__(self):
+    def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnlyFromSide")
 
-        self.addSequential()
+        drive_path_waypoints = [Vector2(1.5, -10), Vector2(13, -10)]
+        cruise = 0.8
+        acc = 1
+        lookahead = 2
+
+        drive_path= PursuitDriveCommand(acc=acc, cruise_speed=cruise,
+                                        waypoints=drive_path_waypoints, drive=drive, lookahead_base=lookahead)
+        turn = TurnToAngle(drive=drive,
+                           angle=(90 * 1 if game_data.get_robot_side() == game_data.Side.RIGHT else -1),
+                           delta=False)
+        elevator_to_height = MoveElevatorCommand(elevator, ElevatorPositions.SWITCH)
+        intake_out = MoveIntakeCommand(intake, ArmState.DOWN)
+        drop_cube = TimedRunIntakeCommand(intake, time=0.5, power=-intake.power)
+
+        if not hal.isSimulation():
+            self.addParallel(elevator_to_height)
+        self.addSequential(drive_path)
+        self.addSequential(turn)
+        self.addSequential(PrintCommand("Done with turn"))
+
+        self.addSequential(intake_out)
+        self.addSequential(drop_cube)
+
+    def initialize(self):
+        pose.set_new_pose(Pose(1.5, -10, 0))
+
+class SwitchOnlyMonolith(Command):
+    def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
+        super().__init__("SwitchOnly Chooser")
+        self.side_command = SwitchOnlySide(drive, elevator, intake)
+        self.center_command = SwitchOnlyCenter(drive, elevator, intake)
+
+    def initialize(self):
+        if game_data.get_robot_side() == Side.CENTER:
+            self.center_command.start()
+        else:
+            if game_data.get_robot_side() == game_data.get_own_switch_side():
+                self.side_command.start()
+
+    def isFinished(self):
+        return True
+
+

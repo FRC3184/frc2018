@@ -17,8 +17,8 @@ from systems.intake import Intake, ArmState
 class ScaleOnly(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("ScaleOnly command")
-        close_waypoints = [Vector2(0, -10), Vector2(16, -10), Vector2(23, -8)]
-        far_waypoints = [Vector2(0, -10), Vector2(20, -10), Vector2(20, 7), Vector2(24, 6.5)]
+        close_waypoints = [Vector2(0, -10), Vector2(16, -10), Vector2(23, -7.5)]
+        far_waypoints = [Vector2(0, -10), Vector2(20, -10), Vector2(20, 7), Vector2(23, 7.5)]
         cruise = 0.6
         acc = 0.6
         margin = 3/12

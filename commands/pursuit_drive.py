@@ -59,7 +59,7 @@ class PursuitDriveCommand(Command):
         speed /= self.drive.robotdrive.max_speed
         curvature, cte = self.pp_controller.curvature(poz, speed)
         speed *= (-1 if self.reverse else 1)
-        curvature *= (-1 if self.reverse else 1)
+        curvature *= (1 if self.reverse else 1)
         if curvature == 0:
             self.drive.tank_drive(speed, speed)
         else:

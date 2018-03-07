@@ -1,5 +1,6 @@
 from commands.auto.switch_and_scale import SwitchAndScale
 from commands.auto.switch_only import SwitchOnlyCenter, SwitchOnlySide
+from commands.auto.vault import VaultOnly
 from commands.pursuit_drive import PursuitDriveCommand
 from control.game_data import Side
 
@@ -37,7 +38,7 @@ class AutoDecider:
                 return SwitchAndScale
 
             if Desire.VAULT in self.desires:
-                return VaultAndSwitch
+                return None  # VaultAndSwitch
 
         if Desire.VAULT in self.desires:
             return VaultOnly

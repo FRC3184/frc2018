@@ -3,6 +3,7 @@ from wpilib.command import CommandGroup, ConditionalCommand, Command, PrintComma
 
 from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand
 from commands.auto_move_elevator import MoveElevatorCommand
+from commands.auto_simple_drive import TimeDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
 from commands.turn_to_angle import TurnToAngle
 from control import game_data, pursuit, pose
@@ -17,8 +18,8 @@ from systems.intake import Intake, ArmState
 class SwitchOnlyCenter(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnly command")
-        drive_path_waypoints = [Vector2(1.5, 0), Vector2(4, 0), Vector2(6, 6), Vector2(9.5, 6)]
-        flipped_path = [Vector2(1.5, 0), Vector2(4, 0), Vector2(5, -5), Vector2(9.5, -5)]
+        drive_path_waypoints = [Vector2(1.5, 0), Vector2(4, 0), Vector2(6, 6), Vector2(9, 6)]
+        flipped_path = [Vector2(1.5, 0), Vector2(4, 0), Vector2(5, -5), Vector2(9, -5)]
         cruise = 0.8
         acc = 1
         lookahead = 2
@@ -48,7 +49,7 @@ class SwitchOnlyCenter(CommandGroup):
         pose.set_new_pose(Pose(1.5, 0, 0))
 
 
-class SwitchOnlySide(CommandGroup):
+class SwitchOnlySideStraight(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnlyFromSide")
 
@@ -59,9 +60,18 @@ class SwitchOnlySide(CommandGroup):
 
         drive_path= PursuitDriveCommand(acc=acc, cruise_speed=cruise,
                                         waypoints=drive_path_waypoints, drive=drive, lookahead_base=lookahead)
-        turn = TurnToAngle(drive=drive,
-                           angle=(90 * 1 if game_data.get_robot_side() == game_data.Side.RIGHT else -1),
+
+        turnL = TurnToAngle(drive=drive,
+                           angle=(-90),
                            delta=False)
+        turnR = TurnToAngle(drive=drive,
+                           angle=(90),
+                           delta=False)
+        turn_chooser = ConditionalCommand("turn_chooser")
+        turn_chooser.onTrue = turnR
+        turn_chooser.onFalse = turnL
+        turn_chooser.condition = lambda: (game_data.get_own_switch_side() == Side.RIGHT)
+        drive_short = TimeDriveCommand(drive=drive, power=0.4, time=0.25)
         elevator_to_height = MoveElevatorCommand(elevator, ElevatorPositions.SWITCH)
         intake_out = MoveIntakeCommand(intake, ArmState.DOWN)
         drop_cube = TimedRunIntakeCommand(intake, time=0.5, power=-intake.power)
@@ -69,8 +79,8 @@ class SwitchOnlySide(CommandGroup):
         if not hal.isSimulation():
             self.addParallel(elevator_to_height)
         self.addSequential(drive_path)
-        self.addSequential(turn)
-        self.addSequential(PrintCommand("Done with turn"))
+        self.addSequential(turn_chooser)
+        self.addSequential(drive_short)
 
         self.addSequential(intake_out)
         self.addSequential(drop_cube)
@@ -81,7 +91,7 @@ class SwitchOnlySide(CommandGroup):
 class SwitchOnlyMonolith(Command):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnly Chooser")
-        self.side_command = SwitchOnlySide(drive, elevator, intake)
+        self.side_command = SwitchOnlySideStraight(drive, elevator, intake)
         self.center_command = SwitchOnlyCenter(drive, elevator, intake)
 
     def initialize(self):

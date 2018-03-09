@@ -38,14 +38,14 @@ class PursuitDriveCommand(Command):
             from pyfrc.sim import get_user_renderer
             render = get_user_renderer()
             poz = pose.get_current_pose()
-            render.draw_line(line_pts=[(w.x, -w.y + 13.5) for w in self.pp_controller.waypoints],
+            render.draw_line(line_pts=[(w.x, -w.y + 14) for w in self.pp_controller.waypoints],
                              robot_coordinates=False)
 
     def execute(self):
         poz = pose.get_current_pose()
         dist_to_end = self._end_pose.distance(poz)
         dist_to_begin = self._begin_pose.distance(poz)
-        if self.pp_controller.is_approaching_end(poz) and dist_to_end < self.accel_dist:
+        if dist_to_end < self.accel_dist:
             speed = self.cruise_speed * dist_to_end / self.accel_dist
         elif dist_to_begin < self.accel_dist:
             speed = self.cruise_speed * dist_to_begin / self.accel_dist

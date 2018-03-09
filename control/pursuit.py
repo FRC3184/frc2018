@@ -150,7 +150,7 @@ class PurePursuitController:
         if hal.isSimulation():
             render = get_user_renderer()
             if render is not None:  # If running the standalone (pyplot) sim, this is None
-                render.draw_line([(pose.x, -pose.y + 13.5), (goal.x, -goal.y + 13.5)], color="#0000ff", arrow=False)
+                render.draw_line([(pose.x, -pose.y + 14), (goal.x, -goal.y + 14)], color="#0000ff", arrow=False)
         goaly = goal_rs.y
         goal_rs_dist = goal_rs.distance(Vector2(0,0))
         try:

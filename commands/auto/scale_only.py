@@ -1,5 +1,5 @@
 import hal
-from wpilib.command import CommandGroup, ConditionalCommand, PrintCommand
+from wpilib.command import CommandGroup, ConditionalCommand, PrintCommand, TimedCommand
 
 from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand
 from commands.auto_move_elevator import MoveElevatorCommand
@@ -7,6 +7,7 @@ from commands.auto_simple_drive import DistanceDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
 from commands.wait_until import WaitUntilConditionCommand
 from control import game_data, pursuit, pose
+from control.game_data import Side
 from control.pose import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
@@ -18,7 +19,7 @@ class ScaleOnly(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("ScaleOnly command")
         close_waypoints = [Vector2(0, -10), Vector2(16, -10), Vector2(23, -7.5)]
-        far_waypoints = [Vector2(0, -10), Vector2(20, -10), Vector2(20, 7), Vector2(23, 7.5)]
+        far_waypoints = [Vector2(0, -10), Vector2(20, -10), Vector2(20, 7.5), Vector2(23, 7)]
         cruise = 0.6
         acc = 0.6
         margin = 3/12
@@ -40,7 +41,7 @@ class ScaleOnly(CommandGroup):
         drive_path_chooser = ConditionalCommand("StandardScaleOnlySideCondition")
         drive_path_chooser.onFalse = drive_path_far
         drive_path_chooser.onTrue = drive_path_close
-        drive_path_chooser.condition = lambda: game_data.get_scale_side() == game_data.Side.RIGHT
+        drive_path_chooser.condition = lambda: game_data.get_scale_side() == game_data.Side.LEFT
 
         drive_path_flip_chooser = ConditionalCommand("FlipScaleOnlySideCondition")
         drive_path_flip_chooser.onFalse = drive_path_close_flipped
@@ -52,7 +53,13 @@ class ScaleOnly(CommandGroup):
         drive_flip_chooser.onTrue = drive_path_chooser
         drive_flip_chooser.onFalse = drive_path_flip_chooser
 
-        elevator_condition = WaitUntilConditionCommand(lambda: pose.get_current_pose().x > 16)
+        wait_short = TimedCommand(name="ShortTimeout", timeoutInSeconds=1.25)
+        wait_long = TimedCommand(name="LongTimeout", timeoutInSeconds=4)
+        elevator_condition = ConditionalCommand("Elevator Wait Condition")
+        elevator_condition.onTrue = wait_short
+        elevator_condition.onFalse = wait_long
+        elevator_condition.condition = lambda: game_data.get_robot_side() == game_data.get_scale_side()
+
         elevator_to_height = MoveElevatorCommand(elevator, ElevatorPositions.SWITCH)
         elev_group = CommandGroup()
         elev_group.addSequential(elevator_condition)
@@ -77,4 +84,5 @@ class ScaleOnly(CommandGroup):
         self.addSequential(drive_back)
 
     def initialize(self):
-        pose.set_new_pose(Pose(x=1.5, y=-10, heading=0))
+        pose.set_new_pose(Pose(x=1.5, y=-10 * (1 if game_data.get_robot_side() == Side.RIGHT else -1),
+                               heading=0))

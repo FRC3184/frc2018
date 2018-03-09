@@ -10,7 +10,7 @@ class TurnToAngle(Command):
         super().__init__("TurnToAngle")
         self.requires(drive)
         self.drive = drive
-        self.angle = angle
+        self.target_angle = angle
         self.delta = delta
         self.base_angle = 0
         self.margin = margin
@@ -22,8 +22,7 @@ class TurnToAngle(Command):
         self.base_angle = self.get_cur_angle()
 
     def execute(self):
-        err = self.get_cur_angle() - self.angle
-        print(err)
+        err = self.get_cur_angle() - self.target_angle
         if self.delta:
             err -= self.base_angle
 
@@ -35,7 +34,7 @@ class TurnToAngle(Command):
         self.drive.arcade_drive(0, -gain)
 
     def isFinished(self):
-        return abs(self.get_cur_angle() - self.angle) < self.margin
+        return abs(self.get_cur_angle() - self.target_angle) < self.margin
 
     def end(self):
         self.drive.arcade_drive(0, 0)

@@ -83,7 +83,7 @@ class MyRobot(TimedCommandBasedRobot):
         self.auto_chooser.add_option("Drive Forward", PursuitDriveCommand(acc=0.6, cruise_speed=0.6,
                                                                           waypoints=[Vector2(0, 0), Vector2(10, 0)],
                                                                           drive=self.drivetrain))
-        self.auto_chooser.set_default("Switch Only")
+        self.auto_chooser.set_default("Drive Forward")
 
     def disabledInit(self):
         pass

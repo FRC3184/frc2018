@@ -1,5 +1,5 @@
 from commands.auto.switch_and_scale import SwitchAndScale
-from commands.auto.switch_only import SwitchOnlyCenter, SwitchOnlySide
+from commands.auto.switch_only import SwitchOnlyCenter, SwitchOnlySideStraight
 from commands.auto.vault import VaultOnly
 from commands.pursuit_drive import PursuitDriveCommand
 from control.game_data import Side
@@ -32,7 +32,7 @@ class AutoDecider:
             if robot_side == Side.CENTER:
                 return SwitchOnlyCenter
             if robot_side == switch_side:
-                return SwitchOnlySide
+                return SwitchOnlySideStraight
 
             if Desire.SCALE in self.desires:
                 return SwitchAndScale

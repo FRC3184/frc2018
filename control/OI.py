@@ -108,6 +108,13 @@ class _OI:
     def elevator_zero(self):
         return False
 
+    # Climber
+    def do_drop_forks(self):
+        return self.op_gamepad.getBackButton()
+
+    def do_climb(self):
+        return self.op_gamepad.getStartButton()
+
 
 def get() -> _OI:
     global _instance

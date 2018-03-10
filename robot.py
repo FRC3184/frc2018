@@ -7,6 +7,8 @@ from commands.auto.switch_and_scale import SwitchAndScale
 from commands.auto.switch_only import SwitchOnlyCenter, SwitchOnlyMonolith
 from commands.auto.vault import VaultOnly
 from commands.auto_move_elevator import MoveElevatorCommand
+from commands.climb import Climb
+from commands.drop_forks import DropForkliftCommand
 from commands.op_drive import OpDriveCommand
 from commands.op_elevator import OpElevatorManualCommand
 from commands.op_intake import OpIntakeCommand
@@ -20,6 +22,7 @@ from dashboard.dashboard2 import DashboardUpdateCommand
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator
+from systems.climber import Climber
 from systems.intake import Intake
 
 
@@ -30,6 +33,7 @@ class MyRobot(TimedCommandBasedRobot):
         self.drivetrain = Drivetrain()
         self.elevator = Elevator()
         self.intake = Intake()
+        self.forklift = Climber()
 
         self.teleop_drive = OpDriveCommand(self.drivetrain, self.elevator)
         self.telop_intake = OpIntakeCommand(self.intake)
@@ -49,7 +53,7 @@ class MyRobot(TimedCommandBasedRobot):
         DashboardUpdateCommand().start()
         OIUpdateCommand().start()
 
-        # wpilib.CameraServer.launch()
+        wpilib.CameraServer.launch()
 
         # Actions
 
@@ -58,11 +62,17 @@ class MyRobot(TimedCommandBasedRobot):
         elev_move_to_bottom = MoveElevatorCommand(self.elevator, 0)
         elev_zero = ElevatorZeroCommand(self.elevator)
 
+        drop_forks = DropForkliftCommand(self.forklift)
+        climb_cmd = Climb(climber=self.forklift, elevator=self.elevator)
+
         OI.get().exec_while_condition(condition=OI.get().elevator_is_manual_control, cmd=elev_manual_command)
         OI.get().add_action_listener(condition=OI.get().elevator_move_to_bottom, action=elev_move_to_bottom.start)
         OI.get().add_action_listener(condition=OI.get().elevator_move_to_top, action=elev_move_to_top.start)
 
         OI.get().add_action_listener(condition=OI.get().elevator_zero, action=elev_zero.start)
+
+        OI.get().add_action_listener(condition=OI.get().do_drop_forks, action=drop_forks.start)
+        OI.get().exec_while_condition(condition=OI.get().do_climb, cmd=climb_cmd)
 
         self.side_chooser = dashboard2.add_chooser("Starting Position")
         self.side_chooser.add_option("Left", game_data.Side.LEFT)

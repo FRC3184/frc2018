@@ -10,7 +10,6 @@ class Climb(Command):
         self.climber = climber
         self.elevator = elevator
         self.requires(climber)
-        self.requires(elevator)
         self.power = 0
 
     def initialize(self):
@@ -18,7 +17,6 @@ class Climb(Command):
 
     def execute(self):
         self.climber.active_climber(self.power)
-        self.elevator.set_power(-1/3 * self.power)
         if self.power < 1:
             self.power += 0.025
 

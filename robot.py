@@ -7,6 +7,7 @@ from commands.auto.switch_and_scale import SwitchAndScale
 from commands.auto.switch_only import SwitchOnlyCenter, SwitchOnlyMonolith
 from commands.auto.vault import VaultOnly
 from commands.auto_move_elevator import MoveElevatorCommand
+from commands.auto_simple_drive import TimeDriveCommand
 from commands.climb import Climb
 from commands.drop_forks import DropForkliftCommand
 from commands.op_drive import OpDriveCommand
@@ -85,6 +86,8 @@ class MyRobot(TimedCommandBasedRobot):
         auto_scale_only = ScaleOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_switch_scale = SwitchAndScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_vault = VaultOnly(drive=self.drivetrain, intake=self.intake)
+
+        auto_drive_simple = TimeDriveCommand(drive=self.drivetrain, power=0.3, time=3)
         self.auto_chooser = dashboard2.add_chooser("Autonomous")
         self.auto_chooser.add_option("Switch Only", auto_switch_only)
         self.auto_chooser.add_option("Scale Only", auto_scale_only)

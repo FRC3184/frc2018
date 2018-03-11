@@ -1,7 +1,7 @@
 import hal
 from wpilib.command import CommandGroup, ConditionalCommand, Command, PrintCommand
 
-from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand
+from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand, OpenIntakeCommand
 from commands.auto_move_elevator import MoveElevatorCommand
 from commands.auto_simple_drive import TimeDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
@@ -12,19 +12,19 @@ from control.pose import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator, ElevatorPositions
-from systems.intake import Intake, ArmState
+from systems.intake import Intake, ArmState, GrabState
 
 
 class SwitchOnlyCenter(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnly command")
-        drive_path_waypoints = [Vector2(1.5, 0), Vector2(4, 0), Vector2(6, 6), Vector2(9, 6)]
-        flipped_path = [Vector2(1.5, 0), Vector2(4, 0), Vector2(5, -5), Vector2(9, -5)]
+        drive_path_waypoints = [Vector2(1.5, 0), Vector2(4, 0), Vector2(5, 3), Vector2(10, 3)]
+        flipped_path = [Vector2(1.5, 0), Vector2(4, 0), Vector2(5, -3), Vector2(9, -3)]
         cruise = 0.8
         acc = 1
-        lookahead = 2
+        lookahead = 4
         drive_path_left = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
-                                              waypoints=drive_path_waypoints, drive=drive, lookahead_base=lookahead)
+                                              waypoints=drive_path_waypoints, drive=drive, lookahead_base=3)
         drive_path_right = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
                                               waypoints=flipped_path,
                                               drive=drive, lookahead_base=lookahead)
@@ -36,7 +36,7 @@ class SwitchOnlyCenter(CommandGroup):
 
         elevator_to_height = MoveElevatorCommand(elevator, ElevatorPositions.SWITCH)
         intake_out = MoveIntakeCommand(intake, ArmState.DOWN)
-        drop_cube = TimedRunIntakeCommand(intake, time=0.5, power=-intake.power)
+        drop_cube = OpenIntakeCommand(intake, GrabState.OUT)
 
         if not hal.isSimulation():
             self.addParallel(elevator_to_height)
@@ -47,6 +47,7 @@ class SwitchOnlyCenter(CommandGroup):
 
     def initialize(self):
         pose.set_new_pose(Pose(1.5, 0, 0))
+        print("started switch center")
 
 
 class SwitchOnlySideStraight(CommandGroup):

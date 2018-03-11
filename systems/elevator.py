@@ -13,7 +13,7 @@ from dashboard import dashboard2
 TOP_EXTENT = 68.5
 CARRIAGE_TRAVEL = 32
 
-TRAVEL_RATIO = 1  # TOP_EXTENT / 47.6
+TRAVEL_RATIO = TOP_EXTENT / 49.23
 
 # Two different PID indices for gain scheduling
 # MAIN is between 0 and CARRIAGE_TRAVEL
@@ -39,7 +39,7 @@ FREQUENCY = 100
 
 class ElevatorPositions:
     BOTTOM = 0
-    SWITCH = 20
+    SWITCH = 30
     TOP = TOP_EXTENT
 
 

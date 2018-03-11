@@ -10,7 +10,7 @@ from systems.drivetrain import Drivetrain
 class PursuitDriveCommand(Command):
     def __init__(self, drive: Drivetrain, waypoints: [Vector2], cruise_speed, acc, dist_margin=2/12,
                  lookahead_base=6, reverse=False):
-        super().__init__("PursuitDriveCommand")
+        super().__init__("PursuitDriveCommand", timeout=4)
         self.requires(drive)
 
         self.drive = drive
@@ -64,6 +64,7 @@ class PursuitDriveCommand(Command):
             self.drive.tank_drive(speed, speed)
         else:
             radius = 1/curvature
+            print(radius)
             self.drive.arc(speed, radius)
 
     def isFinished(self):

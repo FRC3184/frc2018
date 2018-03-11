@@ -29,6 +29,20 @@ class MoveIntakeCommand(Command):
         self.timer.stop()
 
 
+class OpenIntakeCommand(Command):
+    def __init__(self, intake: Intake, new_state: GrabState):
+        super().__init__("OpenIntakeCommand")
+        self.intake = intake
+        self.new_state = new_state
+        self.requires(intake)
+
+    def initialize(self):
+        self.intake.set_grab_state(self.new_state)
+
+    def isFinished(self):
+        return True
+
+
 class TimedRunIntakeCommand(TimedCommand):
     def __init__(self, intake: Intake, power, time=0):
         super().__init__("TimedRunIntake", time)

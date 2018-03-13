@@ -1,7 +1,7 @@
 import hal
-from wpilib.command import CommandGroup, ConditionalCommand, PrintCommand, TimedCommand
+from wpilib.command import CommandGroup, ConditionalCommand, PrintCommand, TimedCommand, Command
 
-from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand
+from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand, OpenIntakeCommand
 from commands.auto_move_elevator import MoveElevatorCommand
 from commands.auto_simple_drive import DistanceDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
@@ -12,14 +12,14 @@ from control.pose import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator, ElevatorPositions
-from systems.intake import Intake, ArmState
+from systems.intake import Intake, ArmState, GrabState
 
 
 class ScaleOnly(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("ScaleOnly command")
-        close_waypoints = [Vector2(0, -10), Vector2(16, -10), Vector2(23, -7.5)]
-        far_waypoints = [Vector2(0, -10), Vector2(20, -10), Vector2(20, 7.5), Vector2(23, 7)]
+        close_waypoints = [Vector2(0, -10), Vector2(16.5, -10), Vector2(22.5, -8)]
+        far_waypoints = [Vector2(0, -10), Vector2(17, -10), Vector2(17, 7.5), Vector2(22.5, 8)]
         cruise = 0.6
         acc = 0.6
         margin = 3/12
@@ -60,7 +60,7 @@ class ScaleOnly(CommandGroup):
         elevator_condition.onFalse = wait_long
         elevator_condition.condition = lambda: game_data.get_robot_side() == game_data.get_scale_side()
 
-        elevator_to_height = MoveElevatorCommand(elevator, ElevatorPositions.SWITCH)
+        elevator_to_height = MoveElevatorCommand(elevator, 80)
         elev_group = CommandGroup()
         elev_group.addSequential(elevator_condition)
         if not hal.isSimulation():
@@ -68,8 +68,8 @@ class ScaleOnly(CommandGroup):
         else:
             elev_group.addSequential(PrintCommand("Elevator moving"))
 
-        intake_out = MoveIntakeCommand(intake, ArmState.DOWN)
-        drop_cube = TimedRunIntakeCommand(intake, time=0.5, power=-intake.power)
+        # intake_out = MoveIntakeCommand(intake, ArmState.DOWN)
+        drop_cube = OpenIntakeCommand(intake, GrabState.OUT)
 
         # reset_pose = ResetPoseCommand()
         drive_back = DistanceDriveCommand(drive=drive, power=-0.5, distance=2)
@@ -77,7 +77,7 @@ class ScaleOnly(CommandGroup):
         self.addParallel(elev_group)
         self.addSequential(drive_flip_chooser)
 
-        self.addSequential(intake_out)
+        # self.addSequential(intake_out)
         self.addSequential(drop_cube)
 
         # self.addSequential(reset_pose)
@@ -86,3 +86,25 @@ class ScaleOnly(CommandGroup):
     def initialize(self):
         pose.set_new_pose(Pose(x=1.5, y=-10 * (1 if game_data.get_robot_side() == Side.RIGHT else -1),
                                heading=0))
+
+class ScaleOnlyChooser(Command):
+    def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
+        super().__init__("ScaleChooser")
+        self.drive = drive
+        self.elevator = elevator
+        self.intake = intake
+        self.scale_command = ScaleOnly(drive, elevator, intake)
+        self.drive_command = PursuitDriveCommand(acc=0.6, cruise_speed=0.6,
+                                                 waypoints=[Vector2(0, 0), Vector2(10, 0)],
+                                                 drive=drive)
+
+
+    def initialize(self):
+        print(f"{game_data.get_robot_side()} {game_data.get_scale_side()}")
+        if game_data.get_robot_side() == game_data.get_scale_side():
+            self.scale_command.start()
+        else:
+            self.drive_command.start()
+
+    def isFinished(self):
+        return True

@@ -64,7 +64,6 @@ class PursuitDriveCommand(Command):
             self.drive.tank_drive(speed, speed)
         else:
             radius = 1/curvature
-            print(radius)
             self.drive.arc(speed, radius)
 
     def isFinished(self):

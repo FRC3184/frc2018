@@ -39,7 +39,7 @@ FREQUENCY = 100
 
 class ElevatorPositions:
     BOTTOM = 0
-    SWITCH = 30
+    SWITCH = 35
     TOP = TOP_EXTENT
 
 
@@ -156,8 +156,8 @@ class Elevator(Subsystem):
         return hold_voltage + vel_voltage + acc_voltage
 
     def gen_profile(self, start, end) -> Tuple[List[TalonPoint], int]:
-        if not 0 <= end <= TOP_EXTENT:
-            raise ValueError(f"End must be within 0 and {TOP_EXTENT}")
+        # if not 0 <= end <= TOP_EXTENT:
+        #     raise ValueError(f"End must be within 0 and {TOP_EXTENT}")
         talon_points = []
         rawmp = MotionProfile(start=start, end=end, cruise_speed=CRUISE_SPEED, acc=ACC, frequency=FREQUENCY)
         for point in rawmp:

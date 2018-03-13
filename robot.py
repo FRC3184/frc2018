@@ -2,7 +2,7 @@
 
 import wpilib
 
-from commands.auto.scale_only import ScaleOnly
+from commands.auto.scale_only import ScaleOnly, ScaleOnlyChooser
 from commands.auto.switch_and_scale import SwitchAndScale
 from commands.auto.switch_only import SwitchOnlyCenter, SwitchOnlyMonolith
 from commands.auto.vault import VaultOnly
@@ -83,7 +83,7 @@ class MyRobot(TimedCommandBasedRobot):
 
         # Auto modes
         auto_switch_only = SwitchOnlyMonolith(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
-        auto_scale_only = ScaleOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        auto_scale_only = ScaleOnlyChooser(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_switch_scale = SwitchAndScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_vault = VaultOnly(drive=self.drivetrain, intake=self.intake)
 

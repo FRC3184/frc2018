@@ -84,7 +84,7 @@ class AcquireCube(Command):
             self.drive.arcade_drive(self.drive_speed, 0)
 
     def isFinished(self):
-        return self.intake.has_acquired_cube()
+        return self.intake.has_acquired_cube() or self.isTimedOut()
 
     def end(self):
         self.intake.set_grab_state(GrabState.IN)

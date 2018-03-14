@@ -1,4 +1,4 @@
-from wpilib import Talon, DoubleSolenoid, AnalogInput
+from wpilib import Talon, DoubleSolenoid, AnalogInput, hal
 from wpilib.command import Subsystem
 
 from dashboard import dashboard2
@@ -68,4 +68,6 @@ class Intake(Subsystem):
             self.solenoid_grab.set(DoubleSolenoid.Value.kReverse)
 
     def has_acquired_cube(self):
+        if hal.isSimulation():
+            return False
         return self.get_reported_distance() < 10

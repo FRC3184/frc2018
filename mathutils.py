@@ -75,7 +75,8 @@ class Vector2:
         return "Vector({}, {})".format(self.x, self.y)
 
     def __sub__(self, other):
-        assert type(other) == Vector2
+        from control import pose
+        assert type(other) == Vector2 or type(other) == pose.Pose
         return Vector2(self.x - other.x, self.y - other.y)
 
     def __add__(self, other):
@@ -91,6 +92,9 @@ class Vector2:
 
     def __neg__(self):
         return self * -1
+
+    def angle(self):
+        return math.atan2(self.y, self.x)
 
 
 class LineSegment:

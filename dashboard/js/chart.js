@@ -40,7 +40,8 @@ function Chart(jq, name) {
         ctx.stroke();
 
         ctx.font = "20px Georgia";
-        ctx.fillText(name, MARGIN + 5, MARGIN - 5);
+        var last_pt = this.data[this.data.length - 1];
+        ctx.fillText(name + " (" + last_pt.y + ")", MARGIN + 5, MARGIN - 5);
 
         ctx.font = "10px Georgia";
         var count = Math.round(real_width / 40);

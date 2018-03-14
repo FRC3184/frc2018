@@ -87,6 +87,7 @@ class ScaleOnly(CommandGroup):
         pose.set_new_pose(Pose(x=1.5, y=-10 * (1 if game_data.get_robot_side() == Side.RIGHT else -1),
                                heading=0))
 
+
 class ScaleOnlyChooser(Command):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("ScaleChooser")

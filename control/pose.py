@@ -85,7 +85,7 @@ class PoseEstimator:
             self.current_pose.heading = self.gyro_callback() - self.gyro_offset
         else:
             self.current_pose.heading += (dist_right - dist_left) / self.robot_width
-        dist = (dist_left + dist_right)  # TODO fix left encoder
+        dist = (dist_left + dist_right) / 2
 
         self.current_pose.x += dist * math.cos(self.current_pose.heading)
         self.current_pose.y += dist * math.sin(self.current_pose.heading)

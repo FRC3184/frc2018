@@ -83,7 +83,7 @@ class MyRobot(TimedCommandBasedRobot):
 
         # Auto modes
         auto_switch_only = SwitchOnlyMonolith(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
-        auto_scale_only = ScaleOnlyChooser(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        auto_scale_only = ScaleOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_switch_scale = SwitchAndScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_vault = VaultOnly(drive=self.drivetrain, intake=self.intake)
 

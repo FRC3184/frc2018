@@ -92,6 +92,15 @@ class _OI:
     def arm_is_open(self):
         return self.op_gamepad.getBumper(XboxController.Hand.kLeft)
 
+    def rumble_op(self):
+        rumble_val = 0.5
+        self.op_gamepad.setRumble(XboxController.RumbleType.kLeftRumble, rumble_val)
+        self.op_gamepad.setRumble(XboxController.RumbleType.kRightRumble, rumble_val)
+
+    def unrumble_op(self):
+        self.op_gamepad.setRumble(XboxController.RumbleType.kLeftRumble, 0)
+        self.op_gamepad.setRumble(XboxController.RumbleType.kRightRumble, 0)
+
     # Elevator
     def get_elevator_manual_command(self):
         return -self.op_gamepad.getY(XboxController.Hand.kLeft)

@@ -82,7 +82,7 @@ source.addEventListener('pose', function(event) {{
     canvas.strokeStyle = "#FF0000";
     canvas.lineWidth = 4;
     canvas.translate(w/2, h/2);
-    canvas.rotate(robot_pose.heading + Math.PI / 2);
+    canvas.rotate(-robot_pose.heading + Math.PI / 2);
 
     canvas.rect(-r_w/2, -r_h/2, r_w, r_h);
     canvas.moveTo(0, 0);

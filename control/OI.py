@@ -5,6 +5,7 @@
 import typing
 from typing import Callable
 
+import wpilib
 from wpilib import XboxController
 from wpilib.command import Command
 
@@ -34,6 +35,8 @@ class _OI:
 
         self._action_listeners = []
         self._while_listeners = []
+
+        self.arm_down = LambdaToggle(lambda: self.op_gamepad.getTriggerAxis(XboxController.Hand.kRight) > 0.75)
 
     # Utility
     def exec_while_condition(self, condition: Callable, cmd: Command):
@@ -87,7 +90,7 @@ class _OI:
         return self.op_gamepad.getBButton()
 
     def arm_is_down(self):
-        return self.op_gamepad.getTriggerAxis(XboxController.Hand.kRight) > 0.75
+        return self.arm_down.get()
 
     def arm_is_open(self):
         return self.op_gamepad.getBumper(XboxController.Hand.kLeft)
@@ -134,6 +137,115 @@ def get() -> _OI:
 
 def init():
     get()
+
+
+class LambdaToggle:
+    """Similar to pyfrc toggle, but takes an arbitrary function as input
+
+    Usage::
+
+        foo = Toggle(f)
+
+        if foo:
+            toggleFunction()
+
+        if foo.on:
+            onToggle()
+
+        if foo.off:
+            offToggle()
+    """
+    class _SteadyDebounce:
+        """
+            Similar to ButtonDebouncer, but the output stays steady for
+            the given periodic_filter. E.g, if you set the period to 2
+            and press the button, the value will return true for 2 seconds.
+
+            Steady debounce will return true for the given period, allowing it to be
+            used with Toggle
+        """
+
+        def __init__(self, f: callable, period: float):
+            """
+            :param joystick:  Joystick object
+            :type  joystick:  :class:`wpilib.Joystick`
+            :param button: Number of button to retrieve
+            :type  button: int
+            :param period:    Period of time (in seconds) to wait before allowing new button
+                              presses. Defaults to 0.5 seconds.
+            :type  period:    float
+            """
+            self.function = f
+
+            self.debounce_period = float(period)
+            self.latest = - self.debounce_period # Negative latest prevents get from returning true until joystick is presed for the first time
+            self.enabled = False
+
+        def get(self):
+            """
+            :returns: The value of the joystick button. Once the button is pressed,
+            the return value will be `True` until the time expires
+            """
+
+            now = wpilib.Timer.getFPGATimestamp()
+            if now - self.latest < self.debounce_period:
+                return True
+
+            if self.function():
+                self.latest = now
+                return True
+            else:
+                return False
+
+    def __init__(self, f: callable, debounce_period: float=None):
+        """
+        :param f: Function to debounce
+        :param debounce_period: Period in seconds to wait before registering a new button press.
+        """
+
+        if debounce_period is not None:
+            self.joystickget = LambdaToggle._SteadyDebounce(f, debounce_period).get
+        else:
+            self.joystickget = f
+
+        self.released = False
+        self.toggle = False
+        self.state = False
+
+    def get(self):
+        """
+         :return: State of toggle
+         :rtype: bool
+         """
+        current_state = self.joystickget()
+
+        if current_state and not self.released:
+            self.released = True
+            self.toggle = not self.toggle
+            self.state = not self.state # Toggles between 1 and 0.
+
+        elif not current_state and self.released:
+            self.released = False
+
+        return self.toggle
+
+    @property
+    def on(self):
+        """
+        Equates to true if toggle is in the 'on' state
+        """
+        self.get()
+        return self.state
+
+    @property
+    def off(self):
+        """
+        Equates to true if toggle is in the 'off' state
+        """
+        self.get()
+        return not self.state
+
+    __bool__ = get
 
 
 class OIUpdateCommand(Command):

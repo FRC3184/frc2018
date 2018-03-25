@@ -48,6 +48,6 @@ class OpDriveCommand(Command):
         return False
 
     def get_speed_scale(self, current_height):
-        speed_scale = (-0.8/(TOP_EXTENT))*current_height+1
+        speed_scale = (-0.6/(TOP_EXTENT))*current_height+1
 
         return speed_scale

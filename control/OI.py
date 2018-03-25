@@ -93,7 +93,7 @@ class _OI:
         return self.op_gamepad.getBumper(XboxController.Hand.kLeft)
 
     def rumble_op(self):
-        rumble_val = 0.5
+        rumble_val = 0.75
         self.op_gamepad.setRumble(XboxController.RumbleType.kLeftRumble, rumble_val)
         self.op_gamepad.setRumble(XboxController.RumbleType.kRightRumble, rumble_val)
 

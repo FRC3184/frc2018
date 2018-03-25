@@ -1,7 +1,6 @@
 import math
 
 import hal
-from pyfrc.sim import get_user_renderer
 from wpilib.command import Command
 
 from control import pose
@@ -57,6 +56,7 @@ class TurnToLookat(Command):
         poz = pose.get_current_pose()
         self.target_angle = (self.lookat - poz).angle() * 180 / math.pi
         if hal.isSimulation():
+            from pyfrc.sim import get_user_renderer
             render = get_user_renderer()
             if render is not None:  # If running the standalone (pyplot) sim, this is None
                 render.draw_line([(poz.x, -poz.y + 14), (self.lookat.x, -self.lookat.y + 14)], color="#00ff00", arrow=False)

@@ -30,6 +30,7 @@ class OpIntakeCommand(Command):
             else:
                 oi.unrumble_op()
         else:
+            oi.unrumble_op()
             intake.set_grab_state(GrabState.IN)
             if oi.outtake_is_active():
                 intake.eject()

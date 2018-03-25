@@ -70,4 +70,4 @@ class Intake(Subsystem):
     def has_acquired_cube(self):
         if hal.isSimulation():
             return False
-        return self.get_reported_distance() < 10
+        return self.get_reported_distance() < 4

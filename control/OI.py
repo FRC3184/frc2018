@@ -83,11 +83,14 @@ class _OI:
         return self.drive_gamepad.getBumper(XboxController.Hand.kLeft)
 
     # Intake
+    def outtake_is_active(self):
+        return self.op_gamepad.getBumper(XboxController.Hand.kRight)
+
     def intake_is_active(self):
         return self.op_gamepad.getYButton()
 
-    def outtake_is_active(self):
-        return self.op_gamepad.getBButton()
+    def get_outtake_command(self):
+        return self.op_gamepad.getY(XboxController.Hand.kRight)
 
     def arm_is_down(self):
         return self.arm_down.get()

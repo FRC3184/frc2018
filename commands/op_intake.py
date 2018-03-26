@@ -33,7 +33,10 @@ class OpIntakeCommand(Command):
             oi.unrumble_op()
             intake.set_grab_state(GrabState.IN)
             if oi.outtake_is_active():
-                intake.eject()
+                pwr = oi.get_outtake_command()
+                if abs(pwr) < 0.05:
+                    pwr = 0
+                intake.run_intake(pwr)
             else:
                 intake.run_intake(0)
 

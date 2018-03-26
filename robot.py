@@ -21,6 +21,7 @@ from control.TimedCommandBasedRobot import TimedCommandBasedRobot
 from dashboard import dashboard2
 from dashboard.dashboard2 import DashboardUpdateCommand
 from mathutils import Vector2
+from systems.checked_system import CheckFaults
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator
 from systems.climber import Climber
@@ -53,6 +54,7 @@ class MyRobot(TimedCommandBasedRobot):
 
         DashboardUpdateCommand().start()
         OIUpdateCommand().start()
+        CheckFaults([self.elevator, self.forklift]).start()
 
         # wpilib.CameraServer.launch()
 

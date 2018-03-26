@@ -9,6 +9,7 @@ from Logger import Logger
 from control import robot_time
 from control.motion_profile import MotionProfile, SRXMotionProfileManager
 from dashboard import dashboard2
+from systems.checked_system import FaultableSystem
 
 TOP_EXTENT = 68.5
 CARRIAGE_TRAVEL = 32
@@ -50,7 +51,7 @@ class ElevatorState:
     ZEROING = 3
 
 
-class Elevator(Subsystem):
+class Elevator(FaultableSystem):
     def __init__(self, mock=False):
         super().__init__("Elevator")
 
@@ -234,3 +235,14 @@ class Elevator(Subsystem):
 
     def is_at_bottom(self):
         return self.talon_master.isRevLimitSwitchClosed()
+
+    def check_continuous_faults(self):
+        """
+        Check if the system is faulted.
+
+        For the elevator, we are interested in whether the versa dual-input has failed.
+        :return:
+        """
+        master_current = self.talon_master.getOutputCurrent()
+        slave_current = self.talon_slave.getOutputCurrent()
+        return abs(master_current - slave_current) / master_current < 1

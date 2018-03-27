@@ -30,7 +30,7 @@ ZERO_MAX_ERR = 150
 CRUISE_SPEED = 40
 ACC = 2*CRUISE_SPEED
 
-GEAR_RATIO = 9
+GEAR_RATIO = 7
 SPOOL_RADIUS = 0.25
 CARRIAGE_WEIGHT = 20 + 10/16
 EXTENT_WEIGHT = 10
@@ -83,6 +83,10 @@ class Elevator(FaultableSystem):
             # This lets us pass in feedforward as voltage
             self.talon_master.config_kF(MAIN_IDX, 1023/12, 0)
             self.talon_master.config_kF(EXTENT_IDX, 1023/12, 0)
+
+            kP = 0.05 * 1023 / 4096
+            self.talon_master.config_kP(MAIN_IDX, kP, 0)
+            self.talon_master.config_kP(EXTENT_IDX, kP, 0)
 
             self.talon_master.config_kP(HOLD_MAIN_IDX, .1 * 1023 / 4096, 0)
             self.talon_master.config_kP(HOLD_EXTENT_IDX, .3 * 1023 / 4096, 0)
@@ -245,4 +249,9 @@ class Elevator(FaultableSystem):
         """
         master_current = self.talon_master.getOutputCurrent()
         slave_current = self.talon_slave.getOutputCurrent()
-        return abs(master_current - slave_current) / master_current < 1
+        ref = master_current
+        if ref == 0:
+            ref = slave_current
+        if ref == 0:
+            ref = 1
+        return abs(master_current - slave_current) / ref < 1

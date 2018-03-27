@@ -220,7 +220,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         return self.get_heading() * math.pi / 180
 
     def get_left_distance(self):
-        if wpilib.hal.isSimulation() or True:
+        if wpilib.hal.isSimulation():
             return self._model_left_dist
         else:
             return self.native_distance_to_feet(self._left_motor.getQuadraturePosition())

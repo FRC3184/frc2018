@@ -41,4 +41,9 @@ class Climber(Subsystem):
 
         master_current = self.pdp.getCurrent(self.climb_pdp_port1)
         slave_current = self.pdp.getCurrent(self.climb_pdp_port2)
-        return abs(master_current - slave_current) / master_current < 1
+        ref = master_current
+        if ref == 0:
+            ref = slave_current
+        if ref == 0:
+            ref = 1
+        return abs(master_current - slave_current) / ref < 1

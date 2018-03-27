@@ -22,7 +22,7 @@ def get_scale_only_group(drive, elevator, intake):
     is_close = game_data.get_robot_side() == game_data.get_scale_side()
 
     close_waypoints = [Vector2(0, -10), Vector2(16.5, -10), Vector2(22.5, -8)]
-    far_waypoints = [Vector2(0, -10), Vector2(20, -10), Vector2(20, 7), Vector2(23, 7)]
+    far_waypoints = [Vector2(0, -10), Vector2(20, -10), Vector2(20, 7)]
 
     if is_close:
         path = close_waypoints

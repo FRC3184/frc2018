@@ -88,7 +88,7 @@ class LinePath(Path):
 
         # Project the robot's pose onto each line to find the closest line to the robot
         # If we can't find a point that intersects the lookahead circle, use the closest point
-        for line in self.path:
+        for line in reversed(self.path):
             project = line.projected_point(pose)
 
             dist = project.distance(pose)
@@ -126,7 +126,7 @@ class PurePursuitController:
         :return: Radius of the lookahead circle
         """
         base_ratio = 3/4
-        return self.lookahead_base * (base_ratio + (1 - base_ratio) * speed)
+        return self.lookahead_base  # * (base_ratio + (1 - base_ratio) * speed)
 
     def curvature(self, pose: pose.Pose, speed: float) -> Tuple[float, float]:
         """

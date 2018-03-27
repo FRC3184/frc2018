@@ -83,11 +83,9 @@ class _OI:
         return self.drive_gamepad.getBumper(XboxController.Hand.kLeft)
 
     # Intake
-    def outtake_is_active(self):
-        return self.op_gamepad.getBumper(XboxController.Hand.kRight)
 
     def intake_is_active(self):
-        return self.op_gamepad.getYButton()
+        return self.op_gamepad.getBumper(XboxController.Hand.kRight)
 
     def get_outtake_command(self):
         return self.op_gamepad.getY(XboxController.Hand.kRight)
@@ -99,7 +97,7 @@ class _OI:
         return self.op_gamepad.getBumper(XboxController.Hand.kLeft)
 
     def rumble_op(self):
-        rumble_val = 0.75
+        rumble_val = 1
         self.op_gamepad.setRumble(XboxController.RumbleType.kLeftRumble, rumble_val)
         self.op_gamepad.setRumble(XboxController.RumbleType.kRightRumble, rumble_val)
 

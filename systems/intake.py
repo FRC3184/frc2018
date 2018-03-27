@@ -44,7 +44,7 @@ class Intake(Subsystem):
         self.talon_right.set(-power)
 
     def intake(self):
-        self.run_intake(self.power)
+        self.run_intake(0.3)
 
     def eject(self):
         self.run_intake(-self.power)

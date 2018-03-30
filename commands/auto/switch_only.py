@@ -21,7 +21,7 @@ class SwitchOnlyCenter(CommandGroup):
         drive_path_waypoints = [Vector2(1.5, 0), Vector2(4, 0), Vector2(5, 3), Vector2(10, 3)]
         flipped_path = [Vector2(1.5, 0), Vector2(4, 0), Vector2(5, -3), Vector2(9, -3)]
         cruise = 0.8
-        acc = 1.6
+        acc = 3
         lookahead = 4
         drive_path_left = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
                                               waypoints=drive_path_waypoints, drive=drive, lookahead_base=3)

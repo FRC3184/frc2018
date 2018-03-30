@@ -39,7 +39,7 @@ class OpDriveCommand(Command):
         if oi.get_spot_turn():
             drive.tank_drive(.1,-.1)
         else:
-            drive.arcade_drive(power, turn * 0.5)
+            drive.arcade_drive(power, turn * 0.65)
 
     def end(self):
         pass

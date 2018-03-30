@@ -11,7 +11,7 @@ from control.motion_profile import MotionProfile, SRXMotionProfileManager
 from dashboard import dashboard2
 from systems.checked_system import FaultableSystem
 
-TOP_EXTENT = 68.5
+TOP_EXTENT = 62
 CARRIAGE_TRAVEL = 32
 
 TRAVEL_RATIO = TOP_EXTENT / 49.23
@@ -30,7 +30,7 @@ ZERO_MAX_ERR = 150
 CRUISE_SPEED = 40
 ACC = 2*CRUISE_SPEED
 
-GEAR_RATIO = 7
+GEAR_RATIO = 9
 SPOOL_RADIUS = 0.25
 CARRIAGE_WEIGHT = 20 + 10/16
 EXTENT_WEIGHT = 10
@@ -40,7 +40,7 @@ FREQUENCY = 100
 
 class ElevatorPositions:
     BOTTOM = 0
-    SWITCH = 35
+    SWITCH = 30
     TOP = TOP_EXTENT
 
 
@@ -85,8 +85,8 @@ class Elevator(FaultableSystem):
             self.talon_master.config_kF(EXTENT_IDX, 1023/12, 0)
 
             kP = 0.05 * 1023 / 4096
-            self.talon_master.config_kP(MAIN_IDX, kP, 0)
-            self.talon_master.config_kP(EXTENT_IDX, kP, 0)
+            # self.talon_master.config_kP(MAIN_IDX, kP, 0)
+            # self.talon_master.config_kP(EXTENT_IDX, kP, 0)
 
             self.talon_master.config_kP(HOLD_MAIN_IDX, .1 * 1023 / 4096, 0)
             self.talon_master.config_kP(HOLD_EXTENT_IDX, .3 * 1023 / 4096, 0)
@@ -232,6 +232,20 @@ class Elevator(FaultableSystem):
             ff /= target
         self.talon_master.config_kF(pid, ff, 0)
         self.talon_master.set(ControlMode.Position, target)
+        self._state = ElevatorState.HOLDING
+
+    def move_to(self, target):
+        pos = self.get_elevator_position()
+        target_n = self.in_to_native_units(target)
+        pid = self.get_pid_index(pos) + 2
+        self.talon_master.selectProfileSlot(pid, 0)
+        ff = (1023/12) * self.calc_ff(pos, 0, 0)
+        if target_n == 0:
+            ff = 0
+        else:
+            ff /= target_n
+        self.talon_master.config_kF(pid, ff, 0)
+        self.talon_master.set(ControlMode.Position, target_n)
         self._state = ElevatorState.HOLDING
 
     def is_at_top(self):

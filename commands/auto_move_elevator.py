@@ -3,7 +3,7 @@ from wpilib.command import Command
 from systems.elevator import Elevator
 
 
-class MoveElevatorCommand(Command):
+class ProfileMoveElevatorCommand(Command):
     def __init__(self, elevator: Elevator, target_pos):
         super().__init__()
 
@@ -30,3 +30,23 @@ class MoveElevatorCommand(Command):
     def end(self):
         print("Finished profile")
         self.elevator.finish_profile()
+
+class MoveElevatorCommand(Command):
+    def __init__(self, elevator: Elevator, target_pos):
+        super().__init__()
+
+        self.elevator = elevator
+        self.requires(self.elevator)
+        self.target_pos = target_pos
+
+    def initialize(self):
+        pass
+
+    def execute(self):
+        self.elevator.move_to(self.target_pos)
+
+    def isFinished(self):
+        return abs(self.elevator.get_elevator_position() - self.target_pos) < 1
+
+    def end(self):
+        print("Finished profile")

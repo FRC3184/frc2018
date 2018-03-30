@@ -38,9 +38,9 @@ def get_scale_only_group(drive, elevator, intake):
     drive_command = PursuitDriveCommand(drive=drive, waypoints=path, cruise_speed=cruise, acc=acc,
                                         dist_margin=margin, lookahead_base=lookahead)
 
-    elev_wait = TimedCommand(name="Elev Timeout", timeoutInSeconds=(1.25 if is_close else 4))
+    elev_wait = TimedCommand(name="Elev Timeout", timeoutInSeconds=(0.5 if is_close else 2))
 
-    elevator_to_height = MoveElevatorCommand(elevator, 80)
+    elevator_to_height = MoveElevatorCommand(elevator, 60)
     elev_group = CommandGroup()
     elev_group.addSequential(elev_wait)
     if not hal.isSimulation():

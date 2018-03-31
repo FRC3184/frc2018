@@ -45,11 +45,12 @@ def init(placement):
     count = 1
     while len(get_message()) < 3:
         print(f"Getting game-specific message... Retry {count}")
-        if count == 10:
+        if count == 3:
             print("Canceling game-specific message, either you messed up or you need to talk to an FTA!")
-            _cached_string = "RRR"
+            _cached_string = "LRL"
             break
         robot_time.sleep(seconds=1)
+        count += 1
 
 
 def get_own_switch_side():

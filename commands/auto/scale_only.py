@@ -49,7 +49,7 @@ def get_scale_only_group(drive, elevator, intake):
         elev_group.addSequential(PrintCommand("Elevator moving"))
 
     drop_cube = OpenIntakeCommand(intake, GrabState.OUT)
-    drive_back = DistanceDriveCommand(drive=drive, power=-0.5, distance=2)
+    drive_back = DistanceDriveCommand(drive=drive, power=-0.2, distance=2)
 
     group.addParallel(elev_group)
     group.addSequential(drive_command)
@@ -69,10 +69,16 @@ class ScaleOnly(Command):
         self.group = None
 
     def initialize(self):
-        pose.set_new_pose(Pose(x=1.5, y=-10 * (1 if game_data.get_robot_side() == Side.RIGHT else -1),
-                               heading=0))
-
-        self.group = get_scale_only_group(self.drive, self.elevator, self.intake)
+        if game_data.get_scale_side() != game_data.get_robot_side():
+            self.group = CommandGroup()
+            path = [Vector2(0, 0), Vector2(10, 0)]
+            self.group.addSequential(PursuitDriveCommand(acc=0.6, cruise_speed=0.6,
+                                                                          waypoints=path,
+                                                                          drive=self.drive))
+        else:
+            pose.set_new_pose(Pose(x=1.5, y=-10 * (1 if game_data.get_robot_side() == Side.RIGHT else -1),
+                                   heading=0))
+            self.group = get_scale_only_group(self.drive, self.elevator, self.intake)
 
         self.group.start()
 
@@ -95,25 +101,31 @@ class DoubleScale(Command):
         pose.set_new_pose(Pose(x=1.5, y=-10 * (1 if game_data.get_robot_side() == Side.RIGHT else -1),
                                heading=0))
 
-        self.group = get_scale_only_group(self.drive, self.elevator, self.intake)
-        self.group.addSequential(PrintCommand("Done with only scale"))
-
-        if not hal.isSimulation():
-            self.group.addParallel(MoveElevatorCommand(self.elevator, 0))
+        if game_data.get_scale_side() != game_data.get_robot_side():
+            self.group = CommandGroup()
+            self.group.addSequential(PursuitDriveCommand(acc=0.6, cruise_speed=0.6,
+                                                                          waypoints=[Vector2(0, 0), Vector2(10, 0)],
+                                                                          drive=self.drive))
         else:
-            self.group.addParallel(PrintCommand("Elevator moving"))
-        on_left = game_data.get_scale_side() == Side.LEFT
-        self.group.addSequential(TurnToLookat(self.drive, lookat=Vector2(16, 5 * (1 if on_left else -1))))
+            self.group = get_scale_only_group(self.drive, self.elevator, self.intake)
+            self.group.addSequential(PrintCommand("Done with only scale"))
 
-        self.group.addSequential(AcquireCube(drive=self.drive, drive_speed=0.4, intake=self.intake, timeout=0.7))
-        if not hal.isSimulation():
-            self.group.addParallel(MoveElevatorCommand(self.elevator, 80))
-        else:
-            self.group.addParallel(PrintCommand("Elevator moving"))
-        self.group.addSequential(DistanceDriveCommand(drive=self.drive, power=-0.5, distance=2))
-        self.group.addSequential(TurnToLookat(self.drive, lookat=Vector2(23, 6 * (1 if on_left else -1))))
-        self.group.addSequential(DistanceDriveCommand(drive=self.drive, power=0.5, distance=2))
-        self.group.addSequential(OpenIntakeCommand(intake=self.intake, new_state=GrabState.OUT))
+            if not hal.isSimulation():
+                self.group.addParallel(MoveElevatorCommand(self.elevator, 0))
+            else:
+                self.group.addParallel(PrintCommand("Elevator moving"))
+            on_left = game_data.get_scale_side() == Side.LEFT
+            self.group.addSequential(TurnToLookat(self.drive, lookat=Vector2(16, 5 * (1 if on_left else -1))))
+
+            self.group.addSequential(AcquireCube(drive=self.drive, drive_speed=0.4, intake=self.intake, timeout=0.7))
+            if not hal.isSimulation():
+                self.group.addParallel(MoveElevatorCommand(self.elevator, 80))
+            else:
+                self.group.addParallel(PrintCommand("Elevator moving"))
+            self.group.addSequential(DistanceDriveCommand(drive=self.drive, power=-0.5, distance=2))
+            self.group.addSequential(TurnToLookat(self.drive, lookat=Vector2(23, 6 * (1 if on_left else -1))))
+            self.group.addSequential(DistanceDriveCommand(drive=self.drive, power=0.5, distance=2))
+            self.group.addSequential(OpenIntakeCommand(intake=self.intake, new_state=GrabState.OUT))
 
         self.group.start()
 

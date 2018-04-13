@@ -18,7 +18,7 @@ class Climb(Command):
     def execute(self):
         self.climber.active_climber(self.power)
         if self.power < 1:
-            self.power += 0.025
+            self.power += 0.05
 
     def end(self):
         self.climber.inactive_climber()

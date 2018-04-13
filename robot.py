@@ -56,7 +56,7 @@ class MyRobot(TimedCommandBasedRobot):
         OIUpdateCommand().start()
         CheckFaults([self.elevator, self.forklift]).start()
 
-        wpilib.CameraServer.launch()
+        # wpilib.CameraServer.launch()
 
         # Actions
 

@@ -2,6 +2,7 @@ from ctre import FeedbackDevice
 from ctre.talonsrx import TalonSRX
 from wpilib.command import Subsystem
 
+from control.BlazeTalon import BlazeTalon
 from control.smartdrive import SmartRobotDrive
 
 
@@ -9,13 +10,13 @@ class Drivetrain(Subsystem):
     def __init__(self):
         super().__init__("Drivetrain")
 
-        self.talon_left_rear = TalonSRX(0)
-        self.talon_left_front = TalonSRX(1)
+        self.talon_left_rear = BlazeTalon(0)
+        self.talon_left_front = BlazeTalon(1)
 
         self.setup_talons(self.talon_left_rear, self.talon_left_front)
 
-        self.talon_right_rear = TalonSRX(2)
-        self.talon_right_front = TalonSRX(3)
+        self.talon_right_rear = BlazeTalon(2)
+        self.talon_right_front = BlazeTalon(3)
 
         self.setup_talons(self.talon_right_rear, self.talon_right_front, invert=True)
 
@@ -30,6 +31,7 @@ class Drivetrain(Subsystem):
         master.configPeakCurrentLimit(80, timeoutMs)
         master.configPeakCurrentDuration(500, timeoutMs)
 
+        master.setSensorPhase(False)
         master.setInverted(invert)
         slave.setInverted(invert)
 

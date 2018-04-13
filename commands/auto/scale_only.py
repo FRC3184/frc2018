@@ -49,7 +49,7 @@ def get_scale_only_group(drive, elevator, intake):
         elev_group.addSequential(PrintCommand("Elevator moving"))
 
     drop_cube = OpenIntakeCommand(intake, GrabState.OUT)
-    drive_back = DistanceDriveCommand(drive=drive, power=-0.2, distance=2)
+    drive_back = DistanceDriveCommand(drive=drive, power=-0.2, distance=4)
 
     group.addParallel(elev_group)
     group.addSequential(drive_command)

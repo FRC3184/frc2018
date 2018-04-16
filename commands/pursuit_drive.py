@@ -20,7 +20,9 @@ class PursuitDriveCommand(Command):
 
         self.accel_dist = (1/2) * self.cruise_speed**2 / self.acc
 
-        self.pp_controller = PurePursuitController(waypoints, lookahead_base=lookahead_base)
+        self.pp_controller = PurePursuitController(waypoints=waypoints,
+                                                   lookahead_base=lookahead_base
+                                                   )
         cur_pose = pose.get_current_pose()
         self._begin_pose = Vector2(cur_pose.x, cur_pose.y)
         self._end_pose = waypoints[-1]
@@ -38,8 +40,12 @@ class PursuitDriveCommand(Command):
             from pyfrc.sim import get_user_renderer
             render = get_user_renderer()
             poz = pose.get_current_pose()
-            render.draw_line(line_pts=[(w.x, -w.y + 14) for w in self.pp_controller.waypoints],
-                             robot_coordinates=False)
+            line_pts = []
+            for t in range(1000):
+                t0 = t / 1000
+                pt = self.pp_controller.path.spline.get_point(t0)
+                line_pts += [(pt.x, -pt.y + 14)]
+            render.draw_line(line_pts, robot_coordinates=False)
 
     def execute(self):
         poz = pose.get_current_pose()
@@ -57,13 +63,13 @@ class PursuitDriveCommand(Command):
             speed = min_speed
 
         speed /= self.drive.robotdrive.max_speed
-        curvature, cte = self.pp_controller.curvature(poz, speed)
+        curvature, goal = self.pp_controller.curvature(poz, speed)
         speed *= (-1 if self.reverse else 1)
         curvature *= (1 if self.reverse else 1)
         if curvature == 0:
             self.drive.tank_drive(speed, speed)
         else:
-            radius = 1/curvature
+            radius = -1/curvature
             self.drive.arc(speed, radius)
 
     def isFinished(self):

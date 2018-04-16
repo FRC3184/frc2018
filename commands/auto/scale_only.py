@@ -23,11 +23,10 @@ def get_scale_only_group(drive, elevator, intake):
 
     close_waypoints = [Pose(0, -10, 0), Pose(16.5, -10, 0), Pose(22.5, -8, 0.5 * math.pi / 4)]
     far_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0),
-                     Pose(x=17.0, y=-10.0, heading=0.0),
-                     Pose(x=19.5, y=-8.0, heading=0.17453292519943295),
-                     Pose(x=19.6, y=3.0, heading=0.7853981633974483),
-                     Pose(x=21.0, y=7.0, heading=0.0),
-                     Pose(x=24.0, y=7.0, heading=-0.17453292519943295)]
+                     Pose(x=19.0, y=-8.0, heading=0.7853981633974483),
+                     Pose(x=19.5, y=0.0, heading=1.5707963267948966),
+                     Pose(x=21.0, y=7.0, heading=0.7853981633974483),
+                     Pose(x=24.0, y=7.5, heading=-0.3490658503988659)]
 
     if is_close:
         path = close_waypoints

@@ -85,7 +85,7 @@ class MyRobot(TimedCommandBasedRobot):
         self.side_chooser.set_default("Center")
 
         # Auto modes
-        # auto_switch_only = SwitchOnlyMonolith(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        auto_switch_only = SwitchOnlyMonolith(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_scale_only = ScaleOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         # auto_scale_double = DoubleScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         # auto_switch_scale = SwitchAndScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
@@ -93,7 +93,7 @@ class MyRobot(TimedCommandBasedRobot):
 
         auto_drive_simple = TimeDriveCommand(drive=self.drivetrain, power=0.3, time=3)
         self.auto_chooser = dashboard2.add_chooser("Autonomous")
-        # self.auto_chooser.add_option("Switch Only", auto_switch_only)
+        self.auto_chooser.add_option("Switch Only", auto_switch_only)
         self.auto_chooser.add_option("Scale Only", auto_scale_only)
         # self.auto_chooser.add_option("2x Scale", auto_scale_double)
         # self.auto_chooser.add_option("Switch and Scale", auto_switch_scale)

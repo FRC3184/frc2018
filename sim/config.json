@@ -4,8 +4,10 @@
   	"robot": {
       "w": 3.583,
       "h": 2.883,
-      "starting_x": 2,
-      "starting_y": 14.5,
+      "start_positions":
+      [{"name": "Left", "x": 2, "y": 4.5, "angle": 0},
+      {"name": "Center", "x": 2, "y": 14.5, "angle": 0},
+      {"name": "Right", "x": 2, "y": 23.5, "angle": 0}],
       "starting_angle": 0
     }
   }

@@ -31,6 +31,11 @@ class Pose(Vector2):
         elif type(other) == Vector2:
             return Vector2(self.x - other.x, self.y - other.y)
 
+    def translated(self, pose):
+        vec = super().translated(pose)
+
+        return Pose(vec.x, vec.y, self.heading - pose.heading)
+
     def copy(self):
         return Pose(self.x, self.y, self.heading)
 
@@ -85,7 +90,7 @@ class PoseEstimator:
             self.current_pose.heading = self.gyro_callback() - self.gyro_offset
         else:
             self.current_pose.heading += (dist_right - dist_left) / self.robot_width
-        dist = (-dist_left + dist_right) / 2  # TODO right is negated on practice robot
+        dist = (-dist_left + dist_right) / 2
 
         self.current_pose.x += dist * math.cos(self.current_pose.heading)
         self.current_pose.y += dist * math.sin(self.current_pose.heading)

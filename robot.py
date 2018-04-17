@@ -18,6 +18,7 @@ from commands.zero_elevator import ElevatorZeroCommand
 from control import OI, game_data
 from control.OI import OIUpdateCommand
 from control.TimedCommandBasedRobot import TimedCommandBasedRobot
+from control.pose import Pose
 from dashboard import dashboard2
 from dashboard.dashboard2 import DashboardUpdateCommand
 from mathutils import Vector2
@@ -86,19 +87,19 @@ class MyRobot(TimedCommandBasedRobot):
         # Auto modes
         auto_switch_only = SwitchOnlyMonolith(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
         auto_scale_only = ScaleOnly(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
-        auto_scale_double = DoubleScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
-        auto_switch_scale = SwitchAndScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
-        auto_vault = VaultOnly(drive=self.drivetrain, intake=self.intake)
+        # auto_scale_double = DoubleScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        # auto_switch_scale = SwitchAndScale(drive=self.drivetrain, elevator=self.elevator, intake=self.intake)
+        # auto_vault = VaultOnly(drive=self.drivetrain, intake=self.intake)
 
         auto_drive_simple = TimeDriveCommand(drive=self.drivetrain, power=0.3, time=3)
         self.auto_chooser = dashboard2.add_chooser("Autonomous")
         self.auto_chooser.add_option("Switch Only", auto_switch_only)
         self.auto_chooser.add_option("Scale Only", auto_scale_only)
-        self.auto_chooser.add_option("2x Scale", auto_scale_double)
-        self.auto_chooser.add_option("Switch and Scale", auto_switch_scale)
-        self.auto_chooser.add_option("Vault Only", auto_vault)
+        # self.auto_chooser.add_option("2x Scale", auto_scale_double)
+        # self.auto_chooser.add_option("Switch and Scale", auto_switch_scale)
+        # self.auto_chooser.add_option("Vault Only", auto_vault)
         self.auto_chooser.add_option("Drive Forward", PursuitDriveCommand(acc=0.6, cruise_speed=0.6,
-                                                                          waypoints=[Vector2(0, 0), Vector2(10, 0)],
+                                                                          waypoints=[Pose(0, 0, 0), Pose(10, 0, 0)],
                                                                           drive=self.drivetrain))
         self.auto_chooser.set_default("Drive Forward")
 

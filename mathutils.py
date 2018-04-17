@@ -1,4 +1,6 @@
 import math
+import numpy as np
+from typing import List, Tuple
 
 
 def sgn(x):
@@ -58,8 +60,11 @@ class Vector2:
         dyp = self.x * s + self.y * c
         return Vector2(dxp + pose.x, dyp + pose.y)
 
+    def sq_dist(self, point):
+        return (point.x - self.x) ** 2 + (point.y - self.y) ** 2
+
     def distance(self, point):
-        return ((point.x - self.x)**2 + (point.y - self.y)**2)**0.5
+        return self.sq_dist(point)**0.5
 
     def normalized(self):
         magn = abs(self)
@@ -149,3 +154,72 @@ class LineSegment:
 
     def __repr__(self):
         return "Line(t<{}, {}> + <{}, {}>".format(self.slope.x, self.slope.y, self.intersect.x, self.intersect.y)
+
+def approximate_curve(x0, y0, xs, s, k):
+    M = np.mat([[x0 ** 2, x0, 1], [2 * xs, 1, 0], [2, 0, 0]])
+    b = np.mat([[y0], [s], [k]])
+    coeff = np.linalg.solve(M, b)
+    return polynomial_from_parameters(coeff)
+
+
+class Polynomial:
+    def __init__(self, coefficients: List[float]):
+        self.coefficients = coefficients
+
+    def compute(self, x: float) -> float:
+        sum = 0
+        for i, coeff in enumerate(reversed(self.coefficients)):
+            sum += coeff * (x ** i)
+        return sum
+
+    def slope(self, x: float) -> float:
+        sum = 0
+        for i, coeff in enumerate(reversed(self.coefficients)):
+            if i == 0:
+                continue
+            sum += i * coeff * (x ** (i - 1))
+        return sum
+
+    def second_deriv(self, x: float) -> float:
+        sum = 0
+        for i, coeff in enumerate(reversed(self.coefficients)):
+            if i == 0 or i == 1:
+                continue
+            sum += i * (i - 1) * coeff * (x ** (i - 2))
+        return sum
+
+    def get_degree(self) -> int:
+        return len(self.coefficients) - 1
+
+    @staticmethod
+    def get_row_for_degree(x: float, degree: int) -> List[float]:
+        return [x ** i for i in range(degree, -1, -1)]
+
+    @staticmethod
+    def get_slope_row_for_degree(x: float, degree: int) -> List[float]:
+        return [i * x ** (i - 1) for i in range(degree, 0, -1)] + [0]
+
+    @staticmethod
+    def get_curvature_row_for_degree(x: float, degree: int) -> List[float]:
+        return [i * (i - 1) * x ** (i - 2) for i in range(degree, 1, -1)] + [0, 0]
+
+    def __str__(self):
+        return f"P_{self.get_degree()} {self.coefficients}"
+
+    def length(self, x0: float, x1: float) -> float:
+        accum = 0
+        dx = 0.001
+        x = float(x0)
+        while x < x1:
+            slope = float(self.slope(x))
+            accum += (1 + slope ** 2) ** (1 / 2) * dx
+            x += dx
+        return accum
+
+    def get_local_quadratic_approximation(self, x: float):
+        return approximate_curve(x, self.compute(x), x, self.slope(x), self.second_deriv(x))
+
+
+def polynomial_from_parameters(parameters: np.ndarray) -> Polynomial:
+    parameters = list(parameters.flatten().tolist())[0]  # ew ew ew
+    return Polynomial(parameters)

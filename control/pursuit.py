@@ -2,7 +2,10 @@ from typing import List, Tuple, Optional
 
 import hal
 
+import mathutils
 from control import pose
+from control.pose import Pose
+from control.splines import ComboSpline, CubicSpline, LinearSpline
 from mathutils import LineSegment, Vector2
 
 if hal.isSimulation():
@@ -16,10 +19,10 @@ def flip_waypoints_x(waypoints: List[Vector2]):
     return waypoints_
 
 
-def flip_waypoints_y(waypoints: List[Vector2]):
+def flip_waypoints_y(waypoints: List[Pose]):
     waypoints_ = []
     for k in waypoints:
-        waypoints_.append(Vector2(k.x, -k.y))
+        waypoints_.append(Pose(k.x, -k.y, -k.heading))
     return waypoints_
 
 
@@ -33,81 +36,58 @@ class Path:
         pass
 
 
-class LinePath(Path):
-    """
-    Represents a path made of line segments, built between waypoints
-    """
-    def __init__(self, waypoints: List[Vector2]):
+class SplinePath(Path):
+    def __init__(self, waypoints: List[Pose], interpolation_strategy: int):
         super().__init__()
-        self.path = []
-        self.end_point = waypoints[-1]
+        self.path = waypoints[:]
+        if interpolation_strategy == InterpolationStrategy.COMBO4_5:
+            self.spline = ComboSpline(self.path)
+        elif interpolation_strategy == InterpolationStrategy.CUBIC:
+            self.spline = CubicSpline(self.path)
+        elif interpolation_strategy == InterpolationStrategy.LINEAR:
+            self.spline = LinearSpline(self.path)
+        else:
+            raise ValueError(f"Invalid interpolation strategy {interpolation_strategy}")
 
-        # Build a path of segments
-        for k in range(len(waypoints) - 1):
-            self.path += [LineSegment(waypoints[k], waypoints[k + 1])]
+    def calc_goal(self, pose: Pose,
+                  lookahead_radius: float, unpassed_waypoints):
 
-    @staticmethod
-    def calc_intersect(point_on_line: Vector2, line: LineSegment, dist: float, lookahead: float, limit_segment=True) \
-            -> Optional[Vector2]:
-        """
-        Calculate the intersect point of the lookahead circle with the given line, if one exists
-        :param point_on_line:
-        :param line:
-        :param dist:
-        :param lookahead:
-        :return: The intersection point of the lookahead circle
-        """
-        if dist > lookahead:
-            return None
-        t = line.invert(point_on_line)
-        d = (lookahead ** 2 - dist ** 2) ** 0.5
-        if line.in_segment(t + d) or not limit_segment:
-            return line.r(t + d)
-        return None
+        # Find closest t to pose
+        t_robot = 0
+        min_dist_sq = 1e10
+        # TODO better numerical method for finding close point, if necessary
+        t_granularity = int(self.spline.length * 5)
+        for t in range(t_granularity):
+            t = t/t_granularity
+            pt = self.spline.get_point(t)
+            dist_sq = pt.sq_dist(pose)
+            if dist_sq < min_dist_sq:
+                min_dist_sq = dist_sq
+                t_robot = t
 
-    def calc_goal(self, pose: pose.Pose,
-                  lookahead_radius: float,
-                  unpassed_waypoints: List[Vector2]) -> Tuple[Vector2, float]:
-        """
-        Calculate the goal point in order to calculate curvature
-        This takes whichever of these is first:
-        1. The point on the path that intersects with the lookahead circle (checking line segments in order)
-        2. The closest point on the path
+        # Find intersection
+        t_guess = t_robot + lookahead_radius / self.spline.length
+        pt = self.spline.get_point(t_guess)
+        line = mathutils.LineSegment(pose, pt)
+        pt = line.r(lookahead_radius)
 
-        If we are approaching the goal, the controller extends the line further past the goal.
+        dist = pt.distance(pose)
 
-        :param pose:
-        :param lookahead_radius:
-        :param unpassed_waypoints:
-        :return: The goal and the distance to the goal
-        """
-        project_points = []
-        goals = []
-        goal = None
-        error = None
+        return pt, dist
 
-        # Project the robot's pose onto each line to find the closest line to the robot
-        # If we can't find a point that intersects the lookahead circle, use the closest point
-        for line in reversed(self.path):
-            project = line.projected_point(pose)
-
-            dist = project.distance(pose)
-            project_points += [(project, dist)]
-            if goal is None:
-                is_last_line = line == self.path[-1]
-                goal = self.calc_intersect(project, line, dist, lookahead_radius, limit_segment=(not is_last_line))
-                error = dist
-        # Choose the closest point
-        if goal is None:
-            project_points = sorted(project_points, key=lambda x: x[1])
-            goal, error = project_points[0]
-        return goal, error
+class InterpolationStrategy:
+    LINEAR = 0
+    CUBIC = 1
+    QUINTIC = 2
+    COMBO4_5 = 3
 
 
 class PurePursuitController:
-    def __init__(self, waypoints: List[Vector2], lookahead_base: float):
+    def __init__(self, waypoints: List[Pose],
+                 lookahead_base: float,
+                 interpol_strat: int = InterpolationStrategy.CUBIC):
         self.lookahead_base = lookahead_base
-        self.path = LinePath(waypoints)
+        self.path = SplinePath(waypoints, interpol_strat)
         self.waypoints = waypoints
         self.unpassed_waypoints = waypoints[:]
         self.end_point = waypoints[-1]

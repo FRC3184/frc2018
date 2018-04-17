@@ -18,8 +18,12 @@ from systems.intake import Intake, ArmState, GrabState
 class SwitchOnlyCenter(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnly command")
-        drive_path_waypoints = [Vector2(1.5, 0), Vector2(4, 0), Vector2(5, 3), Vector2(10, 3)]
-        flipped_path = [Vector2(1.5, 0), Vector2(4, 0), Vector2(5, -3), Vector2(9, -3)]
+        drive_path_waypoints = [Pose(x=1.5, y=-1.0, heading=0.0),
+                                Pose(x=5.0, y=2.5, heading=0.7853981633974483),
+                                Pose(x=9.0, y=4.0, heading=0.0)]
+        flipped_path = [Pose(x=1.5, y=-1.0, heading=0.0),
+                        Pose(x=5.0, y=-2.5, heading=-1.0471975511965976),
+                        Pose(x=9.0, y=-4.0, heading=0.0)]
         cruise = 0.8
         acc = 3
         lookahead = 4
@@ -28,7 +32,6 @@ class SwitchOnlyCenter(CommandGroup):
         drive_path_right = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
                                               waypoints=flipped_path,
                                               drive=drive, lookahead_base=lookahead)
-        print(drive_path_waypoints)
         drive_path_chooser = ConditionalCommand("SwitchOnlySideCondition")
         drive_path_chooser.onFalse = drive_path_right
         drive_path_chooser.onTrue = drive_path_left
@@ -46,7 +49,7 @@ class SwitchOnlyCenter(CommandGroup):
         self.addSequential(drop_cube)
 
     def initialize(self):
-        pose.set_new_pose(Pose(1.5, 0, 0))
+        pose.set_new_pose(Pose(1.5, -1, 0))
         print("started switch center")
 
 
@@ -54,7 +57,7 @@ class SwitchOnlySideStraight(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnlyFromSide")
 
-        drive_path_waypoints = [Vector2(1.5, -10), Vector2(13, -10)]
+        drive_path_waypoints = [Pose(1.5, -10, 0), Pose(13, -10, 0)]
         cruise = 0.8
         acc = 1
         lookahead = 2

@@ -39,6 +39,7 @@ class Path:
 class SplinePath(Path):
     def __init__(self, waypoints: List[Pose], interpolation_strategy: int):
         super().__init__()
+        print(f"Reticulating {interpolation_strategy} of length {len(waypoints)}")
         self.path = waypoints[:]
         if interpolation_strategy == InterpolationStrategy.COMBO4_5:
             self.spline = ComboSpline(self.path)

@@ -26,7 +26,7 @@ class SwitchOnlyCenter(CommandGroup):
                         Pose(x=9.0, y=-4.0, heading=0.0)]
         cruise = 0.8
         acc = 3
-        lookahead = 4
+        lookahead = 3
         drive_path_left = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
                                               waypoints=drive_path_waypoints, drive=drive, lookahead_base=3)
         drive_path_right = PursuitDriveCommand(acc=acc, cruise_speed=cruise,

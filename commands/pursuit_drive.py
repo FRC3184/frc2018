@@ -2,14 +2,15 @@ import hal
 from wpilib.command import Command
 
 from control import pose
-from control.pursuit import PurePursuitController
+from control.pose import Pose
+from control.pursuit import PurePursuitController, InterpolationStrategy
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 
 
 class PursuitDriveCommand(Command):
-    def __init__(self, drive: Drivetrain, waypoints: [Vector2], cruise_speed, acc, dist_margin=2/12,
-                 lookahead_base=6, reverse=False):
+    def __init__(self, drive: Drivetrain, waypoints: [Pose], cruise_speed, acc, dist_margin=2/12,
+                 lookahead_base=3, reverse=False, interpol_strat=InterpolationStrategy.CUBIC):
         super().__init__("PursuitDriveCommand", timeout=4)
         self.requires(drive)
 
@@ -21,8 +22,8 @@ class PursuitDriveCommand(Command):
         self.accel_dist = (1/2) * self.cruise_speed**2 / self.acc
 
         self.pp_controller = PurePursuitController(waypoints=waypoints,
-                                                   lookahead_base=lookahead_base
-                                                   )
+                                                   lookahead_base=lookahead_base,
+                                                   interpol_strat=interpol_strat)
         cur_pose = pose.get_current_pose()
         self._begin_pose = Vector2(cur_pose.x, cur_pose.y)
         self._end_pose = waypoints[-1]

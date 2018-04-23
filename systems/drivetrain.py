@@ -27,13 +27,15 @@ class Drivetrain(Subsystem):
         slave.follow(master)
         master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, pidIdx, timeoutMs)
 
+        master.enableVoltageCompensation(True)
         master.configOpenLoopRamp(1/3, timeoutMs)
         master.configContinuousCurrentLimit(50, timeoutMs)
         master.configPeakCurrentLimit(80, timeoutMs)
         master.configPeakCurrentDuration(500, timeoutMs)
 
-        master.setNeutralMode(TalonSRX.NeutralMode.Brake if brake else TalonSRX.NeutralMode.Coast)
-        slave.setNeutralMode(TalonSRX.NeutralMode.Brake if brake else TalonSRX.NeutralMode.Coast)
+        neut_mode = TalonSRX.NeutralMode.Brake if brake else TalonSRX.NeutralMode.Coast
+        master.setNeutralMode(neut_mode)
+        slave.setNeutralMode(neut_mode)
 
         master.setSensorPhase(False)
         master.setInverted(invert)
@@ -45,6 +47,10 @@ class Drivetrain(Subsystem):
         self.talon_left_rear.setNeutralMode(mode)
         self.talon_right_front.setNeutralMode(mode)
         self.talon_right_rear.setNeutralMode(mode)
+
+    def set_ramp(self, ramp=0):
+        self.talon_left_rear.configOpenLoopRamp(ramp, 0)
+        self.talon_right_rear.configOpenLoopRamp(ramp, 0)
 
     def arcade_drive(self, drive_power, turn_power):
         self.robotdrive.arcade_drive(drive_power, turn_power)

@@ -109,11 +109,13 @@ class MyRobot(TimedCommandBasedRobot):
     def autonomousInit(self):
         self.drivetrain.robotdrive.ahrs.reset()
         self.drivetrain.set_brake(False)
+        self.drivetrain.set_ramp(0)
         game_data.init(self.side_chooser.get_selected())
         self.auto_chooser.get_selected().start()
 
     def teleopInit(self):
         self.drivetrain.set_brake(True)
+        self.drivetrain.set_ramp(1/3)
         self.teleop_drive.start()
         self.telop_intake.start()
 

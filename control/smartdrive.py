@@ -231,6 +231,26 @@ class SmartRobotDrive(wpilib.MotorSafety):
         else:
             return self.native_distance_to_feet(self._right_motor.getQuadraturePosition())
 
+    def get_right_speed(self):
+        if wpilib.hal.isSimulation():
+            return self._right_motor.getMotorOutputPercent() * self.max_speed
+        else:
+            return (1/60) * math.pi * self.wheel_diameter * \
+                   self.native_speed_to_rpm(self._right_motor.getQuadratureVelocity())
+
+    def get_left_speed(self):
+        if wpilib.hal.isSimulation():
+            return self._left_motor.getMotorOutputPercent() * self.max_speed
+        else:
+            return (1/60) * math.pi * self.wheel_diameter * \
+                   self.native_speed_to_rpm(self._left_motor.getQuadratureVelocity())
+
+    def get_right_voltage(self):
+        return self._right_motor.getMotorOutputVoltage()
+
+    def get_left_voltage(self):
+        return self._left_motor.getMotorOutputVoltage()
+
     def default(self):
         self._set_motor_outputs(0, 0)
 

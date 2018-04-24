@@ -4,6 +4,8 @@ from time import strftime, gmtime
 import hal
 from wpilib.command import Command
 
+from control import robot_time
+
 
 def get_logger_timestamp():
     return strftime("%H.%M.%S..%Y.%m.%d", gmtime())
@@ -21,11 +23,13 @@ class Logger:
     def __init__(self, name):
         self.filename = f"{BASEDIR}/{name}.{get_logger_timestamp()}.csv"
         self._lock = False
-        self.watchers = []
+        self.watchers = [("Time", robot_time.millis)]
         self._file = None
         self.update_command = LoggerUpdateCommand(self)
 
     def add(self, name, callback):
+        if not callable(callback):
+            callback = lambda: callback
         if not self._lock:
             self.watchers += [(name, callback)]
 

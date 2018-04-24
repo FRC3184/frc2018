@@ -2,6 +2,7 @@ from ctre import FeedbackDevice
 from ctre.talonsrx import TalonSRX
 from wpilib.command import Subsystem
 
+import Logger
 from control.BlazeTalon import BlazeTalon
 from control.smartdrive import SmartRobotDrive
 
@@ -21,6 +22,13 @@ class Drivetrain(Subsystem):
         self.setup_talons(self.talon_right_rear, self.talon_right_front, invert=True)
 
         self.robotdrive = SmartRobotDrive(self.talon_left_rear, self.talon_right_rear)
+
+        self.dt_logger = Logger.Logger("Drivetrain")
+        self.dt_logger.add("Left Speed", self.robotdrive.get_left_speed)
+        self.dt_logger.add("Right Speed", self.robotdrive.get_right_speed)
+        self.dt_logger.add("Right Voltage", self.robotdrive.get_right_voltage)
+        self.dt_logger.add("Left Voltage", self.robotdrive.get_left_voltage)
+        self.dt_logger.start()
 
     def setup_talons(self, master: TalonSRX, slave: TalonSRX, invert=False,
                      pidIdx=0, timeoutMs=0, brake=True):

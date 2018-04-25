@@ -28,7 +28,7 @@ class Drivetrain(Subsystem):
         self.dt_logger.add("Right Speed", self.robotdrive.get_right_speed)
         self.dt_logger.add("Right Voltage", self.robotdrive.get_right_voltage)
         self.dt_logger.add("Left Voltage", self.robotdrive.get_left_voltage)
-        self.dt_logger.start()
+        # self.dt_logger.start()
 
     def setup_talons(self, master: TalonSRX, slave: TalonSRX, invert=False,
                      pidIdx=0, timeoutMs=0, brake=True):

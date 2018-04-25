@@ -25,8 +25,8 @@ far_drive_flipped = None
 
 def init_paths(drive):
     global close_drive, far_drive, close_drive_flipped, far_drive_flipped
-    cruise = 0.6
-    acc = 1.2
+    cruise = 0.4
+    acc = 0.3
     margin = 3 / 12
     lookahead = 3.5
 
@@ -35,7 +35,11 @@ def init_paths(drive):
     close_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0),
                            Pose(x=16.5, y=-10.0, heading=0.0),
                            Pose(x=23.5, y=-8.0, heading=0.0)]
-    far_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0), Pose(x=19.0, y=-7.0, heading=0.7853981633974483), Pose(x=19.75, y=0.0, heading=1.5707963267948966), Pose(x=21.0, y=7.0, heading=0.7853981633974483), Pose(x=24.0, y=7.5, heading=-0.17453292519943295)]
+    far_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0),
+                     Pose(x=19.0, y=-7.0, heading=0.7853981633974483),
+                     Pose(x=20.0, y=5.0, heading=1.5707963267948966),
+                     Pose(x=20.25, y=7, heading=0.7853981633974483),
+                     Pose(x=25.0, y=8.5, heading=-0.5235987755982988)]
 
     close_drive = PursuitDriveCommand(drive=drive, waypoints=close_waypoints,
                                       cruise_speed=cruise, acc=acc,

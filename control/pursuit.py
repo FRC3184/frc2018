@@ -69,8 +69,8 @@ class SplinePath(Path):
         # Find intersection
         t_guess = t_robot + lookahead_radius / self.spline.length
         pt = self.spline.get_point(t_guess)
-        line = mathutils.LineSegment(pose, pt)
-        pt = line.r(lookahead_radius)
+        # line = mathutils.LineSegment(pose, pt)
+        # pt = line.r(lookahead_radius)
 
         dist = pt.distance(pose)
 
@@ -106,8 +106,8 @@ class PurePursuitController:
         :param speed: Robot speed, from 0.0 to 1.0 as a percent of the max speed
         :return: Radius of the lookahead circle
         """
-        base_ratio = 3/4
-        return self.lookahead_base  # * (base_ratio + (1 - base_ratio) * speed)
+        min = 1.2
+        return min + ((speed - 0.2) / 0.4) * (self.lookahead_base - min)
 
     def curvature(self, pose: pose.Pose, speed: float) -> Tuple[float, float]:
         """
@@ -135,7 +135,7 @@ class PurePursuitController:
         goaly = goal_rs.y
         goal_rs_dist = goal_rs.distance(Vector2(0,0))
         try:
-            curv = -2 * goaly / lookahead_radius ** 2
+            curv = 2 * goaly / lookahead_radius ** 2
         except ZeroDivisionError:
             curv = 0
         return curv, dist

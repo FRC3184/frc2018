@@ -2,6 +2,7 @@ import hal
 from wpilib.command import Command
 
 from control import pose
+from control.motion_profile import MotionProfile
 from control.pose import Pose
 from control.pursuit import PurePursuitController, InterpolationStrategy
 from mathutils import Vector2
@@ -19,11 +20,11 @@ class PursuitDriveCommand(Command):
         self.cruise_speed = cruise_speed * drive.robotdrive.max_speed
         self.acc = acc * drive.robotdrive.max_speed
 
-        self.accel_dist = (1/2) * self.cruise_speed**2 / self.acc
-
         self.pp_controller = PurePursuitController(waypoints=waypoints,
                                                    lookahead_base=lookahead_base,
-                                                   interpol_strat=interpol_strat)
+                                                   interpol_strat=interpol_strat,
+                                                   cruise_speed=self.cruise_speed,
+                                                   acc=self.acc)
         cur_pose = pose.get_current_pose()
         self._begin_pose = Vector2(cur_pose.x, cur_pose.y)
         self._end_pose = waypoints[-1]
@@ -34,8 +35,6 @@ class PursuitDriveCommand(Command):
         self.pp_controller.init()
         print("Started pursuit")
         cur_pose = pose.get_current_pose()
-        self._begin_pose = Vector2(cur_pose.x, cur_pose.y)
-        print(f"Accel dist: {self.accel_dist}")
 
         if hal.isSimulation():
             from pyfrc.sim import get_user_renderer
@@ -50,21 +49,14 @@ class PursuitDriveCommand(Command):
 
     def execute(self):
         poz = pose.get_current_pose()
-        dist_to_end = self._end_pose.distance(poz)
-        dist_to_begin = self._begin_pose.distance(poz)
-        if dist_to_end < self.accel_dist:
-            speed = self.cruise_speed * dist_to_end / self.accel_dist
-        elif dist_to_begin < self.accel_dist:
-            speed = self.cruise_speed * dist_to_begin / self.accel_dist
-        else:
-            speed = self.cruise_speed
 
-        min_speed = 0.2 * self.drive.robotdrive.max_speed
+        curvature, goal, speed = self.pp_controller.curvature(poz)
+        speed /= self.drive.robotdrive.max_speed
+
+        min_speed = 0.2
         if speed < min_speed:
             speed = min_speed
 
-        speed /= self.drive.robotdrive.max_speed
-        curvature, goal = self.pp_controller.curvature(poz, speed)
         speed *= (-1 if self.reverse else 1)
         curvature *= (1 if self.reverse else 1)
         if curvature == 0:

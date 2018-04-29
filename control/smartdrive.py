@@ -96,12 +96,27 @@ class SmartRobotDrive(wpilib.MotorSafety):
                 self.setSafetyEnabled(False)
                 self._max_output = 0  # The idea of a max setpoint doesn't make sense for motion profiles
 
-    def radius_turn(self, pow, radius, keep_positive=True):
+    def radius_ratio(self, radius):
         D = self.robot_width / 2
+        return (radius - D) / (radius + D)
+
+    def radius_turn(self, pow, radius):
+        # (Vo + Vi) / 2 = pow
+        # Vo*r = Vi
+        # Vo(1+r)/2 = pow
+
+        # 2*pow/(1+r) = Vo
+        # 2*r*pow/(1+r) = Vi
+
+        # With this calculation, it's possible to saturate the motors. If that happens, rescale to maintain the curve.
         turn_dir = mathutils.sgn(radius)
         radius = abs(radius)
-        Vo = pow
-        Vi = Vo * (radius - D) / (radius + D)
+        r = self.radius_ratio(radius)
+        Vo = 2*pow / (1+r)
+        Vi = r*Vo
+        if Vo > 1:
+            Vi /= Vo
+            Vo /= Vo
 
         if turn_dir > 0:
             self._set_motor_outputs(Vo, Vi)

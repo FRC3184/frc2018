@@ -96,8 +96,11 @@ class MotionProfile:
     def __iter__(self) -> Iterator[TrajectoryPoint]:
         return self._points.__iter__()
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> TrajectoryPoint:
         return self._points.__getitem__(item)
+
+    def __len__(self) -> int:
+        return len(self._points)
 
 
 class SRXMotionProfileManager:

@@ -11,6 +11,7 @@ from commands.wait_until import WaitUntilConditionCommand
 from control import game_data, pursuit, pose
 from control.game_data import Side
 from control.pose import Pose
+from control.pursuit import InterpolationStrategy
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator, ElevatorPositions
@@ -36,23 +37,29 @@ def init_paths(drive):
                            Pose(x=16.5, y=-10.0, heading=0.0),
                            Pose(x=23.5, y=-8.0, heading=0.0)]
     far_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0),
-                     Pose(x=19.0, y=-7.0, heading=0.7853981633974483),
+                     Pose(x=18.0, y=-8.0, heading=0.5235987755982988),
                      Pose(x=20.0, y=5.0, heading=1.5707963267948966),
-                     Pose(x=20.25, y=7, heading=0.7853981633974483),
-                     Pose(x=25.0, y=8.5, heading=-0.5235987755982988)]
+                     Pose(x=20.5, y=6.0, heading=0.7853981633974483),
+                     Pose(x=24.0, y=7.5, heading=-0.17453292519943295)]
+    strategy = InterpolationStrategy.QUINTIC
 
     close_drive = PursuitDriveCommand(drive=drive, waypoints=close_waypoints,
                                       cruise_speed=cruise, acc=acc,
-                                      dist_margin=margin, lookahead_base=lookahead)
+                                      dist_margin=margin, lookahead_base=lookahead,
+                                      interpol_strat=strategy)
     far_drive = PursuitDriveCommand(drive=drive, waypoints=far_waypoints,
-                                      cruise_speed=cruise, acc=acc,
-                                      dist_margin=margin, lookahead_base=lookahead)
-    close_drive_flipped = PursuitDriveCommand(drive=drive, waypoints=pursuit.flip_waypoints_y(close_waypoints),
-                                      cruise_speed=cruise, acc=acc,
-                                      dist_margin=margin, lookahead_base=lookahead)
+                                    cruise_speed=cruise, acc=acc,
+                                    dist_margin=margin, lookahead_base=lookahead,
+                                    interpol_strat=strategy)
+    close_drive_flipped = PursuitDriveCommand(drive=drive,
+                                              waypoints=pursuit.flip_waypoints_y(close_waypoints),
+                                              cruise_speed=cruise, acc=acc,
+                                              dist_margin=margin, lookahead_base=lookahead,
+                                              interpol_strat=strategy)
     far_drive_flipped = PursuitDriveCommand(drive=drive, waypoints=pursuit.flip_waypoints_y(far_waypoints),
-                                      cruise_speed=cruise, acc=acc,
-                                      dist_margin=margin, lookahead_base=lookahead)
+                                            cruise_speed=cruise, acc=acc,
+                                            dist_margin=margin, lookahead_base=lookahead,
+                                            interpol_strat=strategy)
 
 
 

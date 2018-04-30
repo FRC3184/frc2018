@@ -6,7 +6,7 @@ import hal
 import mathutils
 from control.motion_profile import MotionProfile
 from control.pose import Pose
-from control.splines import ComboSpline, CubicSpline, LinearSpline
+from control.splines import ComboSpline, CubicSpline, LinearSpline, QuinticSpline
 from mathutils import LineSegment, Vector2
 
 if hal.isSimulation():
@@ -49,6 +49,8 @@ class SplinePath(Path):
             self.spline = ComboSpline(self.path)
         elif interpolation_strategy == InterpolationStrategy.CUBIC:
             self.spline = CubicSpline(self.path)
+        elif interpolation_strategy == InterpolationStrategy.QUINTIC:
+            self.spline = QuinticSpline(self.path)
         elif interpolation_strategy == InterpolationStrategy.LINEAR:
             self.spline = LinearSpline(self.path)
         else:

@@ -1,6 +1,6 @@
 from wpilib.command import TimedCommand, Command
 
-from control import pose
+from control import pose_estimator
 from systems.drivetrain import Drivetrain
 
 
@@ -27,13 +27,13 @@ class DistanceDriveCommand(Command):
         self.distance = distance
 
     def initialize(self):
-        self.start_pose = pose.get_current_pose().copy()
+        self.start_pose = pose_estimator.get_current_pose().copy()
 
     def execute(self):
         self.drive.arcade_drive(self.power, 0)
 
     def isFinished(self):
-        return pose.get_current_pose().distance(self.start_pose) > self.distance
+        return pose_estimator.get_current_pose().distance(self.start_pose) > self.distance
 
     def end(self):
         self.drive.arcade_drive(0, 0)

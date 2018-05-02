@@ -6,7 +6,7 @@ import ctre.talonsrx
 import wpilib
 from robotpy_ext.common_drivers.navx.ahrs import AHRS
 
-import control.pose as pose
+import control.pose_estimator as pose
 import mathutils
 from control import robot_time
 from dashboard import dashboard2

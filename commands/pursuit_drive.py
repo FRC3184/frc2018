@@ -1,10 +1,10 @@
 import hal
+from py_pursuit_pathing.pursuit import InterpolationStrategy, PurePursuitController
 from wpilib.command import Command
 
-from control import pose
+from control import pose_estimator
 from control.motion_profile import MotionProfile
-from control.pose import Pose
-from control.pursuit import PurePursuitController, InterpolationStrategy
+from control.pose_estimator import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 
@@ -25,7 +25,7 @@ class PursuitDriveCommand(Command):
                                                    interpol_strat=interpol_strat,
                                                    cruise_speed=self.cruise_speed,
                                                    acc=self.acc)
-        cur_pose = pose.get_current_pose()
+        cur_pose = pose_estimator.get_current_pose()
         self._begin_pose = Vector2(cur_pose.x, cur_pose.y)
         self._end_pose = waypoints[-1]
 
@@ -34,12 +34,12 @@ class PursuitDriveCommand(Command):
     def initialize(self):
         self.pp_controller.init()
         print("Started pursuit")
-        cur_pose = pose.get_current_pose()
+        cur_pose = pose_estimator.get_current_pose()
 
         if hal.isSimulation():
             from pyfrc.sim import get_user_renderer
             render = get_user_renderer()
-            poz = pose.get_current_pose()
+            poz = pose_estimator.get_current_pose()
             line_pts = []
             for t in range(1000):
                 t0 = t / 1000
@@ -48,7 +48,7 @@ class PursuitDriveCommand(Command):
             render.draw_line(line_pts, robot_coordinates=False)
 
     def execute(self):
-        poz = pose.get_current_pose()
+        poz = pose_estimator.get_current_pose()
 
         curvature, goal, speed = self.pp_controller.curvature(poz)
         speed /= self.drive.robotdrive.max_speed
@@ -66,7 +66,7 @@ class PursuitDriveCommand(Command):
             self.drive.arc(speed, radius)
 
     def isFinished(self):
-        return self.pp_controller.is_at_end(pose.get_current_pose(), self.margin)
+        return self.pp_controller.is_at_end(pose_estimator.get_current_pose(), self.margin)
 
     def end(self):
         print("Ended pursuit")

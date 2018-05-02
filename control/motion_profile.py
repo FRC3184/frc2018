@@ -19,6 +19,9 @@ class TrajectoryPoint:
         self.acc = acc
         self.time = time
 
+# TODO at some point in the future:
+# Move all the common stuff like MP and math utils to a separate lib
+
 
 class MotionProfile:
     """

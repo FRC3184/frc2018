@@ -6,9 +6,9 @@ from commands.auto_move_elevator import MoveElevatorCommand
 from commands.auto_simple_drive import TimeDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
 from commands.turn_to_angle import TurnToAngle
-from control import game_data, pursuit, pose
+from control import game_data, pose_estimator
 from control.game_data import Side
-from control.pose import Pose
+from control.pose_estimator import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator, ElevatorPositions
@@ -49,7 +49,7 @@ class SwitchOnlyCenter(CommandGroup):
         self.addSequential(drop_cube)
 
     def initialize(self):
-        pose.set_new_pose(Pose(1.5, -1, 0))
+        pose_estimator.set_new_pose(Pose(1.5, -1, 0))
         print("started switch center")
 
 
@@ -90,7 +90,7 @@ class SwitchOnlySideStraight(CommandGroup):
         self.addSequential(drop_cube)
 
     def initialize(self):
-        pose.set_new_pose(Pose(1.5, -10, 0))
+        pose_estimator.set_new_pose(Pose(1.5, -10, 0))
 
 class SwitchOnlyMonolith(Command):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):

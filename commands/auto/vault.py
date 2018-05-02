@@ -2,8 +2,8 @@ from wpilib.command import CommandGroup
 
 from commands.auto_intake import TimedRunIntakeCommand, MoveIntakeCommand
 from commands.pursuit_drive import PursuitDriveCommand
-from control import pose
-from control.pose import Pose
+from control import pose_estimator
+from control.pose_estimator import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator
@@ -28,4 +28,4 @@ class VaultOnly(CommandGroup):
         self.addSequential(drop_cube)
 
     def initialize(self):
-        pose.set_new_pose(Pose(1.5, 0, 0))
+        pose_estimator.set_new_pose(Pose(1.5, 0, 0))

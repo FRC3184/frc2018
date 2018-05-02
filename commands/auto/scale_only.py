@@ -1,5 +1,8 @@
 import hal
 import math
+
+from py_pursuit_pathing import pursuit
+from py_pursuit_pathing.pursuit import InterpolationStrategy
 from wpilib.command import CommandGroup, ConditionalCommand, PrintCommand, TimedCommand, Command
 
 from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand, OpenIntakeCommand, AcquireCube
@@ -8,10 +11,9 @@ from commands.auto_simple_drive import DistanceDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
 from commands.turn_to_angle import TurnToLookat
 from commands.wait_until import WaitUntilConditionCommand
-from control import game_data, pursuit, pose
+from control import game_data, pose_estimator
 from control.game_data import Side
-from control.pose import Pose
-from control.pursuit import InterpolationStrategy
+from control.pose_estimator import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator, ElevatorPositions
@@ -36,12 +38,9 @@ def init_paths(drive):
     close_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0),
                            Pose(x=16.5, y=-10.0, heading=0.0),
                            Pose(x=23.5, y=-8.0, heading=0.0)]
-    far_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0),
-                     Pose(x=18.0, y=-8.0, heading=0.5235987755982988),
-                     Pose(x=20.0, y=5.0, heading=1.5707963267948966),
-                     Pose(x=20.5, y=6.0, heading=0.7853981633974483),
-                     Pose(x=24.0, y=7.5, heading=-0.17453292519943295)]
-    strategy = InterpolationStrategy.QUINTIC
+    far_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0), Pose(x=17.0, y=-10.0, heading=0.0), Pose(x=20.0, y=0.0, heading=1.5707963267948966), Pose(x=20.0, y=7.5, heading=1.5707963267948966), Pose(x=24.5, y=7.5, heading=-0.7853981633974483)]
+
+    strategy = InterpolationStrategy.BIARC
 
     close_drive = PursuitDriveCommand(drive=drive, waypoints=close_waypoints,
                                       cruise_speed=cruise, acc=acc,
@@ -110,8 +109,8 @@ class ScaleOnly(Command):
         init_paths(drive)
 
     def initialize(self):
-        pose.set_new_pose(Pose(x=1.5, y=-10 * (1 if game_data.get_robot_side() == Side.RIGHT else -1),
-                               heading=0))
+        pose_estimator.set_new_pose(Pose(x=1.5, y=-10 * (1 if game_data.get_robot_side() == Side.RIGHT else -1),
+                                         heading=0))
         self.group = get_scale_only_group(self.drive, self.elevator, self.intake)
 
         self.group.start()
@@ -133,8 +132,8 @@ class DoubleScale(Command):
         init_paths(drive)
 
     def initialize(self):
-        pose.set_new_pose(Pose(x=1.5, y=-10 * (1 if game_data.get_robot_side() == Side.RIGHT else -1),
-                               heading=0))
+        pose_estimator.set_new_pose(Pose(x=1.5, y=-10 * (1 if game_data.get_robot_side() == Side.RIGHT else -1),
+                                         heading=0))
 
         if game_data.get_scale_side() != game_data.get_robot_side():
             self.group = CommandGroup()

@@ -31,7 +31,7 @@ class Intake(Subsystem):
         dashboard2.add_graph("Ultrasonic", self.get_reported_distance)
 
     def get_reported_distance(self):
-        return self.in_sensor.getVoltage() * 254 / 5
+        return 20
 
     def run_intake(self, power):
         """

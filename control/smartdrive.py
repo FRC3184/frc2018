@@ -37,10 +37,6 @@ class SmartRobotDrive(wpilib.MotorSafety):
         self._left_motor = left_motor
         self._right_motor = right_motor
 
-        self._model_left_dist = 0
-        self._model_right_dist = 0
-        self._model_last_time = robot_time.millis()
-
         pose.init(left_encoder_callback=self.get_left_distance,
                   right_encoder_callback=self.get_right_distance,
                   gyro_callback=self.get_heading_rads,
@@ -51,10 +47,6 @@ class SmartRobotDrive(wpilib.MotorSafety):
         self._max_output = 1
         self._mode = SmartRobotDrive.Mode.PercentVbus
         self.set_mode(self._mode)
-
-        if wpilib.hal.isSimulation():
-            model_thread = threading.Thread(target=self._update_model)
-            model_thread.start()
         
         # Motor safety
         self.setSafetyEnabled(True)
@@ -65,23 +57,6 @@ class SmartRobotDrive(wpilib.MotorSafety):
                   encoder_factor=1)
 
         dashboard2.add_graph("Heading", lambda: pose.get_current_pose().heading * 180 / math.pi)
-
-    def _update_model(self):
-        while True:
-            now = robot_time.millis()
-            dt = (now - self._model_last_time) / 1000
-            self._model_last_time = now
-            if self._mode == SmartRobotDrive.Mode.PercentVbus:
-                factor = 1
-            else:
-                print("Can't update model outside of PercentVBus")
-                continue
-            try:
-                self._model_left_dist += self._left_motor.getMotorOutputPercent() * self.max_speed * dt * factor
-                self._model_right_dist += self._right_motor.getMotorOutputPercent() * self.max_speed * dt * factor
-            except AssertionError:
-                pass
-            robot_time.sleep(millis=20)
 
     def set_mode(self, mode):
         if self._mode != mode:
@@ -235,30 +210,18 @@ class SmartRobotDrive(wpilib.MotorSafety):
         return self.get_heading() * math.pi / 180
 
     def get_left_distance(self):
-        if wpilib.hal.isSimulation():
-            return -self._model_left_dist
-        else:
-            return self.native_distance_to_feet(self._left_motor.getQuadraturePosition())
+        return self.native_distance_to_feet(self._left_motor.getQuadraturePosition())
 
     def get_right_distance(self):
-        if wpilib.hal.isSimulation():
-            return self._model_right_dist
-        else:
-            return self.native_distance_to_feet(self._right_motor.getQuadraturePosition())
+        return self.native_distance_to_feet(self._right_motor.getQuadraturePosition())
 
     def get_right_speed(self):
-        if wpilib.hal.isSimulation():
-            return self._right_motor.getMotorOutputPercent() * self.max_speed
-        else:
-            return (1/60) * math.pi * self.wheel_diameter * \
-                   self.native_speed_to_rpm(self._right_motor.getQuadratureVelocity())
+        return (1/60) * math.pi * self.wheel_diameter * \
+               self.native_speed_to_rpm(self._right_motor.getQuadratureVelocity())
 
     def get_left_speed(self):
-        if wpilib.hal.isSimulation():
-            return self._left_motor.getMotorOutputPercent() * self.max_speed
-        else:
-            return (1/60) * math.pi * self.wheel_diameter * \
-                   self.native_speed_to_rpm(self._left_motor.getQuadratureVelocity())
+        return (1/60) * math.pi * self.wheel_diameter * \
+                self.native_speed_to_rpm(self._left_motor.getQuadratureVelocity())
 
     def get_right_voltage(self):
         return self._right_motor.getMotorOutputVoltage()

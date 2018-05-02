@@ -1,4 +1,5 @@
 import hal
+from py_pursuit_pathing import pursuit
 from wpilib.command import CommandGroup, ConditionalCommand, PrintCommand
 
 from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand
@@ -7,8 +8,8 @@ from commands.auto_simple_drive import TimeDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
 from commands.turn_to_angle import TurnToAngle
 from commands.wait_until import WaitUntilConditionCommand
-from control import game_data, pursuit, pose
-from control.pose import Pose
+from control import game_data, pose_estimator
+from control.pose_estimator import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator, ElevatorPositions
@@ -53,7 +54,7 @@ class SwitchAndScale(CommandGroup):
         drive_flip_chooser.onTrue = drive_path_chooser
         drive_flip_chooser.onFalse = drive_path_flip_chooser
 
-        elevator_condition = WaitUntilConditionCommand(lambda: pose.get_current_pose().x > 16)
+        elevator_condition = WaitUntilConditionCommand(lambda: pose_estimator.get_current_pose().x > 16)
         elevator_to_height = MoveElevatorCommand(elevator, ElevatorPositions.SWITCH)
         elev_group = CommandGroup()
         elev_group.addSequential(elevator_condition)
@@ -96,4 +97,4 @@ class SwitchAndScale(CommandGroup):
 
 
     def initialize(self):
-        pose.set_new_pose(Pose(x=1.5, y=-10, heading=0))
+        pose_estimator.set_new_pose(Pose(x=1.5, y=-10, heading=0))

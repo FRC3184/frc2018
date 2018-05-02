@@ -18,7 +18,7 @@ from commands.zero_elevator import ElevatorZeroCommand
 from control import OI, game_data
 from control.OI import OIUpdateCommand
 from control.TimedCommandBasedRobot import TimedCommandBasedRobot
-from control.pose import Pose
+from control.pose_estimator import Pose
 from dashboard import dashboard2
 from dashboard.dashboard2 import DashboardUpdateCommand
 from mathutils import Vector2

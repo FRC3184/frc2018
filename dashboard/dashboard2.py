@@ -4,7 +4,7 @@ from threading import Thread
 
 from wpilib.command import Command
 
-from control import pose, robot_time
+from control import pose_estimator, robot_time
 from dashboard import dashboard_server
 from dashboard.dashboard_server import FileResponse, GeneratorResponse, ServerSentEvent
 
@@ -153,7 +153,7 @@ def update(time):
         send_message({"name": name, "status": status()}, event='indicator')
     # Try to send the pose, but it will throw an error if it hasn't been initialized yet
     try:
-        poze = pose.get_current_pose()
+        poze = pose_estimator.get_current_pose()
         send_message({"x": poze.x * 12, "y": -poze.y * 12, "heading": poze.heading}, event="pose")
     except ValueError:
         pass

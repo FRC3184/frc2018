@@ -80,13 +80,13 @@ class Vector2:
         return "Vector({}, {})".format(self.x, self.y)
 
     def __sub__(self, other):
-        from control import pose
-        assert type(other) == Vector2 or type(other) == pose.Pose
+        from control import pose_estimator
+        assert type(other) == Vector2 or type(other) == pose_estimator.Pose
         return Vector2(self.x - other.x, self.y - other.y)
 
     def __add__(self, other):
-        from control import pose
-        assert type(other) == Vector2 or type(other) == pose.Pose
+        from control import pose_estimator
+        assert type(other) == Vector2 or type(other) == pose_estimator.Pose
         return Vector2(self.x + other.x, self.y + other.y)
 
     def __abs__(self):

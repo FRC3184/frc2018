@@ -1,46 +1,12 @@
 import math
 
 import wpilib
+from py_pursuit_pathing.pose import Pose
 
 from mathutils import Vector2
 
 _estimator_thread = None
 _estimator = None
-
-
-class Pose(Vector2):
-    """
-    Robot pose in world coordinates
-    """
-    def __init__(self, x: float, y: float, heading: float):
-        super().__init__(x, y)
-        self.heading = heading
-
-    def __repr__(self):
-        return "Pose(x={}, y={}, heading={})".format(self.x, self.y, (self.heading * 180 / math.pi))
-
-    def __add__(self, other):
-        if type(other) == type(self):
-            return Pose(self.x + other.x, self.y + other.y, self.heading + other.heading)
-        elif type(other) == Vector2:
-            return Vector2(self.x - other.x, self.y - other.y)
-
-    def __sub__(self, other):
-        if type(other) == Pose:
-            return Pose(self.x - other.x, self.y - other.y, self.heading - other.heading)
-        elif type(other) == Vector2:
-            return Vector2(self.x - other.x, self.y - other.y)
-
-    def translated(self, pose):
-        vec = super().translated(pose)
-
-        return Pose(vec.x, vec.y, self.heading - pose.heading)
-
-    def copy(self):
-        return Pose(self.x, self.y, self.heading)
-
-    def __copy__(self):
-        return self.copy()
 
 
 def init(left_encoder_callback, right_encoder_callback, gyro_callback=None,

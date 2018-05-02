@@ -3,7 +3,7 @@ import math
 import hal
 from wpilib.command import Command
 
-from control import pose
+from control import pose_estimator
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 
@@ -53,7 +53,7 @@ class TurnToLookat(Command):
         self.target_angle = 0
 
     def initialize(self):
-        poz = pose.get_current_pose()
+        poz = pose_estimator.get_current_pose()
         self.target_angle = (self.lookat - poz).angle() * 180 / math.pi
         if hal.isSimulation():
             from pyfrc.sim import get_user_renderer

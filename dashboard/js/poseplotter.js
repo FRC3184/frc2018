@@ -2,6 +2,13 @@ var last_time = Date.now();
 var robot_pose = {x: 0, y: 0, heading: 0};
 var robot_width = 2;
 var old_poses = [robot_pose];
+var field_img = document.getElementById("field-img");
+var arbitrary_lines = [];
+
+source.addEventListener('draw', function(event) {
+    var data = JSON.parse(event.data);
+    arbitrary_lines.push(data.points);
+});
 
 source.addEventListener('pose', function(event) {{
 
@@ -30,8 +37,12 @@ source.addEventListener('pose', function(event) {{
     canvas.save();
     canvas.setTransform(1, 0, 0, 1, 0, 0);
     canvas.strokeStyle = "#000";
-    canvas.lineWidth = 2;
+    canvas.lineWidth = 1;
     canvas.translate(w/2 -robot_pose.x, h/2 -robot_pose.y);
+    // Field image
+    field_scale = 12/15;
+    canvas.drawImage(field_img, 0, -202 * field_scale, 397 * field_scale, 404 * field_scale);
+
     var count = 50;
     var step = 12;
 
@@ -56,6 +67,28 @@ source.addEventListener('pose', function(event) {{
     canvas.stroke();
 
     canvas.restore();
+
+    // Arbitrary stuff
+    canvas.save();
+    canvas.setTransform(1, 0, 0, 1, 0, 0);
+
+    canvas.strokeStyle = "#ff0000";
+    canvas.lineWidth = 2;
+    for (var j=0; j < arbitrary_lines.length; j++) {
+        var pts = arbitrary_lines[j];
+        canvas.translate(w/2 -robot_pose.x, h/2 -robot_pose.y);
+
+        canvas.beginPath();
+        canvas.moveTo(pts[0].x, pts[0].y);
+        for (var i = 0; i < pts.length-1; i++) {
+            var pt = pts[i+1];
+            canvas.lineTo(pt.x, pt.y);
+        }
+        canvas.stroke();
+        canvas.setTransform(1, 0, 0, 1, 0, 0);
+    }
+    canvas.restore();
+
 
     // Draw pose history
     canvas.beginPath();

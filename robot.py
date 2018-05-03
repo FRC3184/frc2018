@@ -59,6 +59,8 @@ class MyRobot(TimedCommandBasedRobot):
 
         # wpilib.CameraServer.launch()
 
+        dashboard2.add_graph("CTE", lambda: 0)
+
         # Actions
 
         elev_manual_command = OpElevatorManualCommand(self.elevator)

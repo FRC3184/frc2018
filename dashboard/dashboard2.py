@@ -1,6 +1,7 @@
 import json
 from queue import Queue
 from threading import Thread
+from typing import List
 
 from wpilib.command import Command
 
@@ -35,7 +36,7 @@ class ExtensionCSSResponse(dashboard_server.Response):
 
 dashboard_server.serve_path("/", FileResponse("dashboard/index.html"))
 dashboard_server.serve_directory("js", path="dashboard/js", mimetype="application/javascript")
-dashboard_server.serve_directory("images", path="dashboard/images", mimetype="image/png")
+dashboard_server.serve_directory("images", path="dashboard/images", mimetype="image/gif")
 dashboard_server.serve_directory("css", path="dashboard/css", mimetype="text/css")
 dashboard_server.serve_path("/extensions.js", ExtensionJSResponse(mimetype="application/javascript"))
 dashboard_server.serve_path("/extensions.css", ExtensionJSResponse(mimetype="text/css"))
@@ -157,6 +158,13 @@ def update(time):
         send_message({"x": poze.x * 12, "y": -poze.y * 12, "heading": poze.heading}, event="pose")
     except ValueError:
         pass
+
+
+def draw(points: List):
+    pts = []
+    for pt in points:
+        pts.append({"x": pt.x * 12, "y": -pt.y * 12})
+    send_message({"points": pts}, event="draw")
 
 
 def send_message(data, event=None):

@@ -5,6 +5,7 @@ from wpilib.command import Command
 from control import pose_estimator
 from control.motion_profile import MotionProfile
 from control.pose_estimator import Pose
+from dashboard import dashboard2
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 
@@ -46,6 +47,8 @@ class PursuitDriveCommand(Command):
                 pt = self.pp_controller.path.spline.get_point(t0)
                 line_pts += [(pt.x, -pt.y + 14)]
             render.draw_line(line_pts, robot_coordinates=False)
+            dashboard2.draw(list(map(lambda x: Vector2(x[0], -(x[1] - 14)), line_pts)))
+        dashboard2.add_graph("CTE", self.pp_controller.get_cte)
 
     def execute(self):
         poz = pose_estimator.get_current_pose()

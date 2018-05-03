@@ -99,8 +99,8 @@ class StaticDirectoryResponse(Response):
         self.begin(handler)
 
         try:
-            with open("{}{}{}".format(_basedir, self.serve_dir, path.path[len(self.base_path):])) as serve_file:  # AAAAAAAAAHHHHH
-                handler.wfile.write(''.join(serve_file.readlines()).encode('utf-8'))
+            with open("{}{}{}".format(_basedir, self.serve_dir, path.path[len(self.base_path):]), 'rb') as serve_file:  # AAAAAAAAAHHHHH
+                handler.wfile.write(serve_file.read())
         except FileNotFoundError as err:
             print("File not found: " + err.filename)
 
@@ -180,6 +180,7 @@ def run(basedir="", port=5800, daemon_threads=True):
     except KeyboardInterrupt:
         server.shutdown()
         server.server_close()
+
 
 if __name__ == '__main__':
     print("Testing dashboard-server")

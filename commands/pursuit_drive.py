@@ -12,7 +12,7 @@ from systems.drivetrain import Drivetrain
 
 class PursuitDriveCommand(Command):
     def __init__(self, drive: Drivetrain, waypoints: [Pose], cruise_speed, acc, dist_margin=2/12,
-                 lookahead_base=3, reverse=False, interpol_strat=InterpolationStrategy.CUBIC):
+                 lookahead_base=2, reverse=False, interpol_strat=InterpolationStrategy.CUBIC):
         super().__init__("PursuitDriveCommand", timeout=4)
         self.requires(drive)
 
@@ -31,29 +31,34 @@ class PursuitDriveCommand(Command):
         self._end_pose = waypoints[-1]
 
         self.reverse = reverse
+        self.goal_dist = 0
 
     def initialize(self):
         self.pp_controller.init()
         print("Started pursuit")
         cur_pose = pose_estimator.get_current_pose()
 
+        poz = pose_estimator.get_current_pose()
+        line_pts = []
+        for t in range(1000):
+            t0 = t / 1000
+            pt = self.pp_controller.path.spline.get_point(t0)
+            line_pts += [(pt.x, -pt.y + 14)]
+        dashboard2.draw(list(map(lambda x: Vector2(x[0], -(x[1] - 14)), line_pts)))
         if hal.isSimulation():
             from pyfrc.sim import get_user_renderer
             render = get_user_renderer()
-            poz = pose_estimator.get_current_pose()
-            line_pts = []
-            for t in range(1000):
-                t0 = t / 1000
-                pt = self.pp_controller.path.spline.get_point(t0)
-                line_pts += [(pt.x, -pt.y + 14)]
             render.draw_line(line_pts, robot_coordinates=False)
-            dashboard2.draw(list(map(lambda x: Vector2(x[0], -(x[1] - 14)), line_pts)))
+
         dashboard2.add_graph("CTE", self.pp_controller.get_cte)
+        dashboard2.add_graph("Lookahead", lambda: self.pp_controller.current_lookahead)
+        dashboard2.add_graph("Goal Distance", lambda: self.goal_dist)
 
     def execute(self):
         poz = pose_estimator.get_current_pose()
 
         curvature, goal, speed = self.pp_controller.curvature(poz)
+        self.goal_dist = goal
         speed /= self.drive.robotdrive.max_speed
 
         min_speed = 0.2

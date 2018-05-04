@@ -269,6 +269,18 @@ class SmartRobotDrive(wpilib.MotorSafety):
     def feet_to_native_distance(self, feet: float) -> int:
         return int(SmartRobotDrive.revs_to_native_distance(self.feet_to_revs(feet)))
 
+    def drive_profile_open_loop(self, left_speed: float, right_speed: float, left_acc: float, right_acc: float):
+        r_int = 1.1166
+        r_kV = 0.0634
+        r_kA = 0.0069
+
+        l_int = 1.0706
+        l_kV = 0.0653
+        l_kA = 0.0071
+        left = (math.copysign(l_int, left_speed) + l_kV * left_speed + l_kA * left_acc) / 12
+        right = (math.copysign(r_int, right_speed) + r_kV * right_speed + r_kA * left_acc) / 12
+        self._set_motor_outputs(left, right)
+
     def _set_motor_outputs(self, left: float, right: float):
         if self._mode == SmartRobotDrive.Mode.Speed:
             left = self.fps_to_rpm(left * self.max_speed)

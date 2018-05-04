@@ -28,11 +28,24 @@ class PhysicsEngine(object):
         self.physics_controller = physics_controller
         self.physics_controller.add_device_gyro_channel('navxmxp_spi_4_angle')
 
-        self.drive = tankmodel.TankModel.theory(motor_cfgs.MOTOR_CFG_CIM,
-                                                robot_mass=120 * units.lbs,
-                                                gearing=8.45, nmotors=2,
-                                                x_wheelbase=2 * units.feet,
-                                                wheel_diameter=6*units.inch)
+        r_int = 1.1166
+        r_kV = 0.7607
+        r_kA = 0.0830
+
+        l_int = 1.0706
+        l_kV = 0.7836
+        l_kA = 0.0855
+        volts_per_fps = units.volts / (units.inch / units.second)
+        volts_per_acc = units.volts / (units.inch / units.second**2)
+        self.drive = tankmodel.TankModel(motor_config=motor_cfgs.MOTOR_CFG_CIM,
+                                         robot_mass=135 * units.lbs,
+                                         x_wheelbase=2 * units.feet,
+                                         robot_width=24*units.inch, robot_length=33*units.inch,
+                                         l_kv=l_kV * units.tm_kv, r_kv=r_kV * units.tm_kv,
+                                         l_ka=l_kA * units.tm_ka, r_ka=r_kA * units.tm_ka,
+                                         l_vi=l_int * units.volts, r_vi=r_int * units.volts)
+        # self.drive._bm = 1
+        # self.drive._inertia = 1
         self.l_encoder = 0
         self.r_encoder = 0
             
@@ -50,13 +63,13 @@ class PhysicsEngine(object):
         l_motor = -hal_data['CAN'][0]['value']
         r_motor = hal_data['CAN'][2]['value']
         
-        speed, rotation = drivetrains.two_motor_drivetrain(l_motor, r_motor, speed=16,
-                                                           x_wheelbase=2)
-        self.physics_controller.drive(speed, rotation, tm_diff)
+        # speed, rotation = drivetrains.two_motor_drivetrain(l_motor, r_motor, speed=16,
+        #                                                    x_wheelbase=2)
+        # self.physics_controller.drive(speed, rotation, tm_diff)
         x,y,t = self.drive.get_distance(l_motor, r_motor, tm_diff)
-        # self.physics_controller.distance_drive(x,y,t)
+        self.physics_controller.distance_drive(x,y,t)
         ENCODER_TICKS_PER_FT = 4096 / ((6*math.pi)/12)
-        self.l_encoder += int(-l_motor * 16 * tm_diff * ENCODER_TICKS_PER_FT)
-        self.r_encoder += int(r_motor * 16 * tm_diff * ENCODER_TICKS_PER_FT)
+        self.l_encoder = int(self.drive.l_position * ENCODER_TICKS_PER_FT)
+        self.r_encoder = int(self.drive.r_position * ENCODER_TICKS_PER_FT)
         hal_data['CAN'][0]['quad_position'] = self.l_encoder
         hal_data['CAN'][2]['quad_position'] = -self.r_encoder

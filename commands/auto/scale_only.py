@@ -29,9 +29,9 @@ far_drive_flipped = None
 def init_paths(drive):
     global close_drive, far_drive, close_drive_flipped, far_drive_flipped
     cruise = 0.4
-    acc = 1.2
+    acc = 0.4
     margin = 3 / 12
-    lookahead = 2
+    lookahead = 3
 
     if None not in (close_drive, far_drive, far_drive_flipped, close_drive_flipped):
         return

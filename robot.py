@@ -59,7 +59,7 @@ class MyRobot(TimedCommandBasedRobot):
         OIUpdateCommand().start()
         CheckFaults([self.elevator, self.forklift]).start()
 
-        # wpilib.CameraServer.launch()
+        # wpilib.CameraServer.launch('vision.py:main')
 
         dashboard2.add_graph("CTE", lambda: 0)
         dashboard2.add_graph("Lookahead", lambda: 0)

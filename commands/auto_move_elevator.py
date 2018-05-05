@@ -31,6 +31,7 @@ class ProfileMoveElevatorCommand(Command):
         print("Finished profile")
         self.elevator.finish_profile()
 
+
 class MoveElevatorCommand(Command):
     def __init__(self, elevator: Elevator, target_pos):
         super().__init__()

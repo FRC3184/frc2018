@@ -1,7 +1,7 @@
 import hal
 from wpilib.command import CommandGroup, ConditionalCommand, Command, PrintCommand
 
-from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand, OpenIntakeCommand
+from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand, SetIntakeCommand
 from commands.auto_move_elevator import MoveElevatorCommand
 from commands.auto_simple_drive import TimeDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
@@ -39,7 +39,7 @@ class SwitchOnlyCenter(CommandGroup):
 
         elevator_to_height = MoveElevatorCommand(elevator, ElevatorPositions.SWITCH)
         intake_out = MoveIntakeCommand(intake, ArmState.DOWN)
-        drop_cube = OpenIntakeCommand(intake, GrabState.OUT)
+        drop_cube = SetIntakeCommand(intake, GrabState.OUT)
 
         if not hal.isSimulation():
             self.addParallel(elevator_to_height)

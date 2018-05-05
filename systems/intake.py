@@ -23,6 +23,7 @@ class Intake(Subsystem):
 
         self.solenoid_lift = DoubleSolenoid(0, 1)
         self.solenoid_grab = DoubleSolenoid(2, 3)
+        self.set_grab_state(GrabState.IN)
         self.set_arm_state(ArmState.UP)
 
         self.power = .75

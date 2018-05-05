@@ -5,7 +5,7 @@ from py_pursuit_pathing import pursuit
 from py_pursuit_pathing.pursuit import InterpolationStrategy
 from wpilib.command import CommandGroup, ConditionalCommand, PrintCommand, TimedCommand, Command
 
-from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand, OpenIntakeCommand, AcquireCube
+from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand, SetIntakeCommand, AcquireCube
 from commands.auto_move_elevator import MoveElevatorCommand
 from commands.auto_simple_drive import DistanceDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
@@ -87,7 +87,7 @@ def get_scale_only_group(drive, elevator, intake):
     else:
         elev_group.addSequential(PrintCommand("Elevator moving"))
 
-    drop_cube = OpenIntakeCommand(intake, GrabState.OUT)
+    drop_cube = SetIntakeCommand(intake, GrabState.OUT)
     drive_back = DistanceDriveCommand(drive=drive, power=-0.2, distance=3)
 
     group.addParallel(elev_group)
@@ -154,7 +154,7 @@ class DoubleScale(Command):
         self.group.addSequential(DistanceDriveCommand(drive=self.drive, power=-0.5, distance=2))
         self.group.addSequential(TurnToLookat(self.drive, lookat=Vector2(23, 6 * (1 if on_left else -1))))
         self.group.addSequential(DistanceDriveCommand(drive=self.drive, power=0.5, distance=2))
-        self.group.addSequential(OpenIntakeCommand(intake=self.intake, new_state=GrabState.OUT))
+        self.group.addSequential(SetIntakeCommand(intake=self.intake, new_state=GrabState.OUT))
 
         self.group.start()
 

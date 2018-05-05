@@ -6,6 +6,7 @@ import typing
 from typing import Callable
 
 import wpilib
+from robotpy_ext.control.button_debouncer import ButtonDebouncer
 from wpilib import XboxController
 from wpilib.command import Command
 
@@ -36,7 +37,7 @@ class _OI:
         self._action_listeners = []
         self._while_listeners = []
 
-        self.arm_down = LambdaToggle(lambda: self.op_gamepad.getTriggerAxis(XboxController.Hand.kRight) > 0.75)
+        self.arm_toggle = LambdaDebouncer(lambda: self.op_gamepad.getTriggerAxis(XboxController.Hand.kRight) > 0.75)
 
     # Utility
     def exec_while_condition(self, condition: Callable, cmd: Command):
@@ -49,10 +50,13 @@ class _OI:
         for condition, command in self._while_listeners:
             command = typing.cast(Command, command)
             cond_result = condition()
-            if command.isRunning() and not cond_result:
+            if cond_result:
+                if command.isRunning():
+                    pass
+                else:
+                    command.start()
+            else:
                 command.cancel()
-            elif not command.isRunning() and cond_result:
-                command.start()
 
     def add_action_listener(self, condition, action):
         self._action_listeners.append((condition, action))
@@ -90,8 +94,8 @@ class _OI:
     def get_outtake_command(self):
         return self.op_gamepad.getY(XboxController.Hand.kRight)
 
-    def arm_is_down(self):
-        return self.arm_down.get()
+    def toggle_arm(self):
+        return self.arm_toggle
 
     def arm_is_open(self):
         return self.op_gamepad.getBumper(XboxController.Hand.kLeft)
@@ -114,6 +118,9 @@ class _OI:
 
     def elevator_move_to_top(self):
         return self.op_gamepad.getPOV() == 0
+
+    def elevator_move_to_switch(self):
+        return self.op_gamepad.getPOV() == 90
 
     def elevator_move_to_bottom(self):
         return self.op_gamepad.getPOV() == 180
@@ -245,6 +252,40 @@ class LambdaToggle:
         """
         self.get()
         return not self.state
+
+    __bool__ = get
+
+
+class LambdaDebouncer:
+    '''Useful utility class for debouncing arbitrary functions'''
+
+    def __init__(self, func, period=0.5):
+        '''
+
+        :param period:    Period of time (in seconds) to wait before allowing new button
+                          presses. Defaults to 0.5 seconds.
+        :type  period:    float
+        '''
+        self.func = func
+        self.latest = 0
+        self.debounce_period = float(period)
+        self.timer = wpilib.Timer
+
+    def set_debounce_period(self, period):
+        '''Set number of seconds to wait before returning True for the
+        button again'''
+        self.debounce_period = float(period)
+
+    def get(self):
+        '''Returns the value of the joystick button. If the button is held down, then
+        True will only be returned once every ``debounce_period`` seconds'''
+
+        now = self.timer.getFPGATimestamp()
+        if self.func():
+            if (now - self.latest) > self.debounce_period:
+                self.latest = now
+                return True
+        return False
 
     __bool__ = get
 

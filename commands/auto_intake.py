@@ -29,7 +29,7 @@ class MoveIntakeCommand(Command):
         self.timer.stop()
 
 
-class OpenIntakeCommand(Command):
+class SetIntakeCommand(Command):
     def __init__(self, intake: Intake, new_state: GrabState):
         super().__init__("OpenIntakeCommand")
         self.intake = intake

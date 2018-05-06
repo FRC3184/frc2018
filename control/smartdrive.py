@@ -1,6 +1,7 @@
 import math
 import threading
 import warnings
+from typing import Tuple
 
 import ctre.talonsrx
 import wpilib
@@ -57,6 +58,20 @@ class SmartRobotDrive(wpilib.MotorSafety):
                   encoder_factor=1)
 
         dashboard2.add_graph("Heading", lambda: pose.get_current_pose().heading * 180 / math.pi)
+
+    def get_left_fwd_ff(self) -> Tuple[float, float, float]:
+        """
+
+        :return: k_int, kV, kA
+        """
+        return 1.010, 0.758, 0.299
+
+    def get_right_fwd_ff(self) -> Tuple[float, float, float]:
+        """
+
+        :return: k_int, kV, kA
+        """
+        return 1.030, 0.742, 0.312
 
     def set_mode(self, mode):
         if self._mode != mode:

@@ -16,6 +16,7 @@ from commands.op_drive import OpDriveCommand
 from commands.op_elevator import OpElevatorManualCommand
 from commands.op_intake import OpIntakeCommand, OpenIntakeCommand, ToggleIntakeCommand, RunIntakeCommand
 from commands.pursuit_drive import PursuitDriveCommand
+from commands.spline_drive import SplineDriveCommand
 from commands.zero_elevator import ElevatorZeroCommand
 from control import OI, game_data
 from control.OI import OIUpdateCommand
@@ -29,11 +30,13 @@ from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator
 from systems.climber import Climber
 from systems.intake import Intake, ArmState
+from util import get_basedir
 
 
 class MyRobot(TimedCommandBasedRobot):
     def __init__(self):
         super().__init__()
+        self.period = 0.05
         # Initialize subsystems
         self.drivetrain = Drivetrain()
         self.elevator = Elevator()
@@ -49,10 +52,7 @@ class MyRobot(TimedCommandBasedRobot):
     def robotInit(self):
         # Start up continuous processes
         # In simulation, cd is code dir. On the robot, it's something else so we need to use abs dir
-        if wpilib.hal.isSimulation():
-            basedir = ""
-        else:
-            basedir = "/home/lvuser/py"
+        basedir = get_basedir()
         dashboard2.run(basedir)
 
         DashboardUpdateCommand().start()
@@ -61,9 +61,8 @@ class MyRobot(TimedCommandBasedRobot):
 
         # wpilib.CameraServer.launch('vision.py:main')
 
-        dashboard2.add_graph("CTE", lambda: 0)
-        dashboard2.add_graph("Lookahead", lambda: 0)
-        dashboard2.add_graph("Goal Distance", lambda: 0)
+        dashboard2.add_graph("Left Err", lambda: 0)
+        dashboard2.add_graph("Right Err", lambda: 0)
 
         # Actions
 
@@ -117,9 +116,9 @@ class MyRobot(TimedCommandBasedRobot):
         # self.auto_chooser.add_option("2x Scale", auto_scale_double)
         # self.auto_chooser.add_option("Switch and Scale", auto_switch_scale)
         # self.auto_chooser.add_option("Vault Only", auto_vault)
-        self.auto_chooser.add_option("Drive Forward", PursuitDriveCommand(acc=0.6, cruise_speed=0.6,
-                                                                          waypoints=[Pose(0, 0, 0), Pose(10, 0, 0)],
-                                                                          drive=self.drivetrain))
+        self.auto_chooser.add_option("Drive Forward", SplineDriveCommand(acc=4, cruise=8, jerk=8,
+                                                                          path=[Pose(1.5, 0, 0), Pose(10, 0, 0)],
+                                                                          drivetrain=self.drivetrain))
         self.auto_chooser.set_default("Drive Forward")
 
     def disabledInit(self):

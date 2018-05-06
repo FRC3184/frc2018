@@ -5,6 +5,7 @@ from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand, SetIn
 from commands.auto_move_elevator import MoveElevatorCommand
 from commands.auto_simple_drive import TimeDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
+from commands.spline_drive import SplineDriveCommand
 from commands.turn_to_angle import TurnToAngle
 from control import game_data, pose_estimator
 from control.game_data import Side
@@ -18,20 +19,17 @@ from systems.intake import Intake, ArmState, GrabState
 class SwitchOnlyCenter(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnly command")
-        drive_path_waypoints = [Pose(x=1.5, y=-1.0, heading=0.0),
-                                Pose(x=5.0, y=2.5, heading=0.7853981633974483),
-                                Pose(x=9.0, y=4.0, heading=0.0)]
-        flipped_path = [Pose(x=1.5, y=-1.0, heading=0.0),
-                        Pose(x=5.0, y=-2.5, heading=-1.0471975511965976),
-                        Pose(x=9.0, y=-4.0, heading=0.0)]
-        cruise = 0.8
-        acc = 3
+        drive_path_waypoints = [Pose(x=1.5, y=-1.0, heading=0.0), Pose(x=10.0, y=5.0, heading=0.0)]
+        flipped_path = [Pose(x=1.5, y=-1.0, heading=0.0), Pose(x=10.0, y=-5.0, heading=0.0)]
+        cruise = 8
+        acc = 8
+        jerk = 8
         lookahead = 3
-        drive_path_left = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
-                                              waypoints=drive_path_waypoints, drive=drive, lookahead_base=3)
-        drive_path_right = PursuitDriveCommand(acc=acc, cruise_speed=cruise,
-                                              waypoints=flipped_path,
-                                              drive=drive, lookahead_base=lookahead)
+        drive_path_left = SplineDriveCommand(acc=acc, cruise=cruise, jerk=jerk,
+                                              path=drive_path_waypoints, drivetrain=drive)
+        drive_path_right = SplineDriveCommand(acc=acc, cruise=cruise, jerk=jerk,
+                                              path=flipped_path,
+                                              drivetrain=drive)
         drive_path_chooser = ConditionalCommand("SwitchOnlySideCondition")
         drive_path_chooser.onFalse = drive_path_right
         drive_path_chooser.onTrue = drive_path_left

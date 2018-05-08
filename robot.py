@@ -34,6 +34,7 @@ from systems.intake import Intake, ArmState
 class MyRobot(TimedCommandBasedRobot):
     def __init__(self):
         super().__init__()
+        self.period = 0.05
         # Initialize subsystems
         self.drivetrain = Drivetrain()
         self.elevator = Elevator()

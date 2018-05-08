@@ -63,13 +63,13 @@ class PhysicsEngine(object):
         l_motor = -hal_data['CAN'][0]['value']
         r_motor = hal_data['CAN'][2]['value']
         
-        # speed, rotation = drivetrains.two_motor_drivetrain(l_motor, r_motor, speed=16,
-        #                                                    x_wheelbase=2)
-        # self.physics_controller.drive(speed, rotation, tm_diff)
-        x,y,t = self.drive.get_distance(l_motor, r_motor, tm_diff)
-        self.physics_controller.distance_drive(x,y,t)
+        speed, rotation = drivetrains.two_motor_drivetrain(l_motor, r_motor, speed=16,
+                                                           x_wheelbase=2)
+        self.physics_controller.drive(speed, rotation, tm_diff)
+        # x,y,t = self.drive.get_distance(l_motor, r_motor, tm_diff)
+        # self.physics_controller.distance_drive(x,y,t)
         ENCODER_TICKS_PER_FT = 4096 / ((6*math.pi)/12)
-        self.l_encoder = int(self.drive.l_position * ENCODER_TICKS_PER_FT)
-        self.r_encoder = int(self.drive.r_position * ENCODER_TICKS_PER_FT)
-        hal_data['CAN'][0]['quad_position'] = self.l_encoder
-        hal_data['CAN'][2]['quad_position'] = -self.r_encoder
+        self.l_encoder = int(l_motor * 16 * tm_diff * ENCODER_TICKS_PER_FT)
+        self.r_encoder = int(r_motor * 16 * tm_diff * ENCODER_TICKS_PER_FT)
+        hal_data['CAN'][0]['quad_position'] += -self.l_encoder
+        hal_data['CAN'][2]['quad_position'] += -self.r_encoder

@@ -9,6 +9,7 @@ from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand, SetIn
 from commands.auto_move_elevator import MoveElevatorCommand
 from commands.auto_simple_drive import DistanceDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
+from commands.spline_drive import SplineDriveCommand
 from commands.turn_to_angle import TurnToLookat
 from commands.wait_until import WaitUntilConditionCommand
 from control import game_data, pose_estimator
@@ -40,26 +41,13 @@ def init_paths(drive):
                            Pose(x=23.5, y=-8.0, heading=0.0)]
     far_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0), Pose(x=16.0, y=-10.0, heading=0.0), Pose(x=20.0, y=-6.0, heading=1.5707963267948966), Pose(x=20.0, y=5.0, heading=1.5707963267948966), Pose(x=24.0, y=7.0, heading=0.0)]
 
+
     strategy = InterpolationStrategy.BIARC
 
-    close_drive = PursuitDriveCommand(drive=drive, waypoints=close_waypoints,
-                                      cruise_speed=cruise, acc=acc,
-                                      dist_margin=margin, lookahead_base=lookahead,
-                                      interpol_strat=strategy)
-    far_drive = PursuitDriveCommand(drive=drive, waypoints=far_waypoints,
-                                    cruise_speed=cruise, acc=acc,
-                                    dist_margin=margin, lookahead_base=lookahead,
-                                    interpol_strat=strategy)
-    close_drive_flipped = PursuitDriveCommand(drive=drive,
-                                              waypoints=pursuit.flip_waypoints_y(close_waypoints),
-                                              cruise_speed=cruise, acc=acc,
-                                              dist_margin=margin, lookahead_base=lookahead,
-                                              interpol_strat=strategy)
-    far_drive_flipped = PursuitDriveCommand(drive=drive, waypoints=pursuit.flip_waypoints_y(far_waypoints),
-                                            cruise_speed=cruise, acc=acc,
-                                            dist_margin=margin, lookahead_base=lookahead,
-                                            interpol_strat=strategy)
-
+    close_drive = SplineDriveCommand(drive, path=close_waypoints, cruise=cruise, acc=acc, jerk=jerk)
+    far_drive = SplineDriveCommand(drive, path=far_waypoints, cruise=cruise, acc=acc, jerk=jerk)
+    close_drive_flipped = SplineDriveCommand(drive, path=pursuit.flip_waypoints_y(close_waypoints), cruise=cruise, acc=acc, jerk=jerk)
+    far_drive_flipped = SplineDriveCommand(drive, path=pursuit.flip_waypoints_y(far_waypoints), cruise=cruise, acc=acc, jerk=jerk)
 
 
 def get_scale_only_group(drive, elevator, intake):

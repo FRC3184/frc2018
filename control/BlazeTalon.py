@@ -1,3 +1,4 @@
+import hal
 from ctre import TalonSRX
 
 
@@ -12,4 +13,6 @@ class BlazeTalon(TalonSRX):
         self.phase = PhaseSensor
 
     def getQuadraturePosition(self):
-        return (1 if self.phase else -1) * super().getQuadraturePosition()
+        # 1/-1 for simulation and practice robot, -1/1 on comp bot
+        reverse = 1 if hal.isSimulation() else -1
+        return (reverse if self.phase else -reverse) * super().getQuadraturePosition()

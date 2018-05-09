@@ -62,7 +62,7 @@ class PursuitDriveCommand(Command):
         self.goal_dist = goal
         speed /= self.drive.robotdrive.max_speed
 
-        min_speed = 0.2
+        min_speed = 2/12
         if speed < min_speed:
             speed = min_speed
 

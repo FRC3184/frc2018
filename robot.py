@@ -60,7 +60,7 @@ class MyRobot(TimedCommandBasedRobot):
         OIUpdateCommand().start()
         CheckFaults([self.elevator, self.forklift]).start()
 
-        # wpilib.CameraServer.launch('vision.py:main')
+        wpilib.CameraServer.launch('vision.py:main')
 
         dashboard2.add_graph("CTE", lambda: 0)
         dashboard2.add_graph("Lookahead", lambda: 0)
@@ -128,7 +128,7 @@ class MyRobot(TimedCommandBasedRobot):
 
     def autonomousInit(self):
         self.drivetrain.robotdrive.ahrs.reset()
-        self.drivetrain.set_brake(False)
+        self.drivetrain.set_brake(True)
         self.drivetrain.set_ramp(0)
         game_data.init(self.side_chooser.get_selected())
         self.auto_chooser.get_selected().start()

@@ -57,11 +57,12 @@ class PursuitDriveCommand(Command):
     def execute(self):
         poz = pose_estimator.get_current_pose()
 
-        curvature, goal, speed = self.pp_controller.curvature(poz)
+        curvature, goal, speed, goal_pt = self.pp_controller.curvature(poz)
+        dashboard2.draw([poz, goal_pt])
         self.goal_dist = goal
         speed /= self.drive.robotdrive.max_speed
 
-        min_speed = 0.2
+        min_speed = 2/12
         if speed < min_speed:
             speed = min_speed
 

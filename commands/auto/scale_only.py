@@ -29,18 +29,18 @@ far_drive_flipped = None
 
 def init_paths(drive):
     global close_drive, far_drive, close_drive_flipped, far_drive_flipped
-    cruise = 8
-    acc = 8
-    jerk = 8
+    cruise = 0.3
+    acc = 0.6
     margin = 3 / 12
-    lookahead = 3
+    lookahead = 2
 
     if None not in (close_drive, far_drive, far_drive_flipped, close_drive_flipped):
         return
     close_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0),
                            Pose(x=16.5, y=-10.0, heading=0.0),
                            Pose(x=23.5, y=-8.0, heading=0.0)]
-    far_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0), Pose(x=18.0, y=-10.0, heading=0.2617993877991494), Pose(x=20.0, y=-5.0, heading=1.5707963267948966), Pose(x=20.0, y=5.0, heading=1.5707963267948966), Pose(x=21.0, y=8.0, heading=0.5235987755982988), Pose(x=24.0, y=7.5, heading=-0.2617993877991494)]
+    far_waypoints = [Pose(x=1.5, y=-10.0, heading=0.0), Pose(x=16.0, y=-10.0, heading=0.0), Pose(x=20.0, y=-6.0, heading=1.5707963267948966), Pose(x=20.0, y=5.0, heading=1.5707963267948966), Pose(x=24.0, y=7.0, heading=0.0)]
+
 
     strategy = InterpolationStrategy.BIARC
 

@@ -21,15 +21,16 @@ class SwitchOnlyCenter(CommandGroup):
         super().__init__("SwitchOnly command")
         drive_path_waypoints = [Pose(x=1.5, y=-1.0, heading=0.0), Pose(x=10.0, y=5.0, heading=0.0)]
         flipped_path = [Pose(x=1.5, y=-1.0, heading=0.0), Pose(x=10.0, y=-5.0, heading=0.0)]
-        cruise = 8
-        acc = 8
+        cruise = 6
+        acc = 6
         jerk = 8
-        lookahead = 3
-        drive_path_left = SplineDriveCommand(acc=acc, cruise=cruise, jerk=jerk,
-                                              path=drive_path_waypoints, drivetrain=drive)
-        drive_path_right = SplineDriveCommand(acc=acc, cruise=cruise, jerk=jerk,
-                                              path=flipped_path,
-                                              drivetrain=drive)
+        lookahead = 2
+        drive_path_left = PursuitDriveCommand(drive, drive_path_waypoints,
+                                              cruise_speed=cruise,
+                                              acc=acc, lookahead_base=lookahead)
+        drive_path_right = PursuitDriveCommand(drive, flipped_path,
+                                              cruise_speed=cruise,
+                                              acc=acc, lookahead_base=lookahead)
         drive_path_chooser = ConditionalCommand("SwitchOnlySideCondition")
         drive_path_chooser.onFalse = drive_path_right
         drive_path_chooser.onTrue = drive_path_left

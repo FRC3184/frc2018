@@ -12,14 +12,14 @@ from systems.drivetrain import Drivetrain
 
 class PursuitDriveCommand(Command):
     def __init__(self, drive: Drivetrain, waypoints: [Pose], cruise_speed, acc, dist_margin=2/12,
-                 lookahead_base=2, reverse=False, interpol_strat=InterpolationStrategy.CUBIC):
+                 lookahead_base=2, reverse=False, interpol_strat=InterpolationStrategy.BIARC):
         super().__init__("PursuitDriveCommand", timeout=4)
         self.requires(drive)
 
         self.drive = drive
         self.margin = dist_margin
-        self.cruise_speed = cruise_speed * drive.robotdrive.max_speed
-        self.acc = acc * drive.robotdrive.max_speed
+        self.cruise_speed = cruise_speed
+        self.acc = acc
 
         self.pp_controller = PurePursuitController(waypoints=waypoints,
                                                    lookahead_base=lookahead_base,
@@ -32,6 +32,7 @@ class PursuitDriveCommand(Command):
 
         self.reverse = reverse
         self.goal_dist = 0
+        self.speed = 0
 
     def initialize(self):
         self.pp_controller.init()
@@ -53,6 +54,7 @@ class PursuitDriveCommand(Command):
         dashboard2.add_graph("CTE", self.pp_controller.get_cte)
         dashboard2.add_graph("Lookahead", lambda: self.pp_controller.current_lookahead)
         dashboard2.add_graph("Goal Distance", lambda: self.goal_dist)
+        dashboard2.add_graph("Speed", lambda: self.speed)
 
     def execute(self):
         poz = pose_estimator.get_current_pose()
@@ -60,16 +62,16 @@ class PursuitDriveCommand(Command):
         curvature, goal, speed, goal_pt = self.pp_controller.curvature(poz)
         dashboard2.draw([poz, goal_pt])
         self.goal_dist = goal
-        speed /= self.drive.robotdrive.max_speed
+        self.speed = speed
 
-        min_speed = 2/12
+        min_speed = 0.5  # feet/s
         if speed < min_speed:
             speed = min_speed
 
         speed *= (-1 if self.reverse else 1)
         curvature *= (1 if self.reverse else 1)
         if curvature == 0:
-            self.drive.tank_drive(speed, speed)
+            self.drive.straight(speed)
         else:
             radius = -1/curvature
             self.drive.arc(speed, radius)

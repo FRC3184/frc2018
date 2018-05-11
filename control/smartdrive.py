@@ -90,7 +90,7 @@ class SmartRobotDrive(wpilib.MotorSafety):
         D = self.robot_width / 2
         return (radius - D) / (radius + D)
 
-    def radius_turn(self, pow, radius):
+    def radius_turn(self, speed, radius):
         # (Vo + Vi) / 2 = pow
         # Vo*r = Vi
         # Vo(1+r)/2 = pow
@@ -102,28 +102,33 @@ class SmartRobotDrive(wpilib.MotorSafety):
         turn_dir = mathutils.sgn(radius)
         radius = abs(radius)
         r = self.radius_ratio(radius)
-        Vo = 2*pow / (1+r)
+        Vo = 2 * speed / (1 + r)
         Vi = r*Vo
-        if Vo > 1:
+        if Vo > self.max_speed:
             Vi /= Vo
             Vo /= Vo
 
+        # Vi /= self.max_speed
+        # Vo /= self.max_speed
         if turn_dir > 0:
-            self._set_motor_outputs(Vo, Vi)
+            # self._set_motor_outputs(Vo, Vi)
+            self.drive_profile_open_loop(Vo, Vi, 0, 0)
         else:
-            self._set_motor_outputs(Vi, Vo)
+            # self._set_motor_outputs(Vi, Vo)
+            self.drive_profile_open_loop(Vi, Vo, 0, 0)
 
-    def radius_drive(self, forward_power, turn_power, power_factor, deadband=0.05):
+    def radius_drive(self, forward_power, turn_power, deadband=0.05):
+        forward_power *= self.max_speed
         if self.is_manual_control_mode():
             if abs(turn_power) < deadband:
-                self._set_motor_outputs(forward_power * power_factor, forward_power * power_factor)
+                self.drive_profile_open_loop(forward_power, forward_power, 0, 0)
                 return
             if abs(forward_power) < deadband:
                 self._set_motor_outputs(0, 0)
                 return
             turn_power = mathutils.signed_power(turn_power, 1/3)
             radius = self.robot_width / 2 + self.max_turn_radius * (1 - abs(turn_power))
-            self.radius_turn(forward_power * power_factor,
+            self.radius_turn(forward_power,
                              radius * mathutils.sgn(turn_power))
         else:
             warnings.warn("Not in a control mode for Radius Drive", RuntimeWarning)
@@ -213,7 +218,8 @@ class SmartRobotDrive(wpilib.MotorSafety):
                     left = forward - turn
                     right = -max(-forward, -turn)
 
-            self._set_motor_outputs(left, right)
+            self.drive_profile_open_loop(left * self.max_speed,
+                                         right * self.max_speed, 0, 0)
         else:
             warnings.warn("Not in a control mode for Arcade Drive", RuntimeWarning)
             self._set_motor_outputs(0, 0)
@@ -285,15 +291,11 @@ class SmartRobotDrive(wpilib.MotorSafety):
         return int(SmartRobotDrive.revs_to_native_distance(self.feet_to_revs(feet)))
 
     def drive_profile_open_loop(self, left_speed: float, right_speed: float, left_acc: float, right_acc: float):
-        r_int = 1.1166
-        r_kV = 0.0634
-        r_kA = 0.0069
+        r_int, r_kV, r_kA = self.get_right_fwd_ff()
+        l_int, l_kV, l_kA = self.get_left_fwd_ff()
 
-        l_int = 1.0706
-        l_kV = 0.0653
-        l_kA = 0.0071
         left = (math.copysign(l_int, left_speed) + l_kV * left_speed + l_kA * left_acc) / 12
-        right = (math.copysign(r_int, right_speed) + r_kV * right_speed + r_kA * left_acc) / 12
+        right = (math.copysign(r_int, right_speed) + r_kV * right_speed + r_kA * right_acc) / 12
         self._set_motor_outputs(left, right)
 
     def _set_motor_outputs(self, left: float, right: float):

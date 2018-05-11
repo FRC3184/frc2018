@@ -29,8 +29,8 @@ far_drive_flipped = None
 
 def init_paths(drive):
     global close_drive, far_drive, close_drive_flipped, far_drive_flipped
-    cruise = 0.3
-    acc = 0.6
+    cruise = 6
+    acc = 10
     margin = 3 / 12
     lookahead = 2
 
@@ -44,11 +44,23 @@ def init_paths(drive):
 
     strategy = InterpolationStrategy.BIARC
 
-    close_drive = SplineDriveCommand(drive, path=close_waypoints, cruise=cruise, acc=acc, jerk=jerk)
-    far_drive = SplineDriveCommand(drive, path=far_waypoints, cruise=cruise, acc=acc, jerk=jerk)
-    close_drive_flipped = SplineDriveCommand(drive, path=pursuit.flip_waypoints_y(close_waypoints), cruise=cruise, acc=acc, jerk=jerk)
-    far_drive_flipped = SplineDriveCommand(drive, path=pursuit.flip_waypoints_y(far_waypoints), cruise=cruise, acc=acc, jerk=jerk)
-
+    close_drive = PursuitDriveCommand(drive=drive, waypoints=close_waypoints,
+                                      cruise_speed=cruise, acc=acc,
+                                      dist_margin=margin, lookahead_base=lookahead,
+                                      interpol_strat=strategy)
+    far_drive = PursuitDriveCommand(drive=drive, waypoints=far_waypoints,
+                                    cruise_speed=cruise, acc=acc,
+                                    dist_margin=margin, lookahead_base=lookahead,
+                                    interpol_strat=strategy)
+    close_drive_flipped = PursuitDriveCommand(drive=drive,
+                                              waypoints=pursuit.flip_waypoints_y(close_waypoints),
+                                              cruise_speed=cruise, acc=acc,
+                                              dist_margin=margin, lookahead_base=lookahead,
+                                              interpol_strat=strategy)
+    far_drive_flipped = PursuitDriveCommand(drive=drive, waypoints=pursuit.flip_waypoints_y(far_waypoints),
+                                            cruise_speed=cruise, acc=acc,
+                                            dist_margin=margin, lookahead_base=lookahead,
+                                            interpol_strat=strategy)
 
 def get_scale_only_group(drive, elevator, intake):
     group = CommandGroup()

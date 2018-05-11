@@ -61,8 +61,10 @@ class MyRobot(TimedCommandBasedRobot):
 
         wpilib.CameraServer.launch('vision.py:main')
 
-        dashboard2.add_graph("Left Err", lambda: 0)
-        dashboard2.add_graph("Right Err", lambda: 0)
+        dashboard2.add_graph("Speed", lambda : 0)
+        dashboard2.add_graph("CTE", lambda: 0)
+        dashboard2.add_graph("Lookahead", lambda: 0)
+        dashboard2.add_graph("Goal Distance", lambda: 0)
 
         # Actions
 

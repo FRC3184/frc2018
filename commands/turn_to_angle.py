@@ -67,12 +67,12 @@ class TurnToLookat(Command):
     def execute(self):
         err = self.get_cur_angle() - self.target_angle
 
-        min_output = 0.2
-        gain = (0.01/180) * err
+        min_output = 0.0
+        gain = (6/180) * err
         if abs(gain) < min_output:
             gain = math.copysign(min_output, gain)
 
-        self.drive.arcade_drive(0, -gain)
+        self.drive.turn(-gain)
 
     def isFinished(self):
         return abs(self.get_cur_angle() - self.target_angle) < self.margin

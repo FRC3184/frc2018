@@ -1,15 +1,14 @@
 import hal
+from py_pursuit_pathing.pose import Pose
 from wpilib.command import CommandGroup, ConditionalCommand, Command, PrintCommand
 
 from commands.auto_intake import MoveIntakeCommand, TimedRunIntakeCommand, SetIntakeCommand
 from commands.auto_move_elevator import MoveElevatorCommand
 from commands.auto_simple_drive import TimeDriveCommand
 from commands.pursuit_drive import PursuitDriveCommand
-from commands.spline_drive import SplineDriveCommand
 from commands.turn_to_angle import TurnToAngle
 from control import game_data, pose_estimator
 from control.game_data import Side
-from control.pose_estimator import Pose
 from mathutils import Vector2
 from systems.drivetrain import Drivetrain
 from systems.elevator import Elevator, ElevatorPositions

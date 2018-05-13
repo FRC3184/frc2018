@@ -30,7 +30,7 @@ class DistanceDriveCommand(Command):
         self.start_pose = pose_estimator.get_current_pose().copy()
 
     def execute(self):
-        self.drive.arcade_drive(self.power, 0)
+        self.drive.straight(self.power * self.drive.robotdrive.max_speed)
 
     def isFinished(self):
         return pose_estimator.get_current_pose().distance(self.start_pose) > self.distance

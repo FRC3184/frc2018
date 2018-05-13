@@ -74,3 +74,6 @@ class Drivetrain(Subsystem):
 
     def straight(self, speed):
         self.robotdrive.drive_profile_open_loop(speed, speed, 0, 0)
+
+    def turn(self, turn_pow):
+        self.robotdrive.drive_profile_open_loop(-turn_pow, turn_pow, 0, 0)

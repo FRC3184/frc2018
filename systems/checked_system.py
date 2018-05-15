@@ -21,6 +21,7 @@ class CheckFaults(Command):
         super().__init__("CheckFaults command")
         self.systems = systems
         self.time_accumulator = 0
+        self.setRunWhenDisabled(True)
 
     def initialize(self):
         self.time_accumulator = 0

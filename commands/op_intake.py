@@ -72,7 +72,6 @@ class RunIntakeCommand(Command):
     def __init__(self, intake: Intake):
         super().__init__("RunIntakeCommand")
         self.intake = intake
-        self.requires(intake)
 
     def initialize(self):
         pass

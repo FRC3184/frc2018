@@ -64,7 +64,7 @@ class PursuitDriveCommand(Command):
         self.goal_dist = goal
         self.speed = speed
 
-        min_speed = 0.5  # feet/s
+        min_speed = 2  # feet/s
         if speed < min_speed:
             speed = min_speed
 

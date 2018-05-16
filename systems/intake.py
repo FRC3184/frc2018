@@ -36,14 +36,14 @@ class Intake(Subsystem):
         self.r_channel = 1
 
     def is_stalled(self):
-        l_current = self.pdp.getCurrent(self.l_channel)
-        r_current = self.pdp.getCurrent(self.r_channel)
-        avg_current = (l_current + r_current) / 2
+        #l_current = self.pdp.getCurrent(self.l_channel)
+        #r_current = self.pdp.getCurrent(self.r_channel)
+        #avg_current = (l_current + r_current) / 2
 
-        voltage = abs(self.talon_right.get() * self.pdp.getVoltage())
-        bag_resistance = 12/53
-        stall_current = voltage / bag_resistance
-        return voltage > 0.05 * 12 and abs(avg_current - stall_current) / stall_current < 0.05
+        #voltage = abs(self.talon_right.get() * self.pdp.getVoltage())
+        #bag_resistance = 12/53
+        #stall_current = voltage / bag_resistance
+        return False  # voltage > 0.05 * 12 and abs(avg_current - stall_current) / stall_current < 0.05
 
     def get_reported_distance(self):
         return 20

@@ -268,4 +268,5 @@ class Elevator(FaultableSystem):
             ref = slave_current
         if ref == 0:
             ref = 1
-        return abs(master_current - slave_current) / ref < 1
+        eps = 1e-1
+        return (master_current > eps or slave_current > eps) and abs(master_current - slave_current) / ref < 1

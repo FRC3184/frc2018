@@ -26,8 +26,9 @@ class OpDriveCommand(Command):
             power = .1
         elif oi.get_fine_backward():
             power = -.1
-        else :
-            power = self.get_speed_scale(elevator.get_elevator_position()) * mathutils.signed_power(oi.get_left_power(),2)
+        else:
+            power = self.get_speed_scale(elevator.get_elevator_position()) * \
+                    mathutils.signed_power(oi.get_left_power(),2)
 
         if oi.get_fine_left_turn():
             turn = -.1

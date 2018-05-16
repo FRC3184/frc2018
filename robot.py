@@ -35,7 +35,8 @@ from util import get_basedir
 class MyRobot(TimedCommandBasedRobot):
     def __init__(self):
         super().__init__()
-        self.period = 0.05
+        self.setPeriod(0.02)
+        wpilib.LiveWindow.disableAllTelemetry()
         # Initialize subsystems
         self.drivetrain = Drivetrain()
         self.elevator = Elevator()
@@ -56,7 +57,7 @@ class MyRobot(TimedCommandBasedRobot):
 
         DashboardUpdateCommand().start()
         OIUpdateCommand().start()
-        CheckFaults([self.elevator, self.forklift]).start()
+        # CheckFaults([self.elevator, self.forklift]).start()
 
         wpilib.CameraServer.launch('vision.py:main')
 

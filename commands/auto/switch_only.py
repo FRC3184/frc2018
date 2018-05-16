@@ -18,10 +18,10 @@ from systems.intake import Intake, ArmState, GrabState
 class SwitchOnlyCenter(CommandGroup):
     def __init__(self, drive: Drivetrain, elevator: Elevator, intake: Intake):
         super().__init__("SwitchOnly command")
-        drive_path_waypoints = [Pose(x=1.5, y=-1.0, heading=0.0), Pose(x=10.0, y=5.0, heading=0.0)]
-        flipped_path = [Pose(x=1.5, y=-1.0, heading=0.0), Pose(x=10.0, y=-5.0, heading=0.0)]
+        drive_path_waypoints = [Pose(x=1.5, y=-1.0, heading=0.0), Pose(x=10.0, y=4.0, heading=0.0)]
+        flipped_path = [Pose(x=1.5, y=-1.0, heading=0.0), Pose(x=10.0, y=-4.0, heading=0.0)]
         cruise = 6
-        acc = 6
+        acc = 36
         jerk = 8
         lookahead = 2
         drive_path_left = PursuitDriveCommand(drive, drive_path_waypoints,

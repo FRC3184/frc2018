@@ -107,15 +107,17 @@ class SmartRobotDrive(wpilib.MotorSafety):
         if Vo > self.max_speed:
             Vi /= Vo
             Vo /= Vo
+            Vo *= self.max_speed
+            Vi *= self.max_speed
 
-        # Vi /= self.max_speed
-        # Vo /= self.max_speed
+        Vi /= self.max_speed
+        Vo /= self.max_speed
         if turn_dir > 0:
-            # self._set_motor_outputs(Vo, Vi)
-            self.drive_profile_open_loop(Vo, Vi, 0, 0)
+            self._set_motor_outputs(Vo, Vi)
+            # self.drive_profile_open_loop(Vo, Vi, 0, 0)
         else:
-            # self._set_motor_outputs(Vi, Vo)
-            self.drive_profile_open_loop(Vi, Vo, 0, 0)
+            self._set_motor_outputs(Vi, Vo)
+            # self.drive_profile_open_loop(Vi, Vo, 0, 0)
 
     def radius_drive(self, forward_power, turn_power, deadband=0.05):
         forward_power *= self.max_speed
@@ -218,8 +220,9 @@ class SmartRobotDrive(wpilib.MotorSafety):
                     left = forward - turn
                     right = -max(-forward, -turn)
 
-            self.drive_profile_open_loop(left * self.max_speed,
-                                         right * self.max_speed, 0, 0)
+            #self.drive_profile_open_loop(left * self.max_speed,
+            #                             right * self.max_speed, 0, 0)
+            self._set_motor_outputs(left, right)
         else:
             warnings.warn("Not in a control mode for Arcade Drive", RuntimeWarning)
             self._set_motor_outputs(0, 0)

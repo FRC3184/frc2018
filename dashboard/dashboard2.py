@@ -177,12 +177,16 @@ class DashboardUpdateCommand(Command):
     def __init__(self):
         super().__init__(name="dashboard2 update")
         self.setRunWhenDisabled(True)
+        self.count = 0
 
     def initialize(self):
         pass
 
     def execute(self):
-        update(robot_time.delta_time() / 1000)
+        self.count += 1
+        if self.count == 20:
+            self.count = 0
+            update(robot_time.delta_time() / 1000)
 
     def isFinished(self):
         return False

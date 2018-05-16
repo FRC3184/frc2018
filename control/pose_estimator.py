@@ -14,9 +14,10 @@ def init(left_encoder_callback, right_encoder_callback, gyro_callback=None,
     global _estimator, _estimator_thread
     _estimator = PoseEstimator(left_encoder_callback, right_encoder_callback, gyro_callback,
                                current_pose, wheelbase, encoder_factor)
-    if _estimator_thread is None:
-        _estimator_thread = wpilib.Notifier(run=lambda: _estimator.update(dt=10/1000))
-        _estimator_thread.startPeriodic(10/1000)
+    if _estimator_thread is None and False:
+        dt = 20/1000
+        _estimator_thread = wpilib.Notifier(run=lambda: _estimator.update(dt=dt))
+        _estimator_thread.startPeriodic(dt)
 
 
 def get_current_pose() -> Pose:

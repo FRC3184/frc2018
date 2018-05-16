@@ -12,8 +12,8 @@ class Climber(Subsystem):
         self.climb_victor1 = VictorSP(2)
         self.climb_victor2 = VictorSP(3)
 
-        self.climb_pdp_port1 = 0
-        self.climb_pdp_port2 = 1  # TODO update these to correct values
+        self.climb_pdp_port1 = 2
+        self.climb_pdp_port2 = 3
 
         self.pdp = PowerDistributionPanel()
 
@@ -46,4 +46,5 @@ class Climber(Subsystem):
             ref = slave_current
         if ref == 0:
             ref = 1
-        return abs(master_current - slave_current) / ref < 1
+        eps = 1e-1
+        return False  # (master_current > eps or slave_current > eps) and abs(master_current - slave_current) / ref < 1
